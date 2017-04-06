@@ -4,21 +4,43 @@ package org.aimas.consert.eventmodel;
  */
 public abstract class HLA
 {
-    Person person; /* the person which does the HLA */
-    ContextInfo context; /* context info about the HLA */
-    TYPE type; /* HLA type */
+    Person person;                  /* the person which does the HLA */
+    AnnotationInfo annotations;     /* annotations info about the HLA */
+    Type type;                      /* HLA type */
 
-    public enum TYPE
+    public enum Type
     {
-        DISCUSSING, EXERCISE, WORKING;
+        DISCUSSING, EXERCISE, WORKING
     }
 
-    TYPE getType()
+    public Type getType()
     {
         return type;
     }
-    void SetType(TYPE type)
+
+    public void setType(Type type)
     {
         this.type = type;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public AnnotationInfo getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(AnnotationInfo annotations) {
+        this.annotations = annotations;
+    }
+
+    @Override
+    public String toString() {
+        return "HLA [" + "person=" + person + ",  type=" + type + ", annotations=" + annotations + "]";
     }
 }

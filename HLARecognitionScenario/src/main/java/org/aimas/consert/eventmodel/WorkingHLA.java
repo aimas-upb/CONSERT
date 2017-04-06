@@ -6,12 +6,14 @@ public class WorkingHLA extends HLA
 {
     public WorkingHLA()
     {
-        this.type = TYPE.WORKING;
+
+        this.type = Type.WORKING;
     }
-    public WorkingHLA(Person person, ContextInfo context)
+
+    public WorkingHLA(Person person, AnnotationInfo context)
     {
         this.person = person;
-        this.context = context;
-        this.type = TYPE.WORKING;
+        this.annotations = context;
+        this.type = Type.WORKING;
     }
 }

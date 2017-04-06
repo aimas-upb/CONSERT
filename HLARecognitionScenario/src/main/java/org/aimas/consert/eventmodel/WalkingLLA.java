@@ -6,12 +6,11 @@ public class WalkingLLA extends LLA
 {
     public WalkingLLA()
     {
-        this.type = TYPE.WALKING;
+        super(Type.WALKING);
     }
-    public WalkingLLA(Person person, ContextInfo context)
+
+    public WalkingLLA(Person person, AnnotationInfo context)
     {
-        this.person = person;
-        this.context = context;
-        this.type = TYPE.WALKING;
+        super(person, Type.WALKING, context);
     }
 }

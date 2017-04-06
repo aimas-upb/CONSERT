@@ -6,12 +6,12 @@ public class DiscussingHLA extends HLA
 {
     public DiscussingHLA()
     {
-        this.type = TYPE.DISCUSSING;
+        this.type = Type.DISCUSSING;
     }
-    public DiscussingHLA(Person person, ContextInfo context)
+    public DiscussingHLA(Person person, AnnotationInfo context)
     {
         this.person = person;
-        this.context = context;
-        this.type = TYPE.DISCUSSING;
+        this.annotations = context;
+        this.type = Type.DISCUSSING;
     }
 }

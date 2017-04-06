@@ -4,22 +4,55 @@ package org.aimas.consert.eventmodel;
  */
 public abstract class LLA
 {
-    Person person; /* the person which does the LLA */
-    ContextInfo context; /* context info about the LLA */
-    TYPE type; /* LLA type */
-    
-    public enum TYPE
+    public enum Type
     {
-           SITTING, STANDING, WALKING;
+        SITTING, STANDING, WALKING
     }
 
-    TYPE getType()
+    Person person;                  /* the person which does the LLA */
+    AnnotationInfo annotations;     /* annotation info about the LLA */
+    Type type;                      /* LLA type */
+
+    protected LLA(Type type) {
+        this.type = type;
+    }
+
+    protected LLA(Person person, Type type, AnnotationInfo annotations) {
+        this.person = person;
+        this.annotations = annotations;
+        this.type = type;
+    }
+
+    public Type getType()
     {
         return type;
     }
-    void SetType(TYPE type)
+
+    public void setType(Type type)
     {
         this.type = type;
+    }
+
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public AnnotationInfo getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(AnnotationInfo annotations) {
+        this.annotations = annotations;
+    }
+
+    @Override
+    public String toString() {
+        return "LLA [" + "person=" + person + ", type=" + type + ", annotations=" + annotations + "]\n";
     }
 }
 

@@ -6,12 +6,11 @@ public class StandingLLA extends LLA
 {
     public StandingLLA()
     {
-        this.type = TYPE.STANDING;
+        super(Type.STANDING);
     }
-    public StandingLLA(Person person, ContextInfo context)
+
+    public StandingLLA(Person person, AnnotationInfo context)
     {
-        this.person = person;
-        this.context = context;
-        this.type = TYPE.STANDING;
+        super(person, Type.STANDING, context);
     }
 }

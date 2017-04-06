@@ -2,10 +2,10 @@ package org.aimas.consert.eventmodel;
 import java.util.Calendar;
 
 /*
- * Class for modeling context information and metadata
+ * Class for modeling annotations information and metadata
  * when an atomic event arrives.
  */
-public class ContextInfo
+public class AnnotationInfo
 {
     double lastUpdated; /* last Updated time*/
     double confidence;  /* confidence for the event */
@@ -47,8 +47,8 @@ public class ContextInfo
     @Override
     public String toString()
     {
-        return lastUpdated + ", " + confidence + ", " + startTime.getTimeInMillis() + ", "
-                + endTime.getTimeInMillis();
+        return "Annotations [" + "lastUpdated=" + lastUpdated + ", confidence=" + confidence + ", startTime=" +
+                startTime.getTimeInMillis() + ", endTime=" + endTime.getTimeInMillis() + "]";
     }
 
 }

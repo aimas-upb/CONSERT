@@ -6,12 +6,12 @@ public class ExerciseHLA extends HLA
 {
     public ExerciseHLA()
     {
-        this.type = TYPE.EXERCISE;
+        this.type = Type.EXERCISE;
     }
-    public ExerciseHLA(Person person, ContextInfo context)
+    public ExerciseHLA(Person person, AnnotationInfo context)
     {
         this.person = person;
-        this.context = context;
-        this.type = TYPE.EXERCISE;
+        this.annotations = context;
+        this.type = Type.EXERCISE;
     }
 }
