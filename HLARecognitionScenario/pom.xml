@@ -4,12 +4,12 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.sample</groupId>
-	<artifactId>DroolsMaven</artifactId>
+	<groupId>org.aimas.consert</groupId>
+	<artifactId>HLADetectionTest</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 
-	<name>Drools :: Sample Maven Project</name>
-	<description>A sample Drools Maven project</description>
+	<name>HLA Detection</name>
+	<description>A Drools Fusion Maven project to detect high level activities from low level ones.</description>
 
 	<properties>
 		<runtime.version>6.4.0.Final</runtime.version>
@@ -70,6 +70,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.8.6</version>
 		</dependency>
 		 <!-- END -->
 
