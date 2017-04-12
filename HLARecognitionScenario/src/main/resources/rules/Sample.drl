@@ -1,9 +1,21 @@
 package com.sample
- 
-import com.sample.model.Account
-rule "accountBalanceAtLeast"
-  when
-  $account : Account( balance < 100 )
-  then
-  System.out.println("Warning! money running out!");
+
+import org.aimas.consert.eventmodel.*;
+
+rule "working"
+    when
+    $x: SittingLLA(annotations.lastUpdated>0)
+    $y: Position(type==Position.Type.WORK_AREA, annotations.lastUpdated-$x.annotations.lastUpdated<=1
+                && annotations.lastUpdated-$x.annotations.lastUpdated >= -1)
+    then
+        System.out.println("Working: " + $x.getAnnotations().getLastUpdated());
+end
+
+rule "discuss"
+    when
+    $x: LLA(type==(LLA.Type.WALKING))
+    $y: Position(type==Position.Type.WORK_AREA, annotations.lastUpdated-$x.annotations.lastUpdated<=1
+                && annotations.lastUpdated-$x.annotations.lastUpdated >= -1)
+    then
+        System.out.println( "Discussing: " + $x.getAnnotations().getLastUpdated());
 end

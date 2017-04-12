@@ -1,6 +1,10 @@
 package org.aimas.consert.tests;
 
 import org.aimas.consert.utils.JSONEventReader;
+import org.aimas.consert.eventmodel.*;
+import org.kie.api.KieServices;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 
 import java.io.File;
 import java.util.List;
@@ -17,6 +21,18 @@ public class HLATest {
         List<Object> events = JSONEventReader.parseEvents(inputFile);
 
         System.out.println(events);
+
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer();
+        KieSession kSession = kContainer.newKieSession("ksession-rules");
+
+        for (Object x: events)
+        {
+            kSession.insert(x);
+        }
+
+        kSession.fireAllRules();
+
     }
 
     File getFileNameFromResources(String fileName) {
