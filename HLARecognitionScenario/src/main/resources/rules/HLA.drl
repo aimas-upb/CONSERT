@@ -1,0 +1,118 @@
+package org.aimas.consert
+
+// Declare the metadata for the `Position` and `LLA` events
+import org.aimas.consert.eventmodel.Position
+import org.aimas.consert.eventmodel.SittingLLA
+import org.aimas.consert.eventmodel.WalkingLLA
+import org.aimas.consert.eventmodel.StandingLLA
+
+import org.aimas.consert.eventmodel.WorkingHLA
+import org.aimas.consert.eventmodel.DiscussingHLA
+import org.aimas.consert.eventmodel.ExerciseHLA
+
+import org.aimas.consert.eventmodel.AnnotationInfo
+
+// ============ declaring Position metadata
+declare Position
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+// ============ declaring LLA metadata
+declare SittingLLA
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+declare WalkingLLA
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+declare StandingLLA
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+// =========== declaring HLA metadata
+declare WorkingHLA
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+declare DiscussingHLA
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+declare ExerciseHLA
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+
+// =========== BaseEvent test rules
+
+rule "PositionInsertTest"
+    when
+        $pos : Position(p : person, t : type) from entry-point "PositionStream" 
+    then
+        System.out.println("Inserted POS event with person: " + p.getName() + ", type: " + t + ", timestamp: " + $pos.getStartTimestamp() + ", duration: " + $pos.getEventDuration());
+end
+
+
+rule "SittingLLAInsertTest"
+    when
+        $lla : SittingLLA(p : person, t : type) from entry-point "LLAStream"
+    then
+        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + $lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
+end
+
+rule "WalkingLLAInsertTest"
+    when
+        $lla : WalkingLLA(p : person, t : type) from entry-point "LLAStream"
+    then
+        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + $lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
+end
+
+rule "StandingLLAInsertTest"
+    when
+        $lla : StandingLLA(p : person, t : type) from entry-point "LLAStream"
+    then
+        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + $lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
+end
+
+
+// =========== HLA detection rules
+/*
+rule "WorkingHLA"
+  agenda-group "HLA"
+  when
+    $pos : Position($p : person, type == "WORK_AREA")
+    $lla : SittingLLA(person == $p)
+    //$pos includes $lla || $lla includes $pos || $pos overlaps $lla || $lla overlaps $pos
+  then
+    //AnnotationInfo ann = new AnnotationInfo();
+    WorkingHLA hla = new WorkingHLA();
+    insert(hla);
+end
+
+rule "DiscussingHLA"
+  agenda-group "HLA"
+  when
+    $pos : Position($p : person, type == "CONFERENCE_AREA")
+    $lla : StandingLLA(person == $p)
+    //$pos includes $lla || $lla includes $pos || $pos overlaps $lla || $lla overlaps $pos
+  then
+    //AnnotationInfo ann = new AnnotationInfo();
+    DiscussingHLA hla = new DiscussingHLA();
+    insert(hla);
+end
+*/

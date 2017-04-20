@@ -1,21 +1,30 @@
 package org.aimas.consert.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import org.aimas.consert.eventmodel.LLA;
+import org.aimas.consert.eventmodel.Position;
+import org.aimas.consert.eventmodel.SittingLLA;
+import org.aimas.consert.eventmodel.StandingLLA;
+import org.aimas.consert.eventmodel.WalkingLLA;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.aimas.consert.eventmodel.*;
-
-import java.io.*;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by alex on 06.04.2017.
  */
 public class JSONEventReader {
 
-    public static List<Object> parseEvents(File inputFile) {
-        List<Object> eventList = new LinkedList<Object>();
+    public static Queue<Object> parseEvents(File inputFile) {
+        Queue<Object> eventList = new LinkedList<Object>();
 
         try {
             final InputStream in = new FileInputStream(inputFile);
@@ -30,7 +39,7 @@ public class JSONEventReader {
                 if (nodeType.equals("pos")) {
                     JsonNode eventInfoNode = eventDataNode.get("event_info");
                     Position pos = mapper.treeToValue(eventInfoNode, Position.class);
-                    eventList.add(pos);
+                    eventList.offer(pos);
                 }
                 else if (nodeType.equals("lla")) {
                     JsonNode eventInfoNode = eventDataNode.get("event_info");
@@ -52,7 +61,7 @@ public class JSONEventReader {
                     }
 
                     if (lla != null)
-                        eventList.add(lla);
+                        eventList.offer(lla);
 
                 }
             }
