@@ -2,10 +2,9 @@ package org.aimas.consert.eventmodel;
 /*
  *  Abstract class for modeling a high level activity.
  */
-public abstract class HLA
-{
-    Person person;                  /* the person which does the HLA */
-    AnnotationInfo annotations;     /* annotations info about the HLA */
+public abstract class HLA extends BaseEvent {
+    
+	Person person;                  /* the person which does the HLA */
     Type type;                      /* HLA type */
 
     public enum Type
@@ -29,14 +28,6 @@ public abstract class HLA
 
     public void setPerson(Person person) {
         this.person = person;
-    }
-
-    public AnnotationInfo getAnnotations() {
-        return annotations;
-    }
-
-    public void setAnnotations(AnnotationInfo annotations) {
-        this.annotations = annotations;
     }
 
     @Override

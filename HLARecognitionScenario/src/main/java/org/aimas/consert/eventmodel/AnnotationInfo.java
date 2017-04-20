@@ -7,12 +7,25 @@ import java.util.Calendar;
  */
 public class AnnotationInfo
 {
-    double lastUpdated; /* last Updated time*/
-    double confidence;  /* confidence for the event */
-    Calendar startTime; /* start time of the event */
-    Calendar endTime; /* end time of the event */
-
-    public double getLastUpdated() {
+    double lastUpdated; 	/* last Updated time*/
+    double confidence;  	/* confidence for the event */
+    Calendar startTime; 	/* start time of the event */
+    Calendar endTime; 		/* end time of the event */
+    long duration;			/* duration of the event */
+    
+    public AnnotationInfo() {}
+    
+    public AnnotationInfo(double lastUpdated, double confidence, Calendar startTime, Calendar endTime) {
+	    this.lastUpdated = lastUpdated;
+	    this.confidence = confidence;
+	    this.startTime = startTime;
+	    this.endTime = endTime;
+	    
+	    setDuration(startTime, endTime);
+    }
+    
+    
+	public double getLastUpdated() {
         return lastUpdated;
     }
 
@@ -43,8 +56,22 @@ public class AnnotationInfo
     public void setStartTime(Calendar startTime) {
         this.startTime = startTime;
     }
+    
+    
+    public long getDuration() {
+		return duration;
+	}
 
-    @Override
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	
+	private void setDuration(Calendar startTime, Calendar endTime) {
+		duration = endTime.getTimeInMillis() - startTime.getTimeInMillis();
+	}
+	
+	@Override
     public String toString()
     {
         return "Annotations [" + "lastUpdated=" + lastUpdated + ", confidence=" + confidence + ", startTime=" +
