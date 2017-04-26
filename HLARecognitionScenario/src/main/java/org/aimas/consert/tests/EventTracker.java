@@ -77,13 +77,17 @@ public class EventTracker implements RuleRuntimeEventListener {
 	
 	
     public void insertAtomicEvent(BaseEvent event) {
-    	System.out.println(event.getClass());
+    	//System.out.println(event.getClass());
     	
     	// if this is the first event of its type
     	if (!lastValidEventMap.containsKey(event.getClass())) {
+    		
     		if (AnnotationUtils.allowsConfidenceContinuity(
     	    		event.getAnnotations().getConfidence(), 
     	    		event.getConfidenceValueThreshold())) {
+    			
+    			System.out.println("CREATING LIST FOR EVENT CLASS: " + event.getClass());
+    			
     			// go through with insertion in the map and the KieBase
 	    		List<FactHandle> handleList = new LinkedList<FactHandle>();
 	    		lastValidEventMap.put(event.getClass(), handleList);
@@ -156,7 +160,7 @@ public class EventTracker implements RuleRuntimeEventListener {
     		    			handleList.add(handle);
     		    		}
     		    		else if (event instanceof LLA) {
-    		    			FactHandle handle = kSession.getEntryPoint("LLAStream").insert(existingEvent);
+    		    			FactHandle handle = kSession.getEntryPoint("LLAStream").insert(event);
     		    			handleList.add(handle);
     		    		}
     				}

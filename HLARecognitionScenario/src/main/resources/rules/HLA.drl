@@ -66,7 +66,7 @@ rule "PositionInsertTest"
     when
         $pos : Position(p : person, t : type) from entry-point "PositionStream" 
     then
-        System.out.println("Inserted POS event with person: " + p.getName() + ", type: " + t + ", timestamp: " + $pos.getStartTimestamp() + ", duration: " + $pos.getEventDuration());
+        System.out.println("Inserted POS event with person: " + p.getName() + ", type: " + t + ", timestamp: " + (long)$pos.getStartTimestamp() + ", duration: " + $pos.getEventDuration());
 end
 
 
@@ -74,28 +74,28 @@ rule "SittingLLAInsertTest"
     when
         $lla : SittingLLA(p : person, t : type) from entry-point "LLAStream"
     then
-        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + $lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
+        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + (long)$lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
 end
 
 rule "WalkingLLAInsertTest"
     when
         $lla : WalkingLLA(p : person, t : type) from entry-point "LLAStream"
     then
-        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + $lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
+        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + (long)$lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
 end
 
 rule "StandingLLAInsertTest"
     when
         $lla : StandingLLA(p : person, t : type) from entry-point "LLAStream"
     then
-        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + $lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
+        System.out.println("Inserted LLA event with person: " + p.getName() + ", type: " + t + ", timestamp: " + (long)$lla.getStartTimestamp() + ", duration: " + $lla.getEventDuration());
 end
 
 rule "ExtendedPositionInsertTest"
     when
         $pos : Position(p : person, t : type) from entry-point "ExtendedPositionStream" 
     then
-        System.out.println("Inserted EXTENDED POS event with person: " + p.getName() + ", type: " + t + ", lastUpdated: " + $pos.getAnnotations().getLastUpdated() + 
+        System.out.println("Inserted EXTENDED POS event with person: " + p.getName() + ", type: " + t + ", lastUpdated: " + (long)$pos.getAnnotations().getLastUpdated() + 
             ", from: " + $pos.getAnnotations().getStartTime().getTimeInMillis() + ", to: " + $pos.getAnnotations().getEndTime().getTimeInMillis());
 end
 
@@ -103,7 +103,7 @@ rule "ExtendedSittingLLAInsertTest"
     when
         $lla : SittingLLA(p : person, t : type) from entry-point "ExtendedLLAStream"
     then
-        System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t + ", lastUpdated: " + $lla.getAnnotations().getLastUpdated() + 
+        System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t + ", lastUpdated: " + (long)$lla.getAnnotations().getLastUpdated() + 
             ", from: " + $lla.getAnnotations().getStartTime().getTimeInMillis() + ", to: " + $lla.getAnnotations().getEndTime().getTimeInMillis());
 end
 
@@ -112,7 +112,7 @@ rule "ExtendedWalkingLLAInsertTest"
     when
         $lla : WalkingLLA(p : person, t : type) from entry-point "ExtendedLLAStream"
     then
-        System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t + ", lastUpdated: " + $lla.getAnnotations().getLastUpdated() + 
+        System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t + ", lastUpdated: " + (long)$lla.getAnnotations().getLastUpdated() + 
             ", from: " + $lla.getAnnotations().getStartTime().getTimeInMillis() + ", to: " + $lla.getAnnotations().getEndTime().getTimeInMillis());
 end
 
@@ -121,7 +121,7 @@ rule "ExtendedStandingLLAInsertTest"
     when
         $lla : StandingLLA(p : person, t : type) from entry-point "ExtendedLLAStream"
     then
-        System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t + ", lastUpdated: " + $lla.getAnnotations().getLastUpdated() + 
+        System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t + ", lastUpdated: " + (long)$lla.getAnnotations().getLastUpdated() + 
             ", from: " + $lla.getAnnotations().getStartTime().getTimeInMillis() + ", to: " + $lla.getAnnotations().getEndTime().getTimeInMillis());
 end
 
