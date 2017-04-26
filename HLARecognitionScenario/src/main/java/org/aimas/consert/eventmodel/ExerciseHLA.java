@@ -1,17 +1,33 @@
 package org.aimas.consert.eventmodel;
+
+
 /*
  *   Class for modeling an exercise  high level activity
 */
-public class ExerciseHLA extends HLA
-{
-    public ExerciseHLA()
-    {
-        this.type = Type.EXERCISE;
+public class ExerciseHLA extends HLA {
+    
+	public ExerciseHLA() {
+    	super(Type.DISCUSSING);
     }
-    public ExerciseHLA(Person person, AnnotationInfo context)
-    {
-        this.person = person;
-        this.annotations = context;
-        this.type = Type.EXERCISE;
+	
+    public ExerciseHLA(Person person, AnnotationInfo context) {
+    	super(person, Type.EXERCISE, context);
+    }
+    
+    @Override
+    public double getConfidenceValueThreshold() {
+	    return HLA.CONFIDENCE_VALUE_THRESHOLD;
+    }
+
+
+	@Override
+    public double getConfidenceDiffThreshold() {
+	    return HLA.CONFIDENCE_DIFF_THRESHOLD;
+    }
+
+
+	@Override
+    public long getTimestampThreshold() {
+	    return HLA.TIMESTAMP_DIFF_THRESHOLD;
     }
 }

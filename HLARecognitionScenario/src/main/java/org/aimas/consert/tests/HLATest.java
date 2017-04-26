@@ -5,6 +5,10 @@ import java.io.File;
 
 import org.aimas.consert.utils.EventInserter;
 import org.kie.api.KieServices;
+import org.kie.api.event.rule.ObjectDeletedEvent;
+import org.kie.api.event.rule.ObjectInsertedEvent;
+import org.kie.api.event.rule.ObjectUpdatedEvent;
+import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
@@ -26,11 +30,33 @@ public class HLATest {
 		    KieContainer kContainer = ks.getKieClasspathContainer();
 	    	KieSession kSession = kContainer.newKieSession("ksession-rules", config);
 	    	
+	    	kSession.addEventListener(new RuleRuntimeEventListener() {
+				
+				@Override
+				public void objectUpdated(ObjectUpdatedEvent event) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void objectInserted(ObjectInsertedEvent event) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void objectDeleted(ObjectDeletedEvent event) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+	    	
 	    	// set up engine runner thread and event inserter
 	    	Thread engineRunner = new Thread(new EngineRunner(kSession));
 	    	
 	    	File inputFile = getFileNameFromResources("files/single_hla_120s_01er_015fd.json");
-	    	EventInserter eventInserter = new EventInserter(kSession, inputFile);
+	    	EventTracker eventTracker = new EventTracker(kSession);
+	    	EventInserter eventInserter = new EventInserter(inputFile, eventTracker);
 	    	
 	    	// start the engine thread and the inserter, wait for the inserter to finish then exit
 	    	engineRunner.start();

@@ -8,10 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.eventmodel.BaseEvent;
-import org.aimas.consert.eventmodel.LLA;
-import org.aimas.consert.eventmodel.Position;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.rule.EntryPoint;
+import org.aimas.consert.tests.EventTracker;
 
 public class EventInserter {
 	
@@ -22,16 +19,16 @@ public class EventInserter {
 	private Object syncObj = new Object();
 	
 	private File eventInputFile;
-	private KieSession kSession;
+	private EventTracker eventTracker;
 	
 	private Queue<Object> events;
 	
 	private ScheduledExecutorService readerService;
 	private ExecutorService insertionService;
 	
-	public EventInserter(KieSession kSession, File eventInputFile) {
-		this.kSession = kSession;
+	public EventInserter(File eventInputFile, EventTracker eventTracker) {
 		this.eventInputFile = eventInputFile;
+		this.eventTracker = eventTracker;
 		events = parseEvents();
 	}
 	
@@ -86,13 +83,17 @@ public class EventInserter {
 				
 				if (nextEvent != null) {
 					long delay = (long)(nextEvent.getStartTimestamp() - event.getStartTimestamp());
-					System.out.println("Next Event due in " + delay + " ms");
+					//System.out.println("Next Event due in " + delay + " ms");
 					
-					readerService.schedule(new EventReadTask(), delay, TimeUnit.MILLISECONDS);
+					//readerService.schedule(new EventReadTask(), delay, TimeUnit.MILLISECONDS);
+					readerService.schedule(new EventReadTask(), 1, TimeUnit.MILLISECONDS);
 				}
 				else {
 					setFinished(true);
 				}
+			}
+			else {
+				setFinished(true);
 			}
         }
 		
@@ -107,15 +108,18 @@ public class EventInserter {
 		
 		public void run() {
 			// filter by event instance type to see on which stream to insert
-			if (event instanceof Position) {
-				EntryPoint positionStream = kSession.getEntryPoint(POSITION_ENTRYPOINT);
-				positionStream.insert(event);
-			}
-			else if (event instanceof LLA) {
-				EntryPoint llaStream = kSession.getEntryPoint(LLA_ENTRYPOINT);
-				System.out.println(llaStream);
-				llaStream.insert(event);
-			}
+			
+			eventTracker.insertAtomicEvent(event);
+			
+//			if (event instanceof Position) {
+//				EntryPoint positionStream = kSession.getEntryPoint(POSITION_ENTRYPOINT);
+//				positionStream.insert(event);
+//			}
+//			else if (event instanceof LLA) {
+//				EntryPoint llaStream = kSession.getEntryPoint(LLA_ENTRYPOINT);
+//				System.out.println(llaStream);
+//				llaStream.insert(event);
+//			}
         }
 	}
 }

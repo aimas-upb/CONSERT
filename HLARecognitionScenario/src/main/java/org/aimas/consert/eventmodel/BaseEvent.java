@@ -38,5 +38,17 @@ public abstract class BaseEvent {
 
 	public long getEventDuration() {
 		return eventDuration;
-	}	
+	}
+	
+	public abstract double getConfidenceValueThreshold();
+	
+	public abstract double getConfidenceDiffThreshold();
+	
+	public abstract long getTimestampThreshold();
+	
+	public abstract boolean allowsContentContinuity(BaseEvent event);
+	
+	public abstract boolean allowsAnnotationContinuity(AnnotationInfo annotations);
+	
+	public abstract int getContentHash();
 }
