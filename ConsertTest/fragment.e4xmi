@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_dwe-AP08Eea7fdkF840aIA">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_fAJ2IP08Eea7fdkF840aIA" featurename="menuContributions" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="menu:MenuContribution" xmi:id="_vC_AkP08Eea7fdkF840aIA" elementId="conserttest.menucontribution.0" parentId="org.eclipse.ui.main.menu">
+      <children xsi:type="menu:Menu" xmi:id="_2gTtwP08Eea7fdkF840aIA" elementId="conserttest.menu.0" label="TestMenu">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_3KD1YP08Eea7fdkF840aIA" elementId="conserttest.directmenuitem.test" label="Exit" iconURI="platform:/plugin/ConsertTest/icons/sample.gif" tooltip="" contributionURI="bundleclass://ConsertTest/conserttest.handlers.SampleE4Handler"/>
+      </children>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_QgHj0P3vEeasVOuq9dAFow" featurename="commands" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="commands:Command" xmi:id="_VyUdQP3vEeasVOuq9dAFow" elementId="conserttest.command.sample" commandName="Sample"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_Y69CIP3vEeasVOuq9dAFow" featurename="handlers" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="commands:Handler" xmi:id="_fCck0P3vEeasVOuq9dAFow" elementId="conserttest.handler.0" contributionURI="bundleclass://ConsertTest/conserttest.handlers.SampleE4Handler" command="_VyUdQP3vEeasVOuq9dAFow"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_jl0CUP3vEeasVOuq9dAFow" featurename="menuContributions" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="menu:MenuContribution" xmi:id="_patZIP3vEeasVOuq9dAFow" elementId="conserttest.menucontribution.1" positionInParent="after=additions" parentId="org.eclipse.ui.main.menu">
+      <children xsi:type="menu:Menu" xmi:id="_z0yLUP3vEeasVOuq9dAFow" elementId="conserttest.menu.newMenu" label="e4 sample menu">
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_4YQWgP3vEeasVOuq9dAFow" elementId="conserttest.handledmenuitem.e4Sample" label="e4 sample menu" iconURI="platform:/plugin/ConsertTest/icons/sample.gif" command="_VyUdQP3vEeasVOuq9dAFow"/>
+      </children>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_KS8acP3wEeasVOuq9dAFow" featurename="trimContributions" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="menu:TrimContribution" xmi:id="_OmLxQP3wEeasVOuq9dAFow" elementId="conserttest.trimcontribution.0" parentId="org.eclipse.ui.main.toolbar">
+      <children xsi:type="menu:ToolBar" xmi:id="_UcHC0P3wEeasVOuq9dAFow" elementId="conserttest.toolbar.0">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_XIvoMP3wEeasVOuq9dAFow" elementId="conserttest.handledtoolitem.e4Button" label="e4 button" command="_VyUdQP3vEeasVOuq9dAFow"/>
+      </children>
+    </elements>
+  </fragments>
+</fragment:ModelFragments>
