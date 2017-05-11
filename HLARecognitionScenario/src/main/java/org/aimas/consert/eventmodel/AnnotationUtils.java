@@ -100,7 +100,7 @@ public class AnnotationUtils {
 		
 		if (firstEnd.before(secondStart))
 			return null;
-		
+
 		if (secondEnd.before(firstStart))
 			return null;
 		
@@ -128,7 +128,7 @@ public class AnnotationUtils {
 	}
 	
 	
-	public boolean interesects(Calendar firstStart, Calendar firstEnd, Calendar secondStart, Calendar secondEnd) {
+	public static boolean intersects(Calendar firstStart, Calendar firstEnd, Calendar secondStart, Calendar secondEnd) {
 		return !(firstEnd.compareTo(secondStart) <= 0 || secondEnd.compareTo(firstStart) <= 0);
 	}
 }

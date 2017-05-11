@@ -28,7 +28,7 @@
 		          <downloadJavadocs>true</downloadJavadocs>
 		        </configuration>
             </plugin>
-        </plugins>
+		</plugins>
     </build>
     
 	<repositories>

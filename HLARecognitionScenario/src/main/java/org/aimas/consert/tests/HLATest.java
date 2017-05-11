@@ -12,6 +12,7 @@ import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
+import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.conf.ClockTypeOption;
 
 /**
@@ -50,7 +51,7 @@ public class HLATest {
 					
 				}
 			});
-	    	
+
 	    	// set up engine runner thread and event inserter
 	    	Thread engineRunner = new Thread(new EngineRunner(kSession));
 	    	

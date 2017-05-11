@@ -171,7 +171,8 @@ public class EventTracker implements RuleRuntimeEventListener {
     			if (AnnotationUtils.allowsConfidenceContinuity(
         	    		event.getAnnotations().getConfidence(), 
         	    		event.getConfidenceValueThreshold())) {
-    				// if the confidence value check allows it to be inserted, add it to the list of monitored events for this type
+    				// if the confidence value check allows it to be inserted,
+					// add it to the list of monitored events for this type
     				List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
         			
         			if (event instanceof Position) {
