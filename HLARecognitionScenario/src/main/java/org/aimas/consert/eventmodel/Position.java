@@ -25,6 +25,7 @@ public class Position extends BaseEvent {
         CONFERENCE_AREA,
         ENTERTAINMENT_AREA,
         SNACK_AREA,
+        EXERCISE_AREA,
         HYGENE_AREA;
     }
 

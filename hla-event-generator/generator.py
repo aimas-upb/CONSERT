@@ -116,19 +116,38 @@ if __name__ == "__main__":
 
     dining_hla.preceded_by = work_2_hla
 
-    hla_list = [undef_1_hla, work_1_hla, undef_2_hla, work_2_hla, dining_hla]
+    discussing_hla_start = dining_hla_start + datetime.timedelta(seconds = dining_hla_duration + 2 * events.DEFAULT_NON_OVERLAP_DURATION)
+    discussing_hla_duration = 60  # 10 seocnd duration of working HLA
+    discussing_hla = events.DiscussingHLA(person="mihai", start_time=discussing_hla_start, duration=discussing_hla_duration, lla_step=1, pos_step=1)
+    discussing_hla.lla_error_rate = 0.1
+    discussing_hla.pos_error_rate = 0.1
+    discussing_hla.lla_false_detect_rate = 0.1
+    discussing_hla.pos_false_detect_rate = 0.1
+
+    discussing_hla.preceded_by = dining_hla
+    
+    exercise_hla_start = discussing_hla_start + datetime.timedelta(seconds = discussing_hla_duration + 2 * events.DEFAULT_NON_OVERLAP_DURATION)
+    exercise_hla_duration = 60  # 10 seocnd duration of working HLA
+    exercise_hla = events.ExerciseHLA(person="mihai", start_time=exercise_hla_start, duration=exercise_hla_duration, lla_step=1, pos_step=1)
+    exercise_hla.lla_error_rate = 0.1
+    exercise_hla.pos_error_rate = 0.1
+    exercise_hla.lla_false_detect_rate = 0.1
+    exercise_hla.pos_false_detect_rate = 0.1
+
+    exercise_hla.preceded_by = discussing_hla
+    
+    hla_list = [undef_1_hla, work_1_hla, undef_2_hla, work_2_hla, dining_hla, discussing_hla, exercise_hla]
 
     ## generate HLA events and print them to file
-    # with open("../single_hla_120s_01er_015fd_with_sleep.stream", "w") as outfile:
-    # #with open("../single_hla_120s_01er_015fd.stream", "w") as outfile:
-    #     gen = Generator(hla_list, outfile)
-    #     gen.generate(with_sleep=True)
+   ## with open("../single_hla_120s_01er_015fd_with_sleep.stream", "w") as outfile:
+    ## with open("../single_hla_120s_01er_015fd.stream", "w") as outfile:
+      ##   gen = Generator(hla_list, outfile)
+       ##  gen.generate(with_sleep=True)
 
-    #     print "Done. Event stream generated!"
+         #print "Done. Event stream generated!"
 
     ## generate HLA events as JSON
-    with open("../HLARecognitionScenario/src/main/resources/files/single_hla_120s_01er_015fd.json", "w") as outfile:
+    with open("ex.json", "w") as outfile:
         gen = Generator(hla_list, outfile)
         gen.generate_json()
-
         print "Done. JSON dump of event stream generated!"

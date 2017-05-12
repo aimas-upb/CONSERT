@@ -145,6 +145,27 @@ rule "ExtendedWorkingHLATest"
             $hla.getAnnotations().getEndTime().getTimeInMillis());
 end
 
+
+rule "ExtendedDiscussingHLATest"
+    when
+        $hla : DiscussingHLA(p : person) from entry-point "ExtendedDiscussingHLA"
+    then
+        System.out.println("Inserted EXTENDED DISCUSSING HLA event with person: " + p.getName()  + ", lastUpdated: " +
+            (long)$hla.getAnnotations().getLastUpdated() + ", from: " +
+            $hla.getAnnotations().getStartTime().getTimeInMillis() + ", to: " +
+            $hla.getAnnotations().getEndTime().getTimeInMillis());
+end
+
+rule "ExtendedExerciseHLATest"
+    when
+        $hla : ExerciseHLA(p : person) from entry-point "ExtendedExerciseHLA"
+    then
+        System.out.println("Inserted EXTENDED EXERCISE HLA event with person: " + p.getName()  + ", lastUpdated: " +
+            (long)$hla.getAnnotations().getLastUpdated() + ", from: " +
+            $hla.getAnnotations().getStartTime().getTimeInMillis() + ", to: " +
+            $hla.getAnnotations().getEndTime().getTimeInMillis());
+end
+
 // =========== HLA detection rules
 
 rule "WorkingHLA"
@@ -170,10 +191,46 @@ rule "WorkingHLA"
         entryPoints["ExtendedWorkingHLA"].insert(hla);
 end
 
-/* TODO - write all the other HLA rules
 rule "DiscussingHLA"
     when
         $pos : Position($p : person, type == Position.Type.CONFERENCE_AREA, annPos : annotations) from entry-point "ExtendedPositionStream"
-        $lla : SittingLLA(person == $p, $annLLA : annotations) from entry-point "ExtendedLLAStream"
+        $lla : StandingLLA(person == $p, $annLLA : annotations) from entry-point "ExtendedLLAStream"
+        eval(AnnotationUtils.intersects($pos.getAnnotations().getStartTime(), $pos.getAnnotations().getEndTime(),
+            $lla.getAnnotations().getStartTime(), $lla.getAnnotations().getEndTime()))
+            then
+                // create DiscussingHLA
+                double hlaTs = AnnotationUtils.maxTimestamp($pos.getAnnotations().getLastUpdated(), $lla.getAnnotations().getLastUpdated());
+                double hlaConfidence = AnnotationUtils.maxConfidence($pos.getAnnotations().getConfidence(), $lla.getAnnotations().getConfidence());
+                ValidityInterval hlaInterval = AnnotationUtils.computeIntersection(
+                    $pos.getAnnotations().getStartTime(),
+                    $pos.getAnnotations().getEndTime(),
+                    $lla.getAnnotations().getStartTime(),
+                    $lla.getAnnotations().getEndTime());
+
+                AnnotationInfo ann = new AnnotationInfo(hlaTs, hlaConfidence, hlaInterval.getStart(), hlaInterval.getEnd());
+                DiscussingHLA hla = new DiscussingHLA($p, ann);
+
+                entryPoints["ExtendedDiscussingHLA"].insert(hla);
 end
-*/
+
+rule "ExerciseHLA"
+    when
+        $pos : Position($p : person, type == Position.Type.EXERCISE_AREA, annPos : annotations) from entry-point "ExtendedPositionStream"
+        $lla : StandingLLA(person == $p, $annLLA : annotations) from entry-point "ExtendedLLAStream"
+        eval(AnnotationUtils.intersects($pos.getAnnotations().getStartTime(), $pos.getAnnotations().getEndTime(),
+            $lla.getAnnotations().getStartTime(), $lla.getAnnotations().getEndTime()))
+            then
+                // create DiscussingHLA
+                double hlaTs = AnnotationUtils.maxTimestamp($pos.getAnnotations().getLastUpdated(), $lla.getAnnotations().getLastUpdated());
+                double hlaConfidence = AnnotationUtils.maxConfidence($pos.getAnnotations().getConfidence(), $lla.getAnnotations().getConfidence());
+                ValidityInterval hlaInterval = AnnotationUtils.computeIntersection(
+                    $pos.getAnnotations().getStartTime(),
+                    $pos.getAnnotations().getEndTime(),
+                    $lla.getAnnotations().getStartTime(),
+                    $lla.getAnnotations().getEndTime());
+
+                AnnotationInfo ann = new AnnotationInfo(hlaTs, hlaConfidence, hlaInterval.getStart(), hlaInterval.getEnd());
+                ExerciseHLA hla = new ExerciseHLA($p, ann);
+
+                entryPoints["ExtendedExerciseHLA"].insert(hla);
+end
