@@ -2,7 +2,7 @@ package org.aimas.consert.eventmodel;
 
 
 /*
- *   Class for modeling a dining  high level activity
+ *   Class for modeling an exercise  high level activity
 */
 public class ExerciseHLA extends HLA {
     

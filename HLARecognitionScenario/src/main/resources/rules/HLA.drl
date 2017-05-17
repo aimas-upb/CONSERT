@@ -259,7 +259,7 @@ rule "DiningHLA"
         eval(AnnotationUtils.intersects($pos.getAnnotations().getStartTime(), $pos.getAnnotations().getEndTime(),
             $lla.getAnnotations().getStartTime(), $lla.getAnnotations().getEndTime()))
             then
-                // create ExerciseHLA
+                // create DiningHLA
                 double hlaTs = AnnotationUtils.maxTimestamp($pos.getAnnotations().getLastUpdated(), $lla.getAnnotations().getLastUpdated());
                 double hlaConfidence = AnnotationUtils.maxConfidence($pos.getAnnotations().getConfidence(), $lla.getAnnotations().getConfidence());
                 ValidityInterval hlaInterval = AnnotationUtils.computeIntersection(
