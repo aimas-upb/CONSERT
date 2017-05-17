@@ -9,6 +9,7 @@ import org.aimas.consert.eventmodel.StandingLLA
 import org.aimas.consert.eventmodel.WorkingHLA
 import org.aimas.consert.eventmodel.DiscussingHLA
 import org.aimas.consert.eventmodel.ExerciseHLA
+import org.aimas.consert.eventmodel.DiningHLA
 
 import org.aimas.consert.eventmodel.AnnotationInfo
 import org.aimas.consert.eventmodel.AnnotationUtils
@@ -54,6 +55,12 @@ declare DiscussingHLA
 end
 
 declare ExerciseHLA
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+declare DiningHLA
     @role(event)
     @timestamp(startTimestamp)
     @duration(eventDuration)
@@ -166,6 +173,16 @@ rule "ExtendedExerciseHLATest"
             $hla.getAnnotations().getEndTime().getTimeInMillis());
 end
 
+rule "ExtendedDiningHLATest"
+    when
+        $hla : DiningHLA(p : person) from entry-point "ExtendedDiningHLA"
+    then
+        System.out.println("Inserted EXTENDED DINING HLA event with person: " + p.getName()  + ", lastUpdated: " +
+            (long)$hla.getAnnotations().getLastUpdated() + ", from: " +
+            $hla.getAnnotations().getStartTime().getTimeInMillis() + ", to: " +
+            $hla.getAnnotations().getEndTime().getTimeInMillis());
+end
+
 // =========== HLA detection rules
 
 rule "WorkingHLA"
@@ -220,7 +237,7 @@ rule "ExerciseHLA"
         eval(AnnotationUtils.intersects($pos.getAnnotations().getStartTime(), $pos.getAnnotations().getEndTime(),
             $lla.getAnnotations().getStartTime(), $lla.getAnnotations().getEndTime()))
             then
-                // create DiscussingHLA
+                // create ExerciseHLA
                 double hlaTs = AnnotationUtils.maxTimestamp($pos.getAnnotations().getLastUpdated(), $lla.getAnnotations().getLastUpdated());
                 double hlaConfidence = AnnotationUtils.maxConfidence($pos.getAnnotations().getConfidence(), $lla.getAnnotations().getConfidence());
                 ValidityInterval hlaInterval = AnnotationUtils.computeIntersection(
@@ -233,4 +250,26 @@ rule "ExerciseHLA"
                 ExerciseHLA hla = new ExerciseHLA($p, ann);
 
                 entryPoints["ExtendedExerciseHLA"].insert(hla);
+end
+
+rule "DiningHLA"
+    when
+        $pos : Position($p : person, type == Position.Type.DINING_AREA, annPos : annotations) from entry-point "ExtendedPositionStream"
+        $lla : SittingLLA(person == $p, $annLLA : annotations) from entry-point "ExtendedLLAStream"
+        eval(AnnotationUtils.intersects($pos.getAnnotations().getStartTime(), $pos.getAnnotations().getEndTime(),
+            $lla.getAnnotations().getStartTime(), $lla.getAnnotations().getEndTime()))
+            then
+                // create ExerciseHLA
+                double hlaTs = AnnotationUtils.maxTimestamp($pos.getAnnotations().getLastUpdated(), $lla.getAnnotations().getLastUpdated());
+                double hlaConfidence = AnnotationUtils.maxConfidence($pos.getAnnotations().getConfidence(), $lla.getAnnotations().getConfidence());
+                ValidityInterval hlaInterval = AnnotationUtils.computeIntersection(
+                    $pos.getAnnotations().getStartTime(),
+                    $pos.getAnnotations().getEndTime(),
+                    $lla.getAnnotations().getStartTime(),
+                    $lla.getAnnotations().getEndTime());
+
+                AnnotationInfo ann = new AnnotationInfo(hlaTs, hlaConfidence, hlaInterval.getStart(), hlaInterval.getEnd());
+                DiningHLA hla = new DiningHLA($p, ann);
+
+                entryPoints["ExtendedDiningHLA"].insert(hla);
 end
