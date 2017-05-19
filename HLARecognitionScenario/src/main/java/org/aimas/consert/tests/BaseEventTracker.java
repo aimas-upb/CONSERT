@@ -1,7 +1,5 @@
 package org.aimas.consert.tests;
 
-import java.util.Map;
-
 import org.aimas.consert.eventmodel.BaseEvent;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieSession;

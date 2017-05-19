@@ -21,9 +21,7 @@ import org.kie.api.runtime.rule.FactHandle;
 
 public class EventTracker extends BaseEventTracker {
 	
-	KieSession kSession;
 	Map<Class<? extends BaseEvent>, List<FactHandle>> lastValidEventMap = new HashMap<Class<? extends BaseEvent>, List<FactHandle>>();
-	
 	
 	public EventTracker(KieSession kSession) {
 		super(kSession);
@@ -110,8 +108,8 @@ public class EventTracker extends BaseEventTracker {
 	    			// DO THIS AS ATOMIC ACTION
 	    			kSession.submit(new KieSession.AtomicAction() {
 						@Override
-						public void execute(KieSession kSession) {
-							EntryPoint existingEventEntry = searchEntryPoint(existingEventHandle, kSession);
+						public void execute(KieSession kieSession) {
+							EntryPoint existingEventEntry = searchEntryPoint(existingEventHandle, kieSession);
 			    			existingEventEntry.delete(existingEventHandle);
 			    			
 			    			List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
@@ -119,12 +117,12 @@ public class EventTracker extends BaseEventTracker {
 			    			
 			    			
 			    			if (event instanceof Position) {
-				    			FactHandle handle = kSession.getEntryPoint("ExtendedPositionStream").insert(existingEvent);
+				    			FactHandle handle = kieSession.getEntryPoint("ExtendedPositionStream").insert(existingEvent);
 				    			handleList.add(handle);
 				    			
 				    		}
 				    		else if (event instanceof LLA) {
-				    			FactHandle handle = kSession.getEntryPoint("ExtendedLLAStream").insert(existingEvent);
+				    			FactHandle handle = kieSession.getEntryPoint("ExtendedLLAStream").insert(existingEvent);
 				    			handleList.add(handle);
 				    		}
 						}
