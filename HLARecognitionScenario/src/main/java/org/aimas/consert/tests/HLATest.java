@@ -12,7 +12,6 @@ import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
-import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.conf.ClockTypeOption;
 
 /**
@@ -33,19 +32,19 @@ public class HLATest {
 	    	
 	    	kSession.addEventListener(new RuleRuntimeEventListener() {
 				
-				@Override
+				
 				public void objectUpdated(ObjectUpdatedEvent event) {
 					// TODO Auto-generated method stub
 					
 				}
 				
-				@Override
+				
 				public void objectInserted(ObjectInsertedEvent event) {
 					// TODO Auto-generated method stub
 					
 				}
 				
-				@Override
+				
 				public void objectDeleted(ObjectDeletedEvent event) {
 					// TODO Auto-generated method stub
 					

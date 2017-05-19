@@ -14,55 +14,25 @@ import org.aimas.consert.eventmodel.Position;
 import org.kie.api.event.rule.ObjectDeletedEvent;
 import org.kie.api.event.rule.ObjectInsertedEvent;
 import org.kie.api.event.rule.ObjectUpdatedEvent;
-import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
 
-public class EventTracker implements RuleRuntimeEventListener {
+public class EventTracker extends BaseEventTracker {
 	
 	KieSession kSession;
 	Map<Class<? extends BaseEvent>, List<FactHandle>> lastValidEventMap = new HashMap<Class<? extends BaseEvent>, List<FactHandle>>();
 	
 	
 	public EventTracker(KieSession kSession) {
-		this.kSession = kSession;
-	}
-
-	@Override
-    public void objectInserted(ObjectInsertedEvent event) {
-	    // TODO Auto-generated method stub
-		
-    }
-
-	@Override
-    public void objectUpdated(ObjectUpdatedEvent event) {
-	    // TODO Auto-generated method stub
-	    
-    }
-
-	@Override
-    public void objectDeleted(ObjectDeletedEvent event) {
-	    // TODO Auto-generated method stub
-	    
-    }
-	
-	private EntryPoint searchEntryPoint(FactHandle handle) {
-		for (EntryPoint entry : kSession.getEntryPoints()) {
-			if (entry.getObject(handle) != null) {
-				return entry;
-			}
-		}
-		
-		return null;
+		super(kSession);
 	}
 	
-	
-	private Map.Entry<FactHandle, BaseEvent> searchHandleByContent(BaseEvent event) {
+	private Map.Entry<FactHandle, BaseEvent> searchHandleByContent(BaseEvent event, KieSession kSession) {
 		List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
 		for (FactHandle existingHandle : handleList) {
-			EntryPoint existingEventEntry = searchEntryPoint(existingHandle);
+			EntryPoint existingEventEntry = searchEntryPoint(existingHandle, kSession);
 			BaseEvent existingEvent = (BaseEvent)existingEventEntry.getObject(existingHandle);
 			
 			if (existingEvent.getContentHash() == event.getContentHash()) {
@@ -86,7 +56,7 @@ public class EventTracker implements RuleRuntimeEventListener {
     	    		event.getAnnotations().getConfidence(), 
     	    		event.getConfidenceValueThreshold())) {
     			
-    			System.out.println("CREATING LIST FOR EVENT CLASS: " + event.getClass());
+    			//System.out.println("CREATING LIST FOR EVENT CLASS: " + event.getClass());
     			
     			// go through with insertion in the map and the KieBase
 	    		List<FactHandle> handleList = new LinkedList<FactHandle>();
@@ -101,10 +71,19 @@ public class EventTracker implements RuleRuntimeEventListener {
 	    			handleList.add(handle);
 	    		}
     		}
+    		else {
+    			// Go through with event insertion in its appropriate stream anyway, just don't hold the handle in the lastValidEventMap
+    			if (event instanceof Position) {
+	    			kSession.getEntryPoint("PositionStream").insert(event);
+	    		}
+	    		else if (event instanceof LLA) {
+	    			kSession.getEntryPoint("LLAStream").insert(event);
+	    		}
+    		}
     	}
     	else {
     		// check to see if it matches one of the previous stored events by content
-    		Map.Entry<FactHandle, BaseEvent> eventEntry = searchHandleByContent(event);
+    		Map.Entry<FactHandle, BaseEvent> eventEntry = searchHandleByContent(event, kSession);
     		if (eventEntry != null) {
     			// if it DOES match any monitored event by content 
     			FactHandle existingEventHandle = eventEntry.getKey();
@@ -128,22 +107,39 @@ public class EventTracker implements RuleRuntimeEventListener {
 	    			existingEvent.setAnnotations(updatedAnnotations);
 	    			
 	    			// if the event allows continuity, remove the old instance and insert the new one
-	    			EntryPoint existingEventEntry = searchEntryPoint(existingEventHandle);
-	    			existingEventEntry.delete(existingEventHandle);
+	    			// DO THIS AS ATOMIC ACTION
+	    			kSession.submit(new KieSession.AtomicAction() {
+						@Override
+						public void execute(KieSession kSession) {
+							EntryPoint existingEventEntry = searchEntryPoint(existingEventHandle, kSession);
+			    			existingEventEntry.delete(existingEventHandle);
+			    			
+			    			List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
+			    			handleList.remove(existingEventHandle);
+			    			
+			    			
+			    			if (event instanceof Position) {
+				    			FactHandle handle = kSession.getEntryPoint("ExtendedPositionStream").insert(existingEvent);
+				    			handleList.add(handle);
+				    			
+				    		}
+				    		else if (event instanceof LLA) {
+				    			FactHandle handle = kSession.getEntryPoint("ExtendedLLAStream").insert(existingEvent);
+				    			handleList.add(handle);
+				    		}
+						}
+					});
 	    			
-	    			List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
-	    			handleList.remove(existingEventHandle);
+	    			// Go through with event insertion in its appropriate stream as well, just don't hold the handle in the lastValidEventMap
+        			if (event instanceof Position) {
+    	    			kSession.getEntryPoint("PositionStream").insert(event);
+    	    		}
+    	    		else if (event instanceof LLA) {
+    	    			kSession.getEntryPoint("LLAStream").insert(event);
+    	    		}
 	    			
-	    			
-	    			if (event instanceof Position) {
-		    			FactHandle handle = kSession.getEntryPoint("ExtendedPositionStream").insert(existingEvent);
-		    			handleList.add(handle);
-		    			
-		    		}
-		    		else if (event instanceof LLA) {
-		    			FactHandle handle = kSession.getEntryPoint("ExtendedLLAStream").insert(existingEvent);
-		    			handleList.add(handle);
-		    		}
+	    			// TEST SIZE OF KnowledgeBase
+	    			//System.out.println("COUNT OF EVENTS FOR " + existingEventEntry.getEntryPointId() + " IS: " + existingEventEntry.getObjects().size());
     			}
     			// if NO annotation continuity (either because of timestamp or confidence)
     			else {
@@ -163,6 +159,15 @@ public class EventTracker implements RuleRuntimeEventListener {
     		    			FactHandle handle = kSession.getEntryPoint("LLAStream").insert(event);
     		    			handleList.add(handle);
     		    		}
+    				}
+    				else {
+    					// Go through with event insertion in its appropriate stream anyway, just don't hold the handle in the lastValidEventMap
+            			if (event instanceof Position) {
+        	    			kSession.getEntryPoint("PositionStream").insert(event);
+        	    		}
+        	    		else if (event instanceof LLA) {
+        	    			kSession.getEntryPoint("LLAStream").insert(event);
+        	    		}
     				}
 	    		}
     		}
@@ -184,9 +189,36 @@ public class EventTracker implements RuleRuntimeEventListener {
     	    			handleList.add(handle);
     	    		}
     			}
+    			else {
+    				// Go through with event insertion in its appropriate stream anyway, just don't hold the handle in the lastValidEventMap
+        			if (event instanceof Position) {
+    	    			kSession.getEntryPoint("PositionStream").insert(event);
+    	    		}
+    	    		else if (event instanceof LLA) {
+    	    			kSession.getEntryPoint("LLAStream").insert(event);
+    	    		}
+    			}
     		}
     		
     	}
     }
 	
+    public void objectDeleted(ObjectDeletedEvent event) {
+	    // TODO Auto-generated method stub
+	    
+    }
+
+
+
+	public void objectInserted(ObjectInsertedEvent event) {
+	    // TODO Auto-generated method stub
+	    
+    }
+
+
+	public void objectUpdated(ObjectUpdatedEvent event) {
+	    // TODO Auto-generated method stub
+	    
+    }
+
 }
