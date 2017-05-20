@@ -14,7 +14,7 @@ public abstract class HLA extends BaseEvent
 	
 	public enum Type
     {
-        DISCUSSING, EXERCISE, WORKING
+        DISCUSSING, EXERCISE, WORKING, DINING
     }
 	
 	
