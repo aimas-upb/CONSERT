@@ -67,7 +67,7 @@ public class Position extends BaseEvent {
     
     @Override
     public String toString() {
-        return "Position [" + "person=" + person + ", type=" + type + ", annotations=" + annotations + "]\n";
+        return "Position [" + "person=" + person + ", type=" + type + ", annotations=" + annotations + "]";
     }
     
     @Override

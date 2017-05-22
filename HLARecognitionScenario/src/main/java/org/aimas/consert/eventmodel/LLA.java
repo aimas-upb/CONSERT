@@ -60,7 +60,7 @@ public abstract class LLA extends BaseEvent
     
     @Override
     public String toString() {
-        return "LLA [" + "person=" + person + ", type=" + type + ", annotations=" + annotations + "]\n";
+        return "LLA [" + "person=" + person + ", type=" + type + ", annotations=" + annotations + "]";
     }
     
     @Override
