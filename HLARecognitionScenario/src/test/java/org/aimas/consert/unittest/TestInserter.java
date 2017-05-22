@@ -17,7 +17,7 @@ import org.aimas.consert.tests.EventTracker;
 
 public class TestInserter {
 	public static final String POSITION_ENTRYPOINT 	= "PositionStream";
-	public static final int NUM_EVENTS = 5;
+	public static final int NUM_EVENTS = 10;
 	
 	private boolean isFinished = false;
 	private Object syncObj = new Object();

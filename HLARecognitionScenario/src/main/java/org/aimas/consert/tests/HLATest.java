@@ -17,39 +17,22 @@ import org.kie.api.runtime.conf.ClockTypeOption;
 /**
  * Created by alex on 06.04.2017.
  */
-public class HLATest {
+public class HLATest extends TestSetup {
 	
     public static void main(String[] args) {
     	
     	try {
 	    	// load up the knowledge base
-	        KieServices ks = KieServices.Factory.get();
+    		/*
+    		KieServices ks = KieServices.Factory.get();
 	        KieSessionConfiguration config = ks.newKieSessionConfiguration();
 	        config.setOption(ClockTypeOption.get("realtime"));
 	        
 		    KieContainer kContainer = ks.getKieClasspathContainer();
 	    	KieSession kSession = kContainer.newKieSession("ksession-rules", config);
-	    	
-	    	kSession.addEventListener(new RuleRuntimeEventListener() {
-				
-				
-				public void objectUpdated(ObjectUpdatedEvent event) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				
-				public void objectInserted(ObjectInsertedEvent event) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				
-				public void objectDeleted(ObjectDeletedEvent event) {
-					// TODO Auto-generated method stub
-					
-				}
-			});
+	    	*/
+    		
+    		KieSession kSession = getKieSessionFromResources( "rules/HLA.drl" );
 
 	    	// set up engine runner thread and event inserter
 	    	Thread engineRunner = new Thread(new EngineRunner(kSession));
@@ -65,6 +48,7 @@ public class HLATest {
 	    	while (!eventInserter.isFinished()) {
 	    		Thread.sleep(2000);
 	    	}
+	    	
 	    	
 	    	eventInserter.stop();
 	    	kSession.halt();
@@ -85,10 +69,5 @@ public class HLATest {
 
         System.out.println(events);
         */
-    }
-
-    private static File getFileNameFromResources(String fileName) {
-        ClassLoader classLoader = HLATest.class.getClassLoader();
-        return new File(classLoader.getResource(fileName).getFile());
     }
 }
