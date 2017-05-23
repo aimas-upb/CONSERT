@@ -12,7 +12,7 @@
 	<description>A Drools Fusion Maven project to detect high level activities from low level ones.</description>
 
 	<properties>
-		<runtime.version>6.4.0.Final</runtime.version>
+		<runtime.version>6.5.0.Final</runtime.version>
 		<cdi.version>1.2</cdi.version>
         <weld.version>2.3.2.Final</weld.version>
 	</properties>
