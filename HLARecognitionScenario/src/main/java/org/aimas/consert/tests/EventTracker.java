@@ -70,7 +70,7 @@ public class EventTracker extends BaseEventTracker {
 	}
 	
 	
-    public void insertAtomicEvent(BaseEvent event) {
+    public void insertAtomicEvent(final BaseEvent event) {
     	//System.out.println(event.getClass());
     	
     	// if this is the first event of its type
@@ -129,8 +129,9 @@ public class EventTracker extends BaseEventTracker {
 		    			BaseEvent updatedEvent = existingEventData.getEventObject();
 		    			
 		    			// if it allows continuity by annotation
-		    			if (updatedEvent.allowsAnnotationContinuity(event.getAnnotations())) {
+		    			if (updatedEvent.allowsAnnotationContinuity(event.getAnnotations())) { // time s
 			    			// create event clone
+							System.out.println( updatedEvent.getProcessingTimeStamp());
 		    				double maxTimestamp = AnnotationUtils.maxTimestamp(
 			    					updatedEvent.getAnnotations().getLastUpdated(), 
 			    					event.getAnnotations().getLastUpdated());

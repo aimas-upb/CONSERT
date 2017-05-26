@@ -108,7 +108,7 @@ public class EventInserter {
 		
 		public void run() {
 			// filter by event instance type to see on which stream to insert
-			
+			event.setProcessingTimeStamp(System.currentTimeMillis());
 			eventTracker.insertAtomicEvent(event);
 			
 //			if (event instanceof Position) {

@@ -6,7 +6,7 @@ public abstract class BaseEvent {
 	
 	double startTimestamp;
 	long eventDuration;
-	
+	long processingTimeStamp;
 	public BaseEvent() {}
 	
 	public BaseEvent(AnnotationInfo annotations) {
@@ -51,4 +51,12 @@ public abstract class BaseEvent {
 	public abstract boolean allowsAnnotationContinuity(AnnotationInfo annotations);
 	
 	public abstract int getContentHash();
+
+    public void setProcessingTimeStamp(long processingTimeStamp) {
+        this.processingTimeStamp = processingTimeStamp;
+    }
+
+	public long getProcessingTimeStamp() {
+		return processingTimeStamp;
+	}
 }
