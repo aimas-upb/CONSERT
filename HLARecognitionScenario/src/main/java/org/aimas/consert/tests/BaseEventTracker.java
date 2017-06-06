@@ -12,6 +12,7 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener {
 	
 	protected BaseEventTracker(KieSession kSession) {
 		this.kSession = kSession;
+		kSession.addEventListener(this);
 	}
 	
 	protected EntryPoint searchEntryPoint(FactHandle handle, KieSession kSession) {

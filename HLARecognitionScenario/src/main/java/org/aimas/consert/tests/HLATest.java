@@ -4,15 +4,7 @@ package org.aimas.consert.tests;
 import java.io.File;
 
 import org.aimas.consert.utils.EventInserter;
-import org.kie.api.KieServices;
-import org.kie.api.event.rule.ObjectDeletedEvent;
-import org.kie.api.event.rule.ObjectInsertedEvent;
-import org.kie.api.event.rule.ObjectUpdatedEvent;
-import org.kie.api.event.rule.RuleRuntimeEventListener;
-import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.KieSessionConfiguration;
-import org.kie.api.runtime.conf.ClockTypeOption;
 
 /**
  * Created by alex on 06.04.2017.
@@ -49,12 +41,14 @@ public class HLATest extends TestSetup {
 	    		Thread.sleep(2000);
 	    	}
 	    	
-	    	
 	    	eventInserter.stop();
+	    	
+	    	engineRunner.join(10000);
+	    	
 	    	kSession.halt();
 	    	kSession.dispose();
 	    	
-	    	engineRunner.join(1000);
+	    	
     	}
     	catch(Exception ex) {
     		ex.printStackTrace();
