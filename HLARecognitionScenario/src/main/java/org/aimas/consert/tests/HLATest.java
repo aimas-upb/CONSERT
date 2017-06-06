@@ -1,16 +1,17 @@
 package org.aimas.consert.tests;
 
 
+import org.aimas.consert.utils.EventInserter;
+import org.aimas.consert.utils.PlotlyExporter;
+import org.kie.api.runtime.KieSession;
+
 import java.io.File;
 
-import org.aimas.consert.utils.EventInserter;
-import org.kie.api.runtime.KieSession;
 
 /**
  * Created by alex on 06.04.2017.
  */
 public class HLATest extends TestSetup {
-	
     public static void main(String[] args) {
     	
     	try {
@@ -45,6 +46,12 @@ public class HLATest extends TestSetup {
 	    	
 	    	engineRunner.join(10000);
 	    	
+			
+	    	PlotlyExporter.exportToHTML(null, kSession);
+            
+	    	eventInserter.stop();
+
+
 	    	kSession.halt();
 	    	kSession.dispose();
 	    	

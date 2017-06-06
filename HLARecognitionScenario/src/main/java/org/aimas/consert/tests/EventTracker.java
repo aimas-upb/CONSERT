@@ -69,11 +69,12 @@ public class EventTracker extends BaseEventTracker {
 		return null;
 	}
 	
+
 	/**
 	 * Insert an atomic event. The event will go through the verifications of temporal continuity.
 	 * @param event The atomic event to insert
 	 */
-    public void insertAtomicEvent(BaseEvent event) {
+    public void insertAtomicEvent(final BaseEvent event) {
     	//System.out.println(event.getClass());
     	String eventStream = event.getStreamName();
     	
@@ -90,17 +91,6 @@ public class EventTracker extends BaseEventTracker {
     			
 	    		FactHandle handle = kSession.getEntryPoint(eventStream).insert(event);
 	    		handleList.add(handle);
-	    		
-	    		/*
-	    		if (event instanceof Position) {
-	    			FactHandle handle = kSession.getEntryPoint("PositionStream").insert(event);
-	    			handleList.add(handle);
-	    		}
-	    		else if (event instanceof LLA) {
-	    			FactHandle handle = kSession.getEntryPoint("LLAStream").insert(event);
-	    			handleList.add(handle);
-	    		}
-	    		*/
     		}
     		else {
     			// Go through with event insertion in its appropriate stream anyway, just don't hold the handle in the lastValidEventMap
@@ -126,8 +116,9 @@ public class EventTracker extends BaseEventTracker {
 		    			EntryPoint existingEventEntry = existingEventData.getEntryPoint();
 		    			
 		    			// if it allows continuity by annotation
-		    			if (updatedEvent.allowsAnnotationContinuity(event.getAnnotations())) {
+		    			if (updatedEvent.allowsAnnotationContinuity(event.getAnnotations())) { // time s
 			    			// create event clone
+							System.out.println( updatedEvent.getProcessingTimeStamp());
 		    				double maxTimestamp = AnnotationUtils.maxTimestamp(
 			    					updatedEvent.getAnnotations().getLastUpdated(), 
 			    					event.getAnnotations().getLastUpdated());

@@ -12,9 +12,10 @@ public abstract class BaseEvent {
 	
 	double startTimestamp;
 	long eventDuration;
-	
+
 	EventGenerationType generationType = EventGenerationType.SENSED; 
-	
+	long processingTimeStamp;
+
 	public BaseEvent() {}
 	
 	public BaseEvent(AnnotationInfo annotations, EventGenerationType generationType) {
@@ -77,7 +78,7 @@ public abstract class BaseEvent {
 	public abstract boolean allowsAnnotationContinuity(AnnotationInfo annotations);
 	
 	public abstract int getContentHash();
-	
+
 	
 	public abstract String getStreamName();
 	
@@ -103,4 +104,13 @@ public abstract class BaseEvent {
 		else
 			return false;
     }
+
+    public void setProcessingTimeStamp(long processingTimeStamp) {
+        this.processingTimeStamp = processingTimeStamp;
+    }
+
+	public long getProcessingTimeStamp() {
+		return processingTimeStamp;
+	}
+
 }
