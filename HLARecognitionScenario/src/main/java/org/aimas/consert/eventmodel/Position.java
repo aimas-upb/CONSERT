@@ -36,7 +36,7 @@ public class Position extends BaseEvent {
     }
 
     public Position(Person person, Type type, AnnotationInfo annotations) {
-        super(annotations);
+        super(annotations, EventGenerationType.SENSED);
     	this.person = person;
         this.type = type;
     }
@@ -119,5 +119,12 @@ public class Position extends BaseEvent {
 	    return TIMESTAMP_DIFF_THRESHOLD;
     }
 
-
+	@Override
+	public String getStreamName() {
+		return Position.class.getSimpleName() + "Stream";
+	}
+	
+	public String getExtendedStreamName() {
+		return "Extended" + getStreamName();
+	}
 }
