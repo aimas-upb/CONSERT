@@ -213,10 +213,9 @@ public class EventTracker extends BaseEventTracker {
 			if (event.allowsContentContinuity(derivedEvent)) {
 				// and they have the same validity interval and confidence annotations
 				if (event.getAnnotations().getStartTime().equals(derivedEvent.getAnnotations().getStartTime()) &&
-					event.getAnnotations().getEndTime().equals(derivedEvent.getAnnotations().getEndTime()) && 
-					event.getAnnotations().getConfidence() == derivedEvent.getAnnotations().getConfidence()) {
+					event.getAnnotations().getEndTime().equals(derivedEvent.getAnnotations().getEndTime())) {
 					
-					System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event!!!");
+					System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
 					return true;
 				}
 			}
@@ -227,7 +226,7 @@ public class EventTracker extends BaseEventTracker {
 
 
     
-    private void doDerivedInsertion(BaseEvent eventObject) {
+    private void doDerivedInsertion(final BaseEvent eventObject) {
 		//BaseEvent insertedEventObject = (BaseEvent)insertEvent.getObject();
 		
     	String derivedEventStream = eventObject.getExtendedStreamName();
@@ -243,13 +242,13 @@ public class EventTracker extends BaseEventTracker {
     		lastValidDeducedMap.put(eventObject.getClass(), handleList);
     	}
     	else {
-    		// The newly derived event has to make it to the KnowledgeBase in any case, so we perform the insert here
-    		final FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
-    		
     		// do the overlap verification steps as an atomic action
     		kSession.submit(new KieSession.AtomicAction() {
 				@Override
 				public void execute(KieSession kSession) {
+					// The newly derived event has to make it to the KnowledgeBase in any case, so we perform the insert here
+		    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
+					
 					// check to see if it matches one of the previous stored events by content
 		    		TrackedEventData existingEventData = searchHandleByContent(lastValidDeducedMap, eventObject, kSession);
 		    		if (existingEventData != null) {
