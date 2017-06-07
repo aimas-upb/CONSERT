@@ -55,4 +55,4 @@ dependencies:
   - tornado==4.5.1
   - traitlets==4.3.2
   - visdom==0.1.4
-prefix: !!python/unicode '/home/mihai/miniconda2/envs/consert'
+prefix: !!python/unicode '/home/alex/miniconda2/envs/consert'
