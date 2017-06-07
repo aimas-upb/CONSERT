@@ -24,7 +24,7 @@ public class PlotlyExporter {
     public static boolean exportToHTML(String outputHTMLFilename, KieSession session) {
 
         if (SystemUtils.IS_OS_LINUX)
-            MINICONDA_BIN_FOLDER = "/home/mihai/miniconda2/bin";
+            MINICONDA_BIN_FOLDER = "/home/alex/miniconda2/bin";
         else
             MINICONDA_BIN_FOLDER = "C:\\Users\\David\\Miniconda2";
 
@@ -46,12 +46,14 @@ public class PlotlyExporter {
         ObjectMapper mapper = new ObjectMapper();
         Collection<EntryPoint> entryPoints = (Collection<EntryPoint>) session.getEntryPoints();
         for(EntryPoint entryPoint : entryPoints) {
-            try {
-                File entryPointTempFile = new File(tmp +  File.separator + "output_" + entryPoint.getEntryPointId() + ".json");
-                mapper.writeValue(entryPointTempFile, entryPoint.getObjects());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
+            if (entryPoint.getEntryPointId().startsWith("Extended")) {
+	        	try {
+	                File entryPointTempFile = new File(tmp +  File.separator + "output_" + entryPoint.getEntryPointId() + ".json");
+	                mapper.writeValue(entryPointTempFile, entryPoint.getObjects());
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	                return false;
+	            }
             }
         }
 

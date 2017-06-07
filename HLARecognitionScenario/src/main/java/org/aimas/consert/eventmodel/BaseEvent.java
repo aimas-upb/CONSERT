@@ -2,14 +2,24 @@ package org.aimas.consert.eventmodel;
 
 public abstract class BaseEvent {
 	
+	public enum EventGenerationType {
+		DERIVED,
+		PROFILED,
+		SENSED
+	}
+	
 	AnnotationInfo annotations;
 	
 	double startTimestamp;
 	long eventDuration;
+
+	EventGenerationType generationType = EventGenerationType.SENSED; 
 	long processingTimeStamp;
+
 	public BaseEvent() {}
 	
-	public BaseEvent(AnnotationInfo annotations) {
+	public BaseEvent(AnnotationInfo annotations, EventGenerationType generationType) {
+		this.generationType = generationType;
 		setAnnotations(annotations);
 	}
 	
@@ -21,6 +31,23 @@ public abstract class BaseEvent {
 	    		eventDuration = annotations.getDuration();
 	    	}
 		}
+	}
+	
+	public EventGenerationType getGenerationType() {
+		return generationType;
+	}
+
+	public void setGenerationType(EventGenerationType generationType) {
+		this.generationType = generationType;
+	}
+
+	
+	public boolean isDerived() {
+		return generationType == EventGenerationType.DERIVED;
+	}
+	
+	public boolean isSensed() {
+		return generationType == EventGenerationType.SENSED;
 	}
 	
 	public AnnotationInfo getAnnotations() {
@@ -52,6 +79,32 @@ public abstract class BaseEvent {
 	
 	public abstract int getContentHash();
 
+	
+	public abstract String getStreamName();
+	
+	public abstract String getExtendedStreamName();
+	
+	
+	public boolean isOverlappedBy(BaseEvent event) {
+	    if (getAnnotations() == null)
+	    	return false;
+	    
+	    if (getAnnotations().getEndTime() == null)
+	    	return false;
+	    
+	    if (event.getAnnotations() == null)
+	    	return false;
+	    
+	    if (event.getAnnotations().getEndTime() == null)
+	    	return false;
+		
+		if (getAnnotations().getStartTime().equals(event.getAnnotations().getStartTime()) && 
+				getAnnotations().getEndTime().compareTo(event.getAnnotations().getEndTime()) <= 0)
+			return true;
+		else
+			return false;
+    }
+
     public void setProcessingTimeStamp(long processingTimeStamp) {
         this.processingTimeStamp = processingTimeStamp;
     }
@@ -59,4 +112,5 @@ public abstract class BaseEvent {
 	public long getProcessingTimeStamp() {
 		return processingTimeStamp;
 	}
+
 }

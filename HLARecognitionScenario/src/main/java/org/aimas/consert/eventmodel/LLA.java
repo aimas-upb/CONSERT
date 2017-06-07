@@ -24,7 +24,7 @@ public abstract class LLA extends BaseEvent
     }
 
     protected LLA(Person person, Type type, AnnotationInfo annotations) {
-    	super(annotations);
+    	super(annotations, EventGenerationType.SENSED);
         this.person = person;
         this.type = type;
     }
@@ -97,5 +97,14 @@ public abstract class LLA extends BaseEvent
     	
     	return true;
     }
+    
+    @Override
+	public String getStreamName() {
+		return LLA.class.getSimpleName() + "Stream";
+	}
+	
+	public String getExtendedStreamName() {
+		return "Extended" + getStreamName();
+	}
 }
 

@@ -15,6 +15,10 @@ import org.aimas.consert.eventmodel.AnnotationInfo
 import org.aimas.consert.eventmodel.AnnotationUtils
 import org.aimas.consert.eventmodel.ValidityInterval
 
+import org.aimas.consert.tests.EventTracker
+
+global EventTracker eventTracker;
+
 // ============ Declare Position metadata
 declare Position
     @role(event)
@@ -144,7 +148,7 @@ end
 
 rule "ExtendedWorkingHLATest"
     when
-        $hla : WorkingHLA(p : person) from entry-point "ExtendedWorkingHLA"
+        $hla : WorkingHLA(p : person) from entry-point "ExtendedWorkingHLAStream"
     then
         System.out.println("Inserted EXTENDED WORKING HLA event with person: " + p.getName()  + ", lastUpdated: " +
             (long)$hla.getAnnotations().getLastUpdated() + ", from: " +
@@ -155,7 +159,7 @@ end
 
 rule "ExtendedDiscussingHLATest"
     when
-        $hla : DiscussingHLA(p : person) from entry-point "ExtendedDiscussingHLA"
+        $hla : DiscussingHLA(p : person) from entry-point "ExtendedDiscussingHLAStream"
     then
         System.out.println("Inserted EXTENDED DISCUSSING HLA event with person: " + p.getName()  + ", lastUpdated: " +
             (long)$hla.getAnnotations().getLastUpdated() + ", from: " +
@@ -165,7 +169,7 @@ end
 
 rule "ExtendedExerciseHLATest"
     when
-        $hla : ExerciseHLA(p : person) from entry-point "ExtendedExerciseHLA"
+        $hla : ExerciseHLA(p : person) from entry-point "ExtendedExerciseHLAStream"
     then
         System.out.println("Inserted EXTENDED EXERCISE HLA event with person: " + p.getName()  + ", lastUpdated: " +
             (long)$hla.getAnnotations().getLastUpdated() + ", from: " +
@@ -175,7 +179,7 @@ end
 
 rule "ExtendedDiningHLATest"
     when
-        $hla : DiningHLA(p : person) from entry-point "ExtendedDiningHLA"
+        $hla : DiningHLA(p : person) from entry-point "ExtendedDiningHLAStream"
     then
         System.out.println("Inserted EXTENDED DINING HLA event with person: " + p.getName()  + ", lastUpdated: " +
             (long)$hla.getAnnotations().getLastUpdated() + ", from: " +
@@ -205,7 +209,10 @@ rule "WorkingHLA"
         AnnotationInfo ann = new AnnotationInfo(hlaTs, hlaConfidence, hlaInterval.getStart(), hlaInterval.getEnd());
         WorkingHLA hla = new WorkingHLA($p, ann);
 
-        entryPoints["ExtendedWorkingHLA"].insert(hla);
+        //entryPoints["ExtendedWorkingHLA"].insert(hla);
+        eventTracker.insertDerivedEvent(hla);
+        
+        System.out.println("[INFO] Derived HLA: " + hla + " FROM :\n\t POS: " + $pos + " \n\t LLA: " + $lla);
 end
 
 rule "DiscussingHLA"
@@ -227,7 +234,10 @@ rule "DiscussingHLA"
                 AnnotationInfo ann = new AnnotationInfo(hlaTs, hlaConfidence, hlaInterval.getStart(), hlaInterval.getEnd());
                 DiscussingHLA hla = new DiscussingHLA($p, ann);
 
-                entryPoints["ExtendedDiscussingHLA"].insert(hla);
+                //entryPoints["ExtendedDiscussingHLA"].insert(hla);
+                eventTracker.insertDerivedEvent(hla);
+                
+                System.out.println("[INFO] Derived HLA: " + hla + " FROM :\n\t POS: " + $pos + " \n\t LLA: " + $lla);
 end
 
 rule "ExerciseHLA"
@@ -249,7 +259,10 @@ rule "ExerciseHLA"
                 AnnotationInfo ann = new AnnotationInfo(hlaTs, hlaConfidence, hlaInterval.getStart(), hlaInterval.getEnd());
                 ExerciseHLA hla = new ExerciseHLA($p, ann);
 
-                entryPoints["ExtendedExerciseHLA"].insert(hla);
+                //entryPoints["ExtendedExerciseHLA"].insert(hla);
+                eventTracker.insertDerivedEvent(hla);
+                
+                System.out.println("[INFO] Derived HLA: " + hla + " FROM :\n\t POS: " + $pos + " \n\t LLA: " + $lla);
 end
 
 rule "DiningHLA"
@@ -271,5 +284,8 @@ rule "DiningHLA"
                 AnnotationInfo ann = new AnnotationInfo(hlaTs, hlaConfidence, hlaInterval.getStart(), hlaInterval.getEnd());
                 DiningHLA hla = new DiningHLA($p, ann);
 
-                entryPoints["ExtendedDiningHLA"].insert(hla);
+                //entryPoints["ExtendedDiningHLA"].insert(hla);
+                eventTracker.insertDerivedEvent(hla);
+                
+                System.out.println("[INFO] Derived HLA: " + hla + " FROM :\n\t POS: " + $pos + " \n\t LLA: " + $lla);
 end

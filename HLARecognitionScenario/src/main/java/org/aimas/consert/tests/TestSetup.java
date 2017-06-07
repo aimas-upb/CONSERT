@@ -3,8 +3,7 @@ package org.aimas.consert.tests;
 import java.io.File;
 import java.util.Collection;
 
-import org.aimas.consert.unittest.AccumulateTestRunner;
-import org.aimas.consert.unittest.SerializationHelper;
+import org.aimas.consert.utils.SerializationHelper;
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.kie.api.KieBase;
 import org.kie.api.KieBaseConfiguration;
@@ -61,7 +60,7 @@ public class TestSetup {
 
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(kbuilderConf);
 		for (String classPathResource : classPathResources) {
-			kbuilder.add(ResourceFactory.newClassPathResource(classPathResource, AccumulateTestRunner.class), ResourceType.DRL);
+			kbuilder.add(ResourceFactory.newClassPathResource(classPathResource, TestSetup.class), ResourceType.DRL);
 		}
 
 		if (kbuilder.hasErrors()) {

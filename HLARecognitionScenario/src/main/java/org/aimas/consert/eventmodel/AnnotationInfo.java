@@ -74,7 +74,7 @@ public class AnnotationInfo
 	@Override
     public String toString()
     {
-        return "Annotations [" + "lastUpdated=" + lastUpdated + ", confidence=" + confidence + ", startTime=" +
+        return "Annotations [" + "lastUpdated=" + (long)lastUpdated + ", confidence=" + confidence + ", startTime=" +
                 startTime.getTimeInMillis() + ", endTime=" + endTime.getTimeInMillis() + "]";
     }
 

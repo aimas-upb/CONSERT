@@ -1,4 +1,4 @@
-package org.aimas.consert.unittest;
+package org.aimas.consert.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

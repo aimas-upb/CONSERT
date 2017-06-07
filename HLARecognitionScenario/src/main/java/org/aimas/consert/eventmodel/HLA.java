@@ -26,7 +26,7 @@ public abstract class HLA extends BaseEvent
     }
 
     protected HLA(Person person, Type type, AnnotationInfo annotations) {
-    	super(annotations);
+    	super(annotations, EventGenerationType.DERIVED);
         this.person = person;
         this.type = type;
     }
@@ -101,4 +101,12 @@ public abstract class HLA extends BaseEvent
     	return true;
     }
     
+    @Override
+	public String getStreamName() {
+		return getClass().getSimpleName() + "Stream";
+	}
+	
+	public String getExtendedStreamName() {
+		return "Extended" + getStreamName();
+	}
 }

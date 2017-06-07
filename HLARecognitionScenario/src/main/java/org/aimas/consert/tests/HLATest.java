@@ -7,6 +7,7 @@ import org.kie.api.runtime.KieSession;
 
 import java.io.File;
 
+
 /**
  * Created by alex on 06.04.2017.
  */
@@ -40,15 +41,21 @@ public class HLATest extends TestSetup {
 	    	while (!eventInserter.isFinished()) {
 	    		Thread.sleep(2000);
 	    	}
+	    	
+	    	eventInserter.stop();
+	    	
+	    	engineRunner.join(10000);
+	    	
+			
+	    	PlotlyExporter.exportToHTML(null, kSession);
+            
+	    	eventInserter.stop();
 
-			PlotlyExporter.exportToHTML(null, kSession);
-
-            eventInserter.stop();
 
 	    	kSession.halt();
 	    	kSession.dispose();
 	    	
-	    	engineRunner.join(1000);
+	    	
     	}
     	catch(Exception ex) {
     		ex.printStackTrace();
