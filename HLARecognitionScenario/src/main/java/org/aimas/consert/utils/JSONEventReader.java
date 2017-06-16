@@ -8,11 +8,11 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.aimas.consert.eventmodel.LLA;
-import org.aimas.consert.eventmodel.Position;
-import org.aimas.consert.eventmodel.SittingLLA;
-import org.aimas.consert.eventmodel.StandingLLA;
-import org.aimas.consert.eventmodel.WalkingLLA;
+import org.aimas.consert.tests.hla.LLA;
+import org.aimas.consert.tests.hla.Position;
+import org.aimas.consert.tests.hla.SittingLLA;
+import org.aimas.consert.tests.hla.StandingLLA;
+import org.aimas.consert.tests.hla.WalkingLLA;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
