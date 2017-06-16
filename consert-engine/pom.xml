@@ -5,10 +5,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.aimas.consert</groupId>
-	<artifactId>HLADetectionTest</artifactId>
+	<artifactId>cep-engine</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 
-	<name>HLA Detection</name>
+	<name>CONSERT Reasoning Engine</name>
 	<description>A Drools Fusion Maven project to detect high level activities from low level ones.</description>
 
 	<properties>
