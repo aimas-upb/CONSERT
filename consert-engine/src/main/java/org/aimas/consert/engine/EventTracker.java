@@ -224,7 +224,7 @@ public class EventTracker extends BaseEventTracker {
     private void doDerivedInsertion(final ContextAssertion eventObject) {
 		//BaseEvent insertedEventObject = (BaseEvent)insertEvent.getObject();
 		
-    	String derivedEventStream = eventObject.getExtendedStreamName();
+    	final String derivedEventStream = eventObject.getExtendedStreamName();
     	
 		// perform same type of checks as in the case of temporal validity extension
 		// if this is the first event of its type
