@@ -7,8 +7,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.aimas.consert.eventmodel.BaseEvent;
-import org.aimas.consert.tests.EventTracker;
+import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.model.ContextAssertion;
 
 public class EventInserter {
 	
@@ -73,10 +73,10 @@ public class EventInserter {
 		
 		public void run() {
 			// get event to be inserted
-			BaseEvent event = (BaseEvent)events.poll();
+			ContextAssertion event = (ContextAssertion)events.poll();
 			if (event != null) {
 				// look at the next event if there is one
-				BaseEvent nextEvent = (BaseEvent)events.peek();
+				ContextAssertion nextEvent = (ContextAssertion)events.peek();
 				
 				// submit insertion task
 				insertionService.execute(new EventInsertionTask(event));
@@ -100,9 +100,9 @@ public class EventInserter {
 	}
 	
 	private class EventInsertionTask implements Runnable {
-		private BaseEvent event;
+		private ContextAssertion event;
 		
-		EventInsertionTask(BaseEvent event) {
+		EventInsertionTask(ContextAssertion event) {
 			this.event = event;
 		}
 		

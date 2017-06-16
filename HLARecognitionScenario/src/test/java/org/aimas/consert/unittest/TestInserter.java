@@ -8,12 +8,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.aimas.consert.eventmodel.AnnotationInfo;
-import org.aimas.consert.eventmodel.BaseEvent;
-import org.aimas.consert.eventmodel.Person;
-import org.aimas.consert.eventmodel.Position;
-import org.aimas.consert.eventmodel.Position.Type;
-import org.aimas.consert.tests.EventTracker;
+import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.model.DefaultAnnotationData;
+import org.aimas.consert.model.ContextAssertion;
+import org.aimas.consert.tests.hla.Person;
+import org.aimas.consert.tests.hla.Position;
+import org.aimas.consert.tests.hla.Position.Type;
 
 public class TestInserter {
 	public static final String POSITION_ENTRYPOINT 	= "PositionStream";
@@ -43,7 +43,7 @@ public class TestInserter {
 			Calendar next = (Calendar)now.clone();
 			now.add(Calendar.SECOND, 1);
 			
-			AnnotationInfo ann = new AnnotationInfo(next.getTimeInMillis(), 1.0, next, next);
+			DefaultAnnotationData ann = new DefaultAnnotationData(next.getTimeInMillis(), 1.0, next, next);
 			Position pos =  new Position(testPerson, Type.WORK_AREA, ann);
 			events.offer(pos);			
 		}
@@ -88,10 +88,10 @@ public class TestInserter {
 		
 		public void run() {
 			// get event to be inserted
-			BaseEvent event = (BaseEvent)events.poll();
+			ContextAssertion event = (ContextAssertion)events.poll();
 			if (event != null) {
 				// look at the next event if there is one
-				BaseEvent nextEvent = (BaseEvent)events.peek();
+				ContextAssertion nextEvent = (ContextAssertion)events.peek();
 				
 				// submit insertion task
 				insertionService.execute(new EventInsertionTask(event));
@@ -115,9 +115,9 @@ public class TestInserter {
 	}
 	
 	private class EventInsertionTask implements Runnable {
-		private BaseEvent event;
+		private ContextAssertion event;
 		
-		EventInsertionTask(BaseEvent event) {
+		EventInsertionTask(ContextAssertion event) {
 			this.event = event;
 		}
 		
