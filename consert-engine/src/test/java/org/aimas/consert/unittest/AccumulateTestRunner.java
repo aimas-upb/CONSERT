@@ -8,12 +8,14 @@ import org.aimas.consert.engine.EngineRunner;
 import org.aimas.consert.engine.EventTracker;
 import org.aimas.consert.tests.hla.TestSetup;
 import org.kie.api.runtime.KieSession;
-
+import org.junit.Assert;
+import org.junit.Test;
 /**
  * Created by alex on 06.04.2017.
  */
 public class AccumulateTestRunner extends TestSetup {
-	
+
+	@Test
     public static void main(String[] args) {
     	
     	try {
@@ -48,14 +50,10 @@ public class AccumulateTestRunner extends TestSetup {
 	    	
 	    	// verify if results only contain values <= 1 
 	    	System.out.println(results);
-	    	for (Long l : results) {
-	    		if (l > 1) {
-	    			System.out.println("IT DOES NOT WORK! GOT A COUNT GREATER THAN 1.");
-	    			break;
-	    		}
-	    	}
-	    	System.out.println("WE HAVE A WINNER. ALL COUNTS WITHIN WINDOW ARE <=1.");
-	    	
+			for (Long l : results) {
+				Assert.assertTrue("IT DOES NOT WORK! GOT A COUNT GREATER THAN 1.",l<=1);
+			}
+			System.out.println("WE HAVE A WINNER. ALL COUNTS WITHIN WINDOW ARE <=1.");
 	    	
 	    	kSession.halt();
 	    	kSession.dispose();

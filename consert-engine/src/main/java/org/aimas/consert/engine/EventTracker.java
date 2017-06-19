@@ -124,7 +124,7 @@ public class EventTracker extends BaseEventTracker {
 		    			// if it allows continuity by annotation
 		    			if (updatedEvent.getAnnotations().allowsAnnotationContinuity(event.getAnnotations())) { // time s
 			    			// create event clone
-							System.out.println( updatedEvent.getProcessingTimeStamp());
+							System.out.println("delay for " + event.toString() + "is: "  + (event.getProcessingTimeStamp() - updatedEvent.getProcessingTimeStamp()));
 			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
 			    					.applyExtensionOperator(event.getAnnotations());
 			    			

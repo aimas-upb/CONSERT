@@ -1,11 +1,15 @@
 package org.aimas.consert
 
 // Declare the metadata for the `Position` and `LLA` events
-import org.aimas.consert.eventmodel.Position
+//import org.aimas.consert.eventmodel.Position
+import org.aimas.consert.tests.hla.Position
 
-import org.aimas.consert.eventmodel.AnnotationInfo
-import org.aimas.consert.eventmodel.AnnotationUtils
-import org.aimas.consert.eventmodel.ValidityInterval
+//import org.aimas.consert.eventmodel.AnnotationInfo
+//import org.aimas.consert.eventmodel.AnnotationUtils
+//import org.aimas.consert.eventmodel.ValidityInterval
+import org.aimas.consert.model.AnnotationData
+import org.aimas.consert.model.DefaultAnnotationData
+import org.aimas.consert.model.AnnotationUtils
 
 // ============ Declare Position metadata
 declare Position
@@ -15,6 +19,7 @@ declare Position
 end
 
 global java.util.List results;
+global org.aimas.consert.engine.EventTracker eventTracker;
 
 rule "PositionInsertTest"
     when
@@ -28,10 +33,11 @@ rule "ExtendedPositionInsertTest"
     when
         $pos : Position(p : person, t : type) from entry-point "ExtendedPositionStream"
     then
+        DefaultAnnotationData ann = (DefaultAnnotationData)$pos.getAnnotations();
         System.out.println("Inserted EXTENDED POS event with person: " + p.getName() + ", type: " + t +
-            ", lastUpdated: " + (long)$pos.getAnnotations().getLastUpdated() + ", from: " +
-            $pos.getAnnotations().getStartTime().getTimeInMillis() + ", to: " +
-            $pos.getAnnotations().getEndTime().getTimeInMillis());
+            ", lastUpdated: " + (long)ann.getLastUpdated() + ", from: " +
+            ann.getStartTime().getTimeInMillis() + ", to: " +
+            ann.getEndTime().getTimeInMillis());
 end
 
 rule "ExtendedPositionAccumulateTest" salience 100
@@ -39,14 +45,15 @@ rule "ExtendedPositionAccumulateTest" salience 100
         $numEvents : Long() from accumulate (
             $pos : Position($p : person, type == Position.Type.WORK_AREA) over window:time( 10s ) from entry-point "ExtendedPositionStream",
             //$pos : Position($p : person, type == Position.Type.WORK_AREA) over window:time( 10s ) from entry-point "PositionStream",
-            count($pos) 
-        ); 
+            count($pos)
+        );
     then
+
         results.add($numEvents);
         
         //System.out.println("Inserted EXTENDED POS event with person: " + p.getName() + ", type: " + t +
-        //    ", lastUpdated: " + (long)$pos.getAnnotations().getLastUpdated() + ", from: " +
-        //    $pos.getAnnotations().getStartTime().getTimeInMillis() + ", to: " +
-        //    $pos.getAnnotations().getEndTime().getTimeInMillis());
+        //    ", lastUpdated: " + (long)$ann.getLastUpdated() + ", from: " +
+        //    ann.getStartTime().getTimeInMillis() + ", to: " +
+        //    ann.getEndTime().getTimeInMillis());
         
 end
