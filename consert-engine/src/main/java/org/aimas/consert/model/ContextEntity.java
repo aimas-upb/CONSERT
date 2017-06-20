@@ -5,4 +5,6 @@ public interface ContextEntity {
 	//boolean isResource();
 	
 	boolean isLiteral();
+	
+	Object getValue();
 }

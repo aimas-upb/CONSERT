@@ -26,7 +26,7 @@ public abstract class ContextAssertion {
 	
 	
 	/* ================== ContextAssertion content ================== */
-	public abstract Map<String, ContextEntity> getEntities();
+	protected abstract Map<String, ContextEntity> getEntities();
 	
 	
 	protected int arity = BINARY;
@@ -126,13 +126,51 @@ public abstract class ContextAssertion {
 	
 	
 	/* ================== Auxiliary methods ================== */ 
-	public abstract String getStreamName();
+	public String getStreamName() {
+		return getClass().getSimpleName() + "Stream";
+	};
 	
-	public abstract String getExtendedStreamName();
+	public String getExtendedStreamName() {
+		return "Extended" + getStreamName();
+	}
 	
-	public abstract int getContentHash();
+	public int getContentHash() {
+		final int prime = 31;
+		int result = 1;
+	    
+		for (ContextEntity entity : getEntities().values()) {
+			result = prime * result + ((entity == null) ? 0 : entity.hashCode());
+		}
+	    
+	    return result;
+	}
 	
-	public abstract boolean allowsContentContinuity(ContextAssertion event);
+	
+	public boolean allowsContentContinuity(ContextAssertion event) {
+		if (event == null)
+			return false;
+		
+		if (!getClass().equals(event.getClass()))
+			return false;
+		
+		Map<String, ContextEntity> myEntities = getEntities();
+		Map<String, ContextEntity> otherEntities = event.getEntities();
+		
+		for (String entityRole : myEntities.keySet()) {
+			if (!otherEntities.containsKey(entityRole)) {
+				return false;
+			}
+			else {
+				Object myEntityVal = myEntities.get(entityRole).getValue();
+				Object otherEntityVal = otherEntities.get(entityRole).getValue();
+				
+				if (!myEntityVal.equals(otherEntityVal))
+					return false;
+			}
+		}
+		
+		return true;
+	}
 	
 	public boolean isOverlappedBy(ContextAssertion event) {
 	    return AnnotationUtils.isValidityOverlap(getAnnotations(), event.getAnnotations());
