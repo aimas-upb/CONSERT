@@ -86,6 +86,7 @@ public abstract class ContextAssertion {
 	
 	protected double startTimestamp;
 	protected long eventDuration;
+	protected long ID;
 
 	private void setOccurrenceInfo(AnnotationData annotationData) {
 		if (annotationData != null) {
@@ -105,8 +106,14 @@ public abstract class ContextAssertion {
 	public long getProcessingTimeStamp() {
 		return processingTimeStamp;
 	}
-	
-	
+
+	public long getID() {
+		return ID;
+	}
+
+	public void setID(long ID) {
+		this.ID = ID;
+	}
 	public AnnotationData getAnnotations() {
 		return annotationData;
 	}

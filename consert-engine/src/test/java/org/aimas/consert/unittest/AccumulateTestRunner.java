@@ -69,7 +69,7 @@ public class AccumulateTestRunner extends TestSetup {
 	public static void main(String[] args) {
 		AccumulateTestRunner A = new AccumulateTestRunner();
 		A.test1();
-		
+
     }
 
 

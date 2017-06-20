@@ -5,6 +5,7 @@ import org.aimas.consert.tests.hla.Position
 import org.aimas.consert.tests.hla.SittingLLA
 import org.aimas.consert.tests.hla.WalkingLLA
 import org.aimas.consert.tests.hla.StandingLLA
+import java.util.ArrayList;
 
 import org.aimas.consert.tests.hla.WorkingHLA
 import org.aimas.consert.tests.hla.DiscussingHLA
@@ -14,7 +15,7 @@ import org.aimas.consert.tests.hla.DiningHLA
 import org.aimas.consert.model.AnnotationData
 import org.aimas.consert.model.DefaultAnnotationData
 import org.aimas.consert.model.AnnotationUtils
-
+import org.aimas.consert.model.ContextAssertion
 import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
@@ -227,8 +228,11 @@ rule "WorkingHLA"
         WorkingHLA hla = new WorkingHLA($p, ann);
 
         //entryPoints["ExtendedWorkingHLA"].insert(hla);
-        eventTracker.insertDerivedEvent(hla);
-        
+        ArrayList<ContextAssertion> List = new ArrayList<ContextAssertion>();
+                List.add($pos);
+                List.add($lla);
+                eventTracker.insertDerivedEvent(hla, List);
+
         System.out.println("[INFO] Derived HLA: " + hla + " FROM :\n\t POS: " + $pos + " \n\t LLA: " + $lla);
 end
 
@@ -244,8 +248,11 @@ rule "DiscussingHLA"
         DiscussingHLA hla = new DiscussingHLA($p, ann);
 
         //entryPoints["ExtendedDiscussingHLA"].insert(hla);
-        eventTracker.insertDerivedEvent(hla);
-        
+        ArrayList<ContextAssertion> List = new ArrayList<ContextAssertion>();
+                List.add($pos);
+                List.add($lla);
+                eventTracker.insertDerivedEvent(hla, List);
+
         System.out.println("[INFO] Derived HLA: " + hla + " FROM :\n\t POS: " + $pos + " \n\t LLA: " + $lla);
 end
 
@@ -262,8 +269,11 @@ rule "ExerciseHLA"
         ExerciseHLA hla = new ExerciseHLA($p, ann);
 
         //entryPoints["ExtendedExerciseHLA"].insert(hla);
-        eventTracker.insertDerivedEvent(hla);
-        
+        ArrayList<ContextAssertion> List = new ArrayList<ContextAssertion>();
+        List.add($pos);
+        List.add($lla);
+        eventTracker.insertDerivedEvent(hla, List);
+
         System.out.println("[INFO] Derived HLA: " + hla + " FROM :\n\t POS: " + $pos + " \n\t LLA: " + $lla);
 end
 
@@ -281,7 +291,10 @@ rule "DiningHLA"
         DiningHLA hla = new DiningHLA($p, ann);
 
         //entryPoints["ExtendedDiningHLA"].insert(hla);
-        eventTracker.insertDerivedEvent(hla);
-        
+        ArrayList<ContextAssertion> List = new ArrayList<ContextAssertion>();
+        List.add($pos);
+        List.add($lla);
+        eventTracker.insertDerivedEvent(hla, List);
+
         System.out.println("[INFO] Derived HLA: " + hla + " FROM :\n\t POS: " + $pos + " \n\t LLA: " + $lla);
 end
