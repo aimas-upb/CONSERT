@@ -2,6 +2,8 @@ package org.aimas.consert.tests.hla;
 
 import org.aimas.consert.model.ContextEntity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /*
  * Class for modeling a Person.
  */
@@ -55,5 +57,11 @@ public class Person implements ContextEntity {
 	@Override
     public boolean isLiteral() {
 	    return false;
+    }
+
+	@Override
+	@JsonIgnore
+    public Object getValue() {
+	    return this;
     }
 }

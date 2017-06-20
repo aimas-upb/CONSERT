@@ -18,6 +18,11 @@ public abstract class HLA extends BinaryContextAssertion {
         public boolean isLiteral() {
 	        return true;
         }
+
+		@Override
+        public Object getValue() {
+	        return this;
+        }
     }
 	
 	
@@ -43,6 +48,7 @@ public abstract class HLA extends BinaryContextAssertion {
     public void setType(Type type)
     {
         this.type = type;
+        setObject(type);
     }
 
     public Person getPerson() {
@@ -51,6 +57,7 @@ public abstract class HLA extends BinaryContextAssertion {
 
     public void setPerson(Person person) {
         this.person = person;
+        setSubject(person);
     }
 
     

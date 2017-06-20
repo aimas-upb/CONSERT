@@ -16,6 +16,11 @@ public abstract class LLA extends BinaryContextAssertion {
         public boolean isLiteral() {
 	        return true;
         }
+
+		@Override
+        public Object getValue() {
+	        return this;
+        }
     }
 
     Person person;                  /* the person which does the LLA */
@@ -36,9 +41,9 @@ public abstract class LLA extends BinaryContextAssertion {
         return type;
     }
 
-    public void setType(Type type)
-    {
+    public void setType(Type type) {
         this.type = type;
+        setObject(type);
     }
 
 
@@ -48,16 +53,17 @@ public abstract class LLA extends BinaryContextAssertion {
 
     public void setPerson(Person person) {
         this.person = person;
+        setSubject(person);
     }
     
-    @Override
-    public int getContentHash() {
-	    final int prime = 31;
-	    int result = 1;
-	    result = prime * result + ((person == null) ? 0 : person.hashCode());
-	    result = prime * result + ((type == null) ? 0 : type.hashCode());
-	    return result;
-    }
+//    @Override
+//    public int getContentHash() {
+//	    final int prime = 31;
+//	    int result = 1;
+//	    result = prime * result + ((person == null) ? 0 : person.hashCode());
+//	    result = prime * result + ((type == null) ? 0 : type.hashCode());
+//	    return result;
+//    }
     
     
     @Override
@@ -65,16 +71,16 @@ public abstract class LLA extends BinaryContextAssertion {
         return "LLA [" + "person=" + person + ", type=" + type + ", annotations=" + annotationData + "]";
     }
     
-    @Override
-    public boolean allowsContentContinuity(ContextAssertion event) {
-    	LLA otherEvent = (LLA)event;
-    	
-    	if (type == otherEvent.getType() && person.equals(otherEvent.getPerson())) {
-    		return true;
-    	}
-    	
-    	return false;
-    }
+//    @Override
+//    public boolean allowsContentContinuity(ContextAssertion event) {
+//    	LLA otherEvent = (LLA)event;
+//    	
+//    	if (type == otherEvent.getType() && person.equals(otherEvent.getPerson())) {
+//    		return true;
+//    	}
+//    	
+//    	return false;
+//    }
     
     
     @Override

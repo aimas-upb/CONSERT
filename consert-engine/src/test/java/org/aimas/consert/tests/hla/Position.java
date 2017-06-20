@@ -33,6 +33,11 @@ public class Position extends BinaryContextAssertion {
         public boolean isLiteral() {
 	        return true;
         }
+
+		@Override
+        public Object getValue() {
+	        return this;
+        }
     }
 
     Person person;                  /* The person which is implied in the positioning event */
@@ -53,6 +58,7 @@ public class Position extends BinaryContextAssertion {
 
     public void setPerson(Person person) {
         this.person = person;
+        setSubject(person);
     }
 
     public Type getType() {
@@ -61,38 +67,39 @@ public class Position extends BinaryContextAssertion {
 
     public void setType(Type type) {
         this.type = type;
+        setObject(type);
     }
     
-    public int getContentHash() {
-	    final int prime = 31;
-	    int result = 1;
-	    result = prime * result + ((person == null) ? 0 : person.hashCode());
-	    result = prime * result + ((type == null) ? 0 : type.hashCode());
-	    return result;
-    }
+//    public int getContentHash() {
+//	    final int prime = 31;
+//	    int result = 1;
+//	    result = prime * result + ((person == null) ? 0 : person.hashCode());
+//	    result = prime * result + ((type == null) ? 0 : type.hashCode());
+//	    return result;
+//    }
     
     @Override
     public String toString() {
         return "Position [" + "person=" + person + ", type=" + type + ", annotations=" + annotationData + "]";
     }
     
-    @Override
-    public boolean allowsContentContinuity(ContextAssertion event) {
-    	Position otherEvent = (Position)event;
-    	
-    	if (type == otherEvent.getType() && person.equals(otherEvent.getPerson())) {
-    		return true;
-    	}
-    	
-    	return false;
-    }
+//    @Override
+//    public boolean allowsContentContinuity(ContextAssertion event) {
+//    	Position otherEvent = (Position)event;
+//    	
+//    	if (type == otherEvent.getType() && person.equals(otherEvent.getPerson())) {
+//    		return true;
+//    	}
+//    	
+//    	return false;
+//    }
 
-	@Override
-	public String getStreamName() {
-		return Position.class.getSimpleName() + "Stream";
-	}
-	
-	public String getExtendedStreamName() {
-		return "Extended" + getStreamName();
-	}
+//	@Override
+//	public String getStreamName() {
+//		return Position.class.getSimpleName() + "Stream";
+//	}
+//	
+//	public String getExtendedStreamName() {
+//		return "Extended" + getStreamName();
+//	}
 }
