@@ -3,6 +3,8 @@ package org.aimas.consert.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 
 public abstract class UnaryContextAssertion extends ContextAssertion {
@@ -12,16 +14,17 @@ public abstract class UnaryContextAssertion extends ContextAssertion {
 	public UnaryContextAssertion() {}
 	
 	public UnaryContextAssertion(ContextEntity involvedEntity,
-			AnnotationData annotations, 
-			AcquisitionType generationType) {
+			AcquisitionType generationType, AnnotationData annotations) {
 		super(generationType, ContextAssertion.UNARY, annotations);
+		
 		this.involvedEntity = involvedEntity;
 	}
 	
 	public void setInvolvedEntity(ContextEntity involvedEntity) {
 		this.involvedEntity = involvedEntity;
 	}
-
+	
+	@JsonIgnore
 	public ContextEntity getInvolvedEntity() {
 		return involvedEntity;
 	}
