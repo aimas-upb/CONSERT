@@ -20,14 +20,54 @@ public class Position extends BinaryContextAssertion {
     }
 
 	public enum Type implements ContextEntity {
-        WORK_AREA,
-        DINING_AREA,
-        SITTING_AREA,
-        CONFERENCE_AREA,
-        ENTERTAINMENT_AREA,
-        SNACK_AREA,
-        EXERCISE_AREA,
-        HYGENE_AREA;
+        WORK_AREA {
+            @Override
+            public Object getValue() {
+                return WORK_AREA;
+            }
+        },
+        DINING_AREA {
+            @Override
+            public Object getValue() {
+                return DINING_AREA;
+            }
+        },
+        SITTING_AREA {
+            @Override
+            public Object getValue() {
+                return SITTING_AREA;
+            }
+        },
+        CONFERENCE_AREA {
+            @Override
+            public Object getValue() {
+                return CONFERENCE_AREA;
+            }
+        },
+        ENTERTAINMENT_AREA {
+            @Override
+            public Object getValue() {
+                return ENTERTAINMENT_AREA;
+            }
+        },
+        SNACK_AREA {
+            @Override
+            public Object getValue() {
+                return SNACK_AREA;
+            }
+        },
+        EXERCISE_AREA {
+            @Override
+            public Object getValue() {
+                return EXERCISE_AREA;
+            }
+        },
+        HYGENE_AREA {
+            @Override
+            public Object getValue() {
+                return HYGENE_AREA;
+            }
+        };
 
 		@Override
         public boolean isLiteral() {

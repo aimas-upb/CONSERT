@@ -1,5 +1,6 @@
 package org.aimas.consert.engine;
 
+import java.io.*;
 import java.util.*;
 
 import org.aimas.consert.model.AnnotationData;
@@ -16,6 +17,8 @@ import org.kie.api.runtime.rule.FactHandle;
 
 public class EventTracker extends BaseEventTracker {
 	static long ID = 0;
+	static int lla_file = 0;
+	static int hla_file = 0;
 
 	public static class TrackedEventData {
 		private FactHandle existingHandle;
@@ -129,7 +132,32 @@ public class EventTracker extends BaseEventTracker {
 							System.out.println("delay for " + event.toString() + "is: "  + (kSession.getSessionClock().getCurrentTime() - event.getProcessingTimeStamp()));
 			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
 			    					.applyExtensionOperator(event.getAnnotations());
-			    			
+			    			if (lla_file ==0)
+							{
+								lla_file = 1;
+								PrintWriter writer = null;
+								try {
+									writer = new PrintWriter("lla_delays.txt");
+								} catch (FileNotFoundException e) {
+									e.printStackTrace();
+								}
+								writer.println(kSession.getSessionClock().getCurrentTime() - event.getProcessingTimeStamp());
+								writer.close();
+							}
+							else
+							{
+								try(FileWriter fw = new FileWriter("lla_delays.txt", true);
+									BufferedWriter bw = new BufferedWriter(fw);
+									PrintWriter out = new PrintWriter(bw))
+								{
+									out.println(kSession.getSessionClock().getCurrentTime() - event.getProcessingTimeStamp());
+									//more code
+									out.close();
+								} catch (IOException e) {
+									//exception handling left as an exercise for the reader
+								}
+
+							}
 			    			updatedEvent.setAnnotations(updatedAnnotations);
 							updatedEvent.setID(event.getID());
 			    			// if the event allows continuity, remove the old instance and insert the new one
@@ -331,6 +359,33 @@ public class EventTracker extends BaseEventTracker {
 						if(IDMap.get(x).getID()==List.get(max_id).getID())
 						{
 							System.out.println("delay for " + eventObject + "is :" + (kSession.getSessionClock().getCurrentTime()-IDMap.get(x).getProcessingTimeStamp()));
+							if (hla_file ==0)
+							{
+								hla_file = 1;
+								PrintWriter writer = null;
+								try {
+									writer = new PrintWriter("hla_delays.txt");
+								} catch (FileNotFoundException e) {
+									e.printStackTrace();
+								}
+								writer.println(kSession.getSessionClock().getCurrentTime()-IDMap.get(x).getProcessingTimeStamp());
+								writer.close();
+							}
+							else
+							{
+								try(FileWriter fw = new FileWriter("hla_delays.txt", true);
+									BufferedWriter bw = new BufferedWriter(fw);
+									PrintWriter out = new PrintWriter(bw))
+								{
+									out.println(kSession.getSessionClock().getCurrentTime()-IDMap.get(x).getProcessingTimeStamp());
+									//more code
+									out.close();
+								} catch (IOException e) {
+									//exception handling left as an exercise for the reader
+								}
+
+							}
+							break;
 						}
 					}
 							// check to see if it matches one of the previous stored events by content

@@ -56,4 +56,9 @@ public class Person implements ContextEntity {
     public boolean isLiteral() {
 	    return false;
     }
+
+    @Override
+    public Object getValue() {
+        return name;
+    }
 }

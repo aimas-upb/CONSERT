@@ -12,7 +12,27 @@ import org.aimas.consert.model.ContextEntity;
 public abstract class HLA extends BinaryContextAssertion {
 
 	public enum Type implements ContextEntity {
-        DISCUSSING, EXERCISE, WORKING, DINING;
+        DISCUSSING {
+            @Override
+            public Object getValue() {
+                return DISCUSSING;
+            }
+        }, EXERCISE {
+            @Override
+            public Object getValue() {
+                return EXERCISE;
+            }
+        }, WORKING {
+            @Override
+            public Object getValue() {
+                return WORKING;
+            }
+        }, DINING {
+            @Override
+            public Object getValue() {
+                return DINING;
+            }
+        };
 
 		@Override
         public boolean isLiteral() {

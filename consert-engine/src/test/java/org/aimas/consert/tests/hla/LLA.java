@@ -10,7 +10,22 @@ import org.aimas.consert.model.ContextEntity;
  */
 public abstract class LLA extends BinaryContextAssertion {
 	public enum Type implements ContextEntity {
-        SITTING, STANDING, WALKING;
+        SITTING {
+            @Override
+            public Object getValue() {
+                return SITTING;
+            }
+        }, STANDING {
+            @Override
+            public Object getValue() {
+                return STANDING;
+            }
+        }, WALKING {
+            @Override
+            public Object getValue() {
+                return WALKING;
+            }
+        };
 
 		@Override
         public boolean isLiteral() {
