@@ -34,6 +34,7 @@ public class HLATest extends TestSetup {
 	    	
 	    	File inputFile = getFileNameFromResources("files/single_hla_120s_01er_015fd.json");
 	    	EventTracker eventTracker = new EventTracker(kSession);
+	    	eventTracker.onStart();
 	    	EventInserter eventInserter = new EventInserter(inputFile, eventTracker);
 	    	
 	    	// start the engine thread and the inserter, wait for the inserter to finish then exit
@@ -47,7 +48,7 @@ public class HLATest extends TestSetup {
 	    	eventInserter.stop();
 	    	
 	    	engineRunner.join(10000);
-	    	
+			eventTracker.onStop();
 			
 	    	PlotlyExporter.exportToHTML(null, kSession);
             

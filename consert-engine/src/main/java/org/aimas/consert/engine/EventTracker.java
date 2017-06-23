@@ -7,6 +7,8 @@ import org.aimas.consert.model.AnnotationData;
 import org.aimas.consert.model.AnnotationDataFactory;
 import org.aimas.consert.model.ContextAssertion;
 import org.aimas.consert.model.DefaultAnnotationDataFactory;
+import org.aimas.consert.tests.hla.LLA;
+import org.kie.api.cdi.KSession;
 import org.kie.api.event.rule.ObjectDeletedEvent;
 import org.kie.api.event.rule.ObjectInsertedEvent;
 import org.kie.api.event.rule.ObjectUpdatedEvent;
@@ -17,8 +19,8 @@ import org.kie.api.runtime.rule.FactHandle;
 
 public class EventTracker extends BaseEventTracker {
 	static long ID = 0;
-	static int lla_file = 0;
-	static int hla_file = 0;
+	ArrayList<Long> LLADelays;
+	ArrayList<Long> HLADelays;
 
 	public static class TrackedEventData {
 		private FactHandle existingHandle;
@@ -47,7 +49,6 @@ public class EventTracker extends BaseEventTracker {
 	
 	Map<Class<? extends ContextAssertion>, List<FactHandle>> lastValidEventMap = new HashMap<Class<? extends ContextAssertion>, List<FactHandle>>();
 	Map<Class<? extends ContextAssertion>, List<FactHandle>> lastValidDeducedMap = new HashMap<Class<? extends ContextAssertion>, List<FactHandle>>();
-	Map<FactHandle, ContextAssertion> IDMap = new HashMap<FactHandle, ContextAssertion>();
 	private AnnotationDataFactory annotationFactory = new DefaultAnnotationDataFactory();
 	
 	public AnnotationDataFactory getAnnotationFactory() {
@@ -57,12 +58,37 @@ public class EventTracker extends BaseEventTracker {
 	public void setAnnotationFactory(AnnotationDataFactory annotationFactory) {
 		this.annotationFactory = annotationFactory;
 	}
-	
+
 	public EventTracker(KieSession kSession) {
 		super(kSession);
 		kSession.setGlobal("eventTracker", this);
 	}
-	
+
+	@Override
+	public void onStart() {
+		LLADelays = new ArrayList<Long>();
+		HLADelays = new ArrayList<Long>();
+	}
+
+	private void printToFile (String fileName, ArrayList<Long> arr)
+	{
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(fileName);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		for (int i =0; i< arr.size(); i++)
+			writer.println(arr.get(i));
+		writer.close();
+	}
+
+	@Override
+	public void onStop() {
+		printToFile("lla_delays.txt",LLADelays);
+		printToFile("hla_delays.txt",HLADelays);
+	}
+
 	private TrackedEventData searchHandleByContent(Map<Class<? extends ContextAssertion>, List<FactHandle>> recencyMap, ContextAssertion event, KieSession kSession) {
 		List<FactHandle> handleList = recencyMap.get(event.getClass());
 		for (FactHandle existingHandle : handleList) {
@@ -101,7 +127,6 @@ public class EventTracker extends BaseEventTracker {
     			
 	    		FactHandle handle = kSession.getEntryPoint(eventStream).insert(event);
 	    		handleList.add(handle);
-				IDMap.put(handle, event);
     		}
     		else {
     			// Go through with event insertion in its appropriate stream anyway, just don't hold the handle in the lastValidEventMap
@@ -129,35 +154,10 @@ public class EventTracker extends BaseEventTracker {
 		    			// if it allows continuity by annotation
 		    			if (updatedEvent.getAnnotations().allowsAnnotationContinuity(event.getAnnotations())) { // time s
 			    			// create event clone
-							System.out.println("delay for " + event.toString() + "is: "  + (kSession.getSessionClock().getCurrentTime() - event.getProcessingTimeStamp()));
-			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
-			    					.applyExtensionOperator(event.getAnnotations());
-			    			if (lla_file ==0)
-							{
-								lla_file = 1;
-								PrintWriter writer = null;
-								try {
-									writer = new PrintWriter("lla_delays.txt");
-								} catch (FileNotFoundException e) {
-									e.printStackTrace();
-								}
-								writer.println(kSession.getSessionClock().getCurrentTime() - event.getProcessingTimeStamp());
-								writer.close();
-							}
-							else
-							{
-								try(FileWriter fw = new FileWriter("lla_delays.txt", true);
-									BufferedWriter bw = new BufferedWriter(fw);
-									PrintWriter out = new PrintWriter(bw))
-								{
-									out.println(kSession.getSessionClock().getCurrentTime() - event.getProcessingTimeStamp());
-									//more code
-									out.close();
-								} catch (IOException e) {
-									//exception handling left as an exercise for the reader
-								}
-
-							}
+							long delay = (kSession.getSessionClock().getCurrentTime() - event.getProcessingTimeStamp());
+							System.out.println("delay for " + event.toString() + "is: "  + delay);
+							LLADelays.add(delay);
+			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations().applyExtensionOperator(event.getAnnotations());
 			    			updatedEvent.setAnnotations(updatedAnnotations);
 							updatedEvent.setID(event.getID());
 			    			// if the event allows continuity, remove the old instance and insert the new one
@@ -171,7 +171,6 @@ public class EventTracker extends BaseEventTracker {
 			    			String extendedEventStream = updatedEvent.getExtendedStreamName();
 			    			FactHandle handle = kSession.getEntryPoint(extendedEventStream).insert(updatedEvent);
 		        			handleList.add(handle);
-							IDMap.put(handle, updatedEvent);
 			    			
 			    			// TEST SIZE OF KnowledgeBase
 			    			//System.out.println("COUNT OF EVENTS FOR " + existingEventEntry.getEntryPointId() + " IS: " + existingEventEntry.getObjects().size());
@@ -183,7 +182,6 @@ public class EventTracker extends BaseEventTracker {
 		    					List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
 		    					handleList.remove(existingEventHandle);
 		    					handleList.add(newEventHandle);
-								IDMap.put(newEventHandle, event);
 		    					//handleList.add(finalNewEventHandle);
 		    				}
 			    		}
@@ -195,7 +193,6 @@ public class EventTracker extends BaseEventTracker {
 							// add it to the list of monitored events for this type
 		    				List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
 		    				handleList.add(newEventHandle);
-							IDMap.put(newEventHandle, event);
 		    				//handleList.add(finalNewEventHandle);
 		    			}
 		    		}
@@ -351,40 +348,16 @@ public class EventTracker extends BaseEventTracker {
 						if (List.get(i).getID()>max_id)
 							max_id = i;
 					}
-					String extendedEventStream = List.get(max_id).getExtendedStreamName();
+					String extendedEventStream = List.get(max_id).getStreamName();
 					Collection<FactHandle> handles = kSession.getEntryPoint(extendedEventStream).getFactHandles();
 
-					for (FactHandle x:handles)
+					for (Object event : kSession.getEntryPoint(extendedEventStream).getObjects())
 					{
-						if(IDMap.get(x).getID()==List.get(max_id).getID())
+						if(((ContextAssertion)event).getID()==List.get(max_id).getID())
 						{
-							System.out.println("delay for " + eventObject + "is :" + (kSession.getSessionClock().getCurrentTime()-IDMap.get(x).getProcessingTimeStamp()));
-							if (hla_file ==0)
-							{
-								hla_file = 1;
-								PrintWriter writer = null;
-								try {
-									writer = new PrintWriter("hla_delays.txt");
-								} catch (FileNotFoundException e) {
-									e.printStackTrace();
-								}
-								writer.println(kSession.getSessionClock().getCurrentTime()-IDMap.get(x).getProcessingTimeStamp());
-								writer.close();
-							}
-							else
-							{
-								try(FileWriter fw = new FileWriter("hla_delays.txt", true);
-									BufferedWriter bw = new BufferedWriter(fw);
-									PrintWriter out = new PrintWriter(bw))
-								{
-									out.println(kSession.getSessionClock().getCurrentTime()-IDMap.get(x).getProcessingTimeStamp());
-									//more code
-									out.close();
-								} catch (IOException e) {
-									//exception handling left as an exercise for the reader
-								}
-
-							}
+							long delay = (kSession.getSessionClock().getCurrentTime()- ((ContextAssertion)event).getProcessingTimeStamp());
+							System.out.println("delay for " + eventObject + "is :" + delay);
+							HLADelays.add(delay);
 							break;
 						}
 					}

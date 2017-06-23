@@ -24,6 +24,7 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener {
 		
 		return null;
 	}
-	
+	public abstract void onStart();
+	public abstract void onStop();
 	public abstract void insertAtomicEvent(ContextAssertion event);	
 }
