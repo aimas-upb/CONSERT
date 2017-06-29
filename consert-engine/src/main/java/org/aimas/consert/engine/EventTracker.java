@@ -1,14 +1,18 @@
 package org.aimas.consert.engine;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.aimas.consert.model.AnnotationData;
 import org.aimas.consert.model.AnnotationDataFactory;
 import org.aimas.consert.model.ContextAssertion;
 import org.aimas.consert.model.DefaultAnnotationDataFactory;
-import org.aimas.consert.tests.hla.LLA;
-import org.kie.api.cdi.KSession;
 import org.kie.api.event.rule.ObjectDeletedEvent;
 import org.kie.api.event.rule.ObjectInsertedEvent;
 import org.kie.api.event.rule.ObjectUpdatedEvent;
@@ -219,6 +223,7 @@ public class EventTracker extends BaseEventTracker {
     	}
     	
     }
+    
 	public void insertDerivedEvent(ContextAssertion event, ArrayList<ContextAssertion> List) {
 		//kSession.getQueryResults(query, arguments);
 
@@ -257,8 +262,7 @@ public class EventTracker extends BaseEventTracker {
 		return false;
     }
 
-
-    
+	
     private void doDerivedInsertion(final ContextAssertion eventObject) {
 		//BaseEvent insertedEventObject = (BaseEvent)insertEvent.getObject();
 		
@@ -317,9 +321,10 @@ public class EventTracker extends BaseEventTracker {
 		    		}
 				}
 			});
-    	}
-		
+    	}	
     }
+    
+    
 	private void doDerivedInsertion(final ContextAssertion eventObject,final ArrayList<ContextAssertion> List) {
 		//BaseEvent insertedEventObject = (BaseEvent)insertEvent.getObject();
 		eventObject.setProcessingTimeStamp(kSession.getSessionClock().getCurrentTime());
@@ -350,7 +355,7 @@ public class EventTracker extends BaseEventTracker {
 					}
 					String extendedEventStream = List.get(max_id).getStreamName();
 					Collection<FactHandle> handles = kSession.getEntryPoint(extendedEventStream).getFactHandles();
-
+					
 					for (Object event : kSession.getEntryPoint(extendedEventStream).getObjects())
 					{
 						if(((ContextAssertion)event).getID()==List.get(max_id).getID())
@@ -358,10 +363,12 @@ public class EventTracker extends BaseEventTracker {
 							long delay = (kSession.getSessionClock().getCurrentTime()- ((ContextAssertion)event).getProcessingTimeStamp());
 							System.out.println("delay for " + eventObject + "is :" + delay);
 							HLADelays.add(delay);
+							
 							break;
 						}
 					}
-							// check to see if it matches one of the previous stored events by content
+					
+					// check to see if it matches one of the previous stored events by content
 					TrackedEventData existingEventData = searchHandleByContent(lastValidDeducedMap, eventObject, kSession);
 					if (existingEventData != null) {
 						// if it DOES match any monitored event by content
