@@ -7,33 +7,33 @@ import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Cabinet extends BinaryContextAssertion {
 	
-	String cabinetId;
-	CabinetStatus cabinetStatus;
+	String sensorId;
+	CabinetStatus status;
 	
 	public Cabinet() {}
 	
-	public Cabinet(String cabinetId, CabinetStatus cabinetStatus, AnnotationData annotations) {
-		super(new StringLiteral(cabinetId), cabinetStatus, AcquisitionType.SENSED, annotations);
+	public Cabinet(String sensorId, CabinetStatus status, AnnotationData annotations) {
+		super(new StringLiteral(sensorId), status, AcquisitionType.SENSED, annotations);
 		
-		this.cabinetId = cabinetId;
-		this.cabinetStatus = cabinetStatus;
+		this.sensorId = sensorId;
+		this.status = status;
 	}
 
-	public String getCabinetId() {
-		return cabinetId;
+	public String getSensorId() {
+		return sensorId;
 	}
 
-	public void setCabinetId(String cabinetId) {
-		this.cabinetId = cabinetId;
-		setSubject(new StringLiteral(cabinetId));
+	public void setSensorId(String sensorId) {
+		this.sensorId = sensorId;
+		setSubject(new StringLiteral(sensorId));
 	}
 
 	public CabinetStatus getCabinetStatus() {
-		return cabinetStatus;
+		return status;
 	}
 
-	public void setCabinetStatus(CabinetStatus cabinetStatus) {
-		this.cabinetStatus = cabinetStatus;
-		setObject(cabinetStatus);
+	public void setCabinetStatus(CabinetStatus status) {
+		this.status = status;
+		setObject(status);
 	}
 }

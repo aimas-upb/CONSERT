@@ -8,15 +8,15 @@ import org.aimas.consert.tests.casas.entities.StringLiteral;
 public class Motion extends BinaryContextAssertion {
 	
 	String sensorId;
-	MotionStatus motionStatus;
+	MotionStatus status;
 	
 	public Motion() {}
 	
-	public Motion(String sensorId, MotionStatus motionStatus, AnnotationData annotations) {
-		super(new StringLiteral(sensorId), motionStatus, AcquisitionType.SENSED, annotations);
+	public Motion(String sensorId, MotionStatus status, AnnotationData annotations) {
+		super(new StringLiteral(sensorId), status, AcquisitionType.SENSED, annotations);
 		
 		this.sensorId = sensorId;
-		this.motionStatus = motionStatus;
+		this.status = status;
 	}
 
 	public String getSensorId() {
@@ -28,12 +28,12 @@ public class Motion extends BinaryContextAssertion {
 		setSubject(new StringLiteral(sensorId));
 	}
 
-	public MotionStatus getMotionStatus() {
-		return motionStatus;
+	public MotionStatus getStatus() {
+		return status;
 	}
 
-	public void setMotionStatus(MotionStatus motionStatus) {
-		this.motionStatus = motionStatus;
-		setObject(motionStatus);
+	public void setStatus(MotionStatus status) {
+		this.status = status;
+		setObject(status);
 	}
 }

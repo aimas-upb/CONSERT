@@ -7,33 +7,33 @@ import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Item extends BinaryContextAssertion {
 	
-	String itemName;
-	ItemStatus itemStatus;
+	String sensorId;
+	ItemStatus status;
 	
 	public Item() {}
 	
-	public Item(String itemName, ItemStatus itemStatus, AnnotationData annotations) {
-		super(new StringLiteral(itemName), itemStatus, AcquisitionType.SENSED, annotations);
+	public Item(String sensorId, ItemStatus status, AnnotationData annotations) {
+		super(new StringLiteral(sensorId), status, AcquisitionType.SENSED, annotations);
 	
-		this.itemName = itemName;
-		this.itemStatus = itemStatus;
+		this.sensorId = sensorId;
+		this.status = status;
 	}
 
-	public String getItemName() {
-		return itemName;
+	public String getSensorId() {
+		return sensorId;
 	}
 
-	public void setItemName(String itemName) {
-		this.itemName = itemName;
-		setSubject(new StringLiteral(itemName));
+	public void setSensorId(String sensorId) {
+		this.sensorId = sensorId;
+		setSubject(new StringLiteral(sensorId));
 	}
 
-	public ItemStatus getItemStatus() {
-		return itemStatus;
+	public ItemStatus getStatus() {
+		return status;
 	}
 
-	public void setItemStatus(ItemStatus itemStatus) {
-		this.itemStatus = itemStatus;
-		setObject(itemStatus);
+	public void setStatus(ItemStatus status) {
+		this.status = status;
+		setObject(status);
 	}
 }

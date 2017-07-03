@@ -6,22 +6,22 @@ import org.aimas.consert.tests.casas.entities.PhoneUsage;
 
 public class Phone extends UnaryContextAssertion {
 	
-	PhoneUsage usage;
+	PhoneUsage value;
 	
 	public Phone() {}
 	
-	public Phone(PhoneUsage usage, AnnotationData annotations) {
-		super(usage, AcquisitionType.SENSED, annotations);
+	public Phone(PhoneUsage value, AnnotationData annotations) {
+		super(value, AcquisitionType.SENSED, annotations);
 		
-		this.usage = usage;
+		this.value = value;
 	}
 
-	public PhoneUsage getUsage() {
-		return usage;
+	public PhoneUsage getValue() {
+		return value;
 	}
 
-	public void setUsage(PhoneUsage usage) {
-		this.usage = usage;
-		setInvolvedEntity(usage);
+	public void setValue(PhoneUsage value) {
+		this.value = value;
+		setInvolvedEntity(value);
 	}
 }

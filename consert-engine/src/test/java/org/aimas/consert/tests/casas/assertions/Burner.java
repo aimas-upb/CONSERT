@@ -1,10 +1,8 @@
 package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.AnnotationData;
-import org.aimas.consert.model.ContextAssertion.AcquisitionType;
 import org.aimas.consert.model.UnaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.NumericLiteral;
-import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Burner extends UnaryContextAssertion {
 	
@@ -12,7 +10,7 @@ public class Burner extends UnaryContextAssertion {
 	
 	public Burner() {}
 	
-	public Burner(String burnerId, double value, AnnotationData annotations) {
+	public Burner(double value, AnnotationData annotations) {
 		super(new NumericLiteral(value), AcquisitionType.SENSED, annotations);
 		
 		this.value = value;
