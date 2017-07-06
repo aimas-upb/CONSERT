@@ -13,3 +13,6 @@ hs_err_pid*
 
 # ignoring txt files
 *.txt
+
+# ignoring local maven repo folder
+repo/
