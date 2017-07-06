@@ -5,10 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.aimas.consert.model.AnnotationData;
-import org.aimas.consert.model.AnnotationDataFactory;
-import org.aimas.consert.model.ContextAssertion;
-import org.aimas.consert.model.DefaultAnnotationDataFactory;
+import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.annotations.AnnotationDataFactory;
+import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.kie.api.event.rule.ObjectDeletedEvent;
 import org.kie.api.event.rule.ObjectInsertedEvent;
 import org.kie.api.event.rule.ObjectUpdatedEvent;

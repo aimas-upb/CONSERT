@@ -1,6 +1,6 @@
 package org.aimas.consert.engine;
 
-import org.aimas.consert.model.ContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.EntryPoint;

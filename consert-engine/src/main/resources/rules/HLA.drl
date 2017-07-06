@@ -1,19 +1,23 @@
 package org.aimas.consert
 
 // Declare the metadata for the `Position` and `LLA` events
-import org.aimas.consert.tests.hla.Position
-import org.aimas.consert.tests.hla.SittingLLA
-import org.aimas.consert.tests.hla.WalkingLLA
-import org.aimas.consert.tests.hla.StandingLLA
+import org.aimas.consert.tests.hla.entities.Area
 
-import org.aimas.consert.tests.hla.WorkingHLA
-import org.aimas.consert.tests.hla.DiscussingHLA
-import org.aimas.consert.tests.hla.ExerciseHLA
-import org.aimas.consert.tests.hla.DiningHLA
+import org.aimas.consert.tests.hla.assertions.Position
+import org.aimas.consert.tests.hla.assertions.SittingLLA
+import org.aimas.consert.tests.hla.assertions.WalkingLLA
+import org.aimas.consert.tests.hla.assertions.StandingLLA
 
-import org.aimas.consert.model.AnnotationData
-import org.aimas.consert.model.DefaultAnnotationData
-import org.aimas.consert.model.AnnotationUtils
+import org.aimas.consert.tests.hla.assertions.WorkingHLA
+import org.aimas.consert.tests.hla.assertions.DiscussingHLA
+import org.aimas.consert.tests.hla.assertions.ExerciseHLA
+import org.aimas.consert.tests.hla.assertions.DiningHLA
+
+
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
 
 import org.aimas.consert.engine.EventTracker
 
@@ -207,7 +211,7 @@ end
 // =========== HLA detection rules
 rule "WorkingHLA"
     when
-        $pos : Position($p : person, type == Position.Type.WORK_AREA, $annPos : annotations) from entry-point "ExtendedPositionStream"
+        $pos : Position($p : person, type == Area.WORK_AREA, $annPos : annotations) from entry-point "ExtendedPositionStream"
         $lla : SittingLLA(person == $p, $annLLA : annotations) from entry-point "ExtendedLLAStream"
 
         eval(AnnotationUtils.intersects($annPos, $annLLA))
@@ -235,7 +239,7 @@ end
 
 rule "DiscussingHLA"
     when
-        $pos : Position($p : person, type == Position.Type.CONFERENCE_AREA, $annPos : annotations) from entry-point "ExtendedPositionStream"
+        $pos : Position($p : person, type == Area.CONFERENCE_AREA, $annPos : annotations) from entry-point "ExtendedPositionStream"
         $lla : StandingLLA(person == $p, $annLLA : annotations) from entry-point "ExtendedLLAStream"
         eval(AnnotationUtils.intersects($annPos, $annLLA))
     then
@@ -253,7 +257,7 @@ end
 
 rule "ExerciseHLA"
     when
-        $pos : Position($p : person, type == Position.Type.EXERCISE_AREA, $annPos : annotations) from entry-point "ExtendedPositionStream"
+        $pos : Position($p : person, type == Area.EXERCISE_AREA, $annPos : annotations) from entry-point "ExtendedPositionStream"
         $lla : StandingLLA(person == $p, $annLLA : annotations) from entry-point "ExtendedLLAStream"
         eval(AnnotationUtils.intersects($annPos, $annLLA))
     then
@@ -271,7 +275,7 @@ end
 
 rule "DiningHLA"
     when
-        $pos : Position($p : person, type == Position.Type.DINING_AREA, $annPos : annotations) from entry-point "ExtendedPositionStream"
+        $pos : Position($p : person, type == Area.DINING_AREA, $annPos : annotations) from entry-point "ExtendedPositionStream"
         $lla : SittingLLA(person == $p, $annLLA : annotations) from entry-point "ExtendedLLAStream"
         //eval(AnnotationUtils.intersects($pos.getAnnotations(), $lla.getAnnotations())
         eval(AnnotationUtils.intersects($annPos, $annLLA))
