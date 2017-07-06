@@ -1,6 +1,6 @@
 package org.aimas.consert.tests.casas.entities;
 
-import org.aimas.consert.model.ContextEntity;
+import org.aimas.consert.model.content.ContextEntity;
 
 public enum WaterType implements ContextEntity {
 	hot, cold;
@@ -13,5 +13,10 @@ public enum WaterType implements ContextEntity {
 	@Override
     public Object getValue() {
 	    return this;
+    }
+
+	@Override
+    public String getEntityId() {
+	    return name();
     }
 }

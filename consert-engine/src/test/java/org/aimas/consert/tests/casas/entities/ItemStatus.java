@@ -1,6 +1,6 @@
 package org.aimas.consert.tests.casas.entities;
 
-import org.aimas.consert.model.ContextEntity;
+import org.aimas.consert.model.content.ContextEntity;
 
 public enum ItemStatus implements ContextEntity {
 	PRESENT, ABSENT;
@@ -13,5 +13,10 @@ public enum ItemStatus implements ContextEntity {
 	@Override
     public Object getValue() {
 	    return this;
+    }
+
+	@Override
+    public String getEntityId() {
+	    return name();
     }
 }

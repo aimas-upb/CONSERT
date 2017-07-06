@@ -1,6 +1,7 @@
 package org.aimas.consert.tests.casas.entities;
 
-import org.aimas.consert.model.ContextEntity;
+import org.aimas.consert.model.content.ContextEntity;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -22,6 +23,11 @@ public class StringLiteral implements ContextEntity {
 	@JsonIgnore
     public Object getValue() {
 	    return literal;
+    }
+
+	@Override
+    public String getEntityId() {
+	    return SimpleValueFactory.getInstance().createLiteral(literal).getLabel();
     }
 	
 }
