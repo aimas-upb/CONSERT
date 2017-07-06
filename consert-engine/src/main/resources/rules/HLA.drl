@@ -116,8 +116,8 @@ rule "ExtendedPositionInsertTest"
         
         System.out.println("Inserted EXTENDED POS event with person: " + p.getName() + ", type: " + t +
             ", lastUpdated: " + (long)ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTimeInMillis() + ", to: " +
-            ann.getEndTime().getTimeInMillis());
+            ann.getStartTime().getTime() + ", to: " +
+            ann.getEndTime().getTime());
 end
 
 rule "ExtendedSittingLLAInsertTest"
@@ -128,8 +128,8 @@ rule "ExtendedSittingLLAInsertTest"
         
         System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t +
             ", lastUpdated: " + (long)ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTimeInMillis() + ", to: " +
-            ann.getEndTime().getTimeInMillis());
+            ann.getStartTime().getTime() + ", to: " +
+            ann.getEndTime().getTime());
 end
 
 
@@ -141,8 +141,8 @@ rule "ExtendedWalkingLLAInsertTest"
         
         System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t +
             ", lastUpdated: " + (long)ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTimeInMillis() + ", to: " +
-            ann.getEndTime().getTimeInMillis());
+            ann.getStartTime().getTime() + ", to: " +
+            ann.getEndTime().getTime());
 end
 
 
@@ -154,8 +154,8 @@ rule "ExtendedStandingLLAInsertTest"
         
         System.out.println("Inserted EXTENDED LLA event with person: " + p.getName() + ", type: " + t +
             ", lastUpdated: " + (long)ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTimeInMillis() + ", to: " +
-            ann.getEndTime().getTimeInMillis());
+            ann.getStartTime().getTime() + ", to: " +
+            ann.getEndTime().getTime());
 end
 
 rule "ExtendedWorkingHLATest"
@@ -166,8 +166,8 @@ rule "ExtendedWorkingHLATest"
         
         System.out.println("Inserted EXTENDED WORKING HLA event with person: " + p.getName()  + ", lastUpdated: " +
             (long)ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTimeInMillis() + ", to: " +
-            ann.getEndTime().getTimeInMillis());
+            ann.getStartTime().getTime() + ", to: " +
+            ann.getEndTime().getTime());
 end
 
 
@@ -179,8 +179,8 @@ rule "ExtendedDiscussingHLATest"
         
         System.out.println("Inserted EXTENDED DISCUSSING HLA event with person: " + p.getName()  + ", lastUpdated: " +
             (long)ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTimeInMillis() + ", to: " +
-            ann.getEndTime().getTimeInMillis());
+            ann.getStartTime().getTime() + ", to: " +
+            ann.getEndTime().getTime());
 end
 
 
@@ -192,8 +192,8 @@ rule "ExtendedExerciseHLATest"
         
         System.out.println("Inserted EXTENDED EXERCISE HLA event with person: " + p.getName()  + ", lastUpdated: " +
             (long)ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTimeInMillis() + ", to: " +
-            ann.getEndTime().getTimeInMillis());
+            ann.getStartTime().getTime() + ", to: " +
+            ann.getEndTime().getTime());
 end
 
 rule "ExtendedDiningHLATest"
@@ -203,8 +203,8 @@ rule "ExtendedDiningHLATest"
         DefaultAnnotationData ann = (DefaultAnnotationData)$hla.getAnnotations();
         System.out.println("Inserted EXTENDED DINING HLA event with person: " + p.getName()  + ", lastUpdated: " +
             (long)ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTimeInMillis() + ", to: " +
-            ann.getEndTime().getTimeInMillis());
+            ann.getStartTime().getTime() + ", to: " +
+            ann.getEndTime().getTime());
 end
 
 
