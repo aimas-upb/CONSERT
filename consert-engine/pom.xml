@@ -53,6 +53,12 @@
 				<updatePolicy>daily</updatePolicy>
 			</snapshots>
 		</repository>
+		
+        <repository>
+            <id>cep-engine-repository</id>
+            <name>CONSERT Engine Local Repository</name>
+            <url>file:${project.basedir}/repo</url>
+        </repository>
 	</repositories>
 
 	<dependencies>
@@ -100,6 +106,27 @@
 		</dependency>
 		 <!-- END -->
 
+
+        <!-- RDFBeans dependencies -->
+        <dependency>
+            <groupId>org.cyberborean</groupId>
+            <artifactId>rdfbeans</artifactId>
+            <version>2.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-repository-sail</artifactId>
+            <version>2.2</version>
+		</dependency>
+		
+        <dependency>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-sail-memory</artifactId>
+            <version>2.2</version>
+        </dependency>	
 	</dependencies>
 
+	<packaging>jar</packaging>
+	
 </project>
