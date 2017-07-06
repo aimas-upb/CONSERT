@@ -1,7 +1,7 @@
 package org.aimas.consert.tests.casas.assertions;
 
-import org.aimas.consert.model.AnnotationData;
-import org.aimas.consert.model.BinaryContextAssertion;
+import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.content.BinaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.ItemStatus;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 

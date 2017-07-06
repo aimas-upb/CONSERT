@@ -1,7 +1,7 @@
 package org.aimas.consert.tests.casas.assertions;
 
-import org.aimas.consert.model.AnnotationData;
-import org.aimas.consert.model.UnaryContextAssertion;
+import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.content.UnaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.PhoneUsage;
 
 public class Phone extends UnaryContextAssertion {
