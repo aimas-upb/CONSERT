@@ -9,11 +9,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.engine.EventTracker;
-import org.aimas.consert.model.DefaultAnnotationData;
-import org.aimas.consert.model.ContextAssertion;
-import org.aimas.consert.tests.hla.Person;
-import org.aimas.consert.tests.hla.Position;
-import org.aimas.consert.tests.hla.Position.Type;
+import org.aimas.consert.model.annotations.DefaultAnnotationData;
+import org.aimas.consert.model.content.ContextAssertion;
+import org.aimas.consert.tests.hla.assertions.Position;
+import org.aimas.consert.tests.hla.entities.Area;
+import org.aimas.consert.tests.hla.entities.Person;
 
 public class TestInserter {
 	public static final String POSITION_ENTRYPOINT 	= "PositionStream";
@@ -43,8 +43,8 @@ public class TestInserter {
 			Calendar next = (Calendar)now.clone();
 			now.add(Calendar.SECOND, 1);
 			
-			DefaultAnnotationData ann = new DefaultAnnotationData(next.getTimeInMillis(), 1.0, next, next);
-			Position pos =  new Position(testPerson, Type.WORK_AREA, ann);
+			DefaultAnnotationData ann = new DefaultAnnotationData(next.getTimeInMillis(), 1.0, next.getTime(), next.getTime());
+			Position pos =  new Position(testPerson, Area.WORK_AREA, ann);
 			events.offer(pos);			
 		}
 		

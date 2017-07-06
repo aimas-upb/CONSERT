@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.engine.EventTracker;
-import org.aimas.consert.model.ContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 
 public class EventInserter {
 	

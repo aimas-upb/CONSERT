@@ -8,11 +8,12 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.aimas.consert.tests.hla.LLA;
-import org.aimas.consert.tests.hla.Position;
-import org.aimas.consert.tests.hla.SittingLLA;
-import org.aimas.consert.tests.hla.StandingLLA;
-import org.aimas.consert.tests.hla.WalkingLLA;
+import org.aimas.consert.tests.hla.assertions.LLA;
+import org.aimas.consert.tests.hla.assertions.Position;
+import org.aimas.consert.tests.hla.assertions.SittingLLA;
+import org.aimas.consert.tests.hla.assertions.StandingLLA;
+import org.aimas.consert.tests.hla.assertions.WalkingLLA;
+import org.aimas.consert.tests.hla.entities.LLAType;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,7 +44,7 @@ public class EventReader {
                 }
                 else if (nodeType.equals("lla")) {
                     JsonNode eventInfoNode = eventDataNode.get("event_info");
-                    LLA.Type llaType = LLA.Type.valueOf(eventInfoNode.get("type").textValue());
+                    LLAType llaType = LLAType.valueOf(eventInfoNode.get("type").textValue());
                     LLA lla = null;
 
                     switch(llaType) {
