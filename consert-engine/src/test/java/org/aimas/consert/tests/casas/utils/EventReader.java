@@ -1,4 +1,4 @@
-package org.aimas.consert.utils;
+package org.aimas.consert.tests.casas.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Created by alex on 06.04.2017.
  */
-public class JSONEventReader {
+public class EventReader {
 
     public static Queue<Object> parseEvents(File inputFile) {
         Queue<Object> eventList = new LinkedList<Object>();
