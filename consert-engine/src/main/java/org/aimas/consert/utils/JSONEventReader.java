@@ -44,17 +44,17 @@ public class JSONEventReader {
                 }
                 else if (nodeType.equals("lla")) {
                     JsonNode eventInfoNode = eventDataNode.get("event_info");
-                    LLAType llaType = LLAType.valueOf(eventInfoNode.get("type").textValue());
+                    String llaType = eventInfoNode.get("type").textValue();
                     LLA lla = null;
 
                     switch(llaType) {
-                        case SITTING:
+                        case "SITTING":
                             lla = mapper.treeToValue(eventInfoNode, SittingLLA.class);
                             break;
-                        case STANDING:
+                        case "STANDING":
                             lla = mapper.treeToValue(eventInfoNode, StandingLLA.class);
                             break;
-                        case WALKING:
+                        case "WALKING":
                             lla = mapper.treeToValue(eventInfoNode, WalkingLLA.class);
                             break;
                         default:
