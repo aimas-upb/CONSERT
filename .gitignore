@@ -16,3 +16,6 @@ hs_err_pid*
 
 # ignoring local maven repo folder
 repo/
+
+# ignoring CASAS parsed JSON files
+**/files/casas_parsed/
