@@ -53,14 +53,14 @@ for f in files:
 df = pd.concat(all_frames)
 
 # Keep only the needed columns
-df = df[['type', 'annotations.startTime', 'annotations.endTime', 'Event Type']]
+df = df[['type.value', 'annotations.startTime', 'annotations.endTime', 'Event Type']]
 
 # Convert annotations to datetime from UNIX timestamps (dtype int64)
 df['annotations.startTime'] = pd.to_datetime(df['annotations.startTime'], unit='ms')
 df['annotations.endTime'] = pd.to_datetime(df['annotations.endTime'], unit='ms')
 
 # Rename columns to match plotly conventions
-df.rename(columns={'type': 'Task', 'annotations.startTime': 'Start', 'annotations.endTime': 'Finish'}, inplace=True)
+df.rename(columns={'type.value': 'Task', 'annotations.startTime': 'Start', 'annotations.endTime': 'Finish'}, inplace=True)
 
 # Sort dataframe so we get HLAs in the lower part of the Gantt
 df.sort_values(by="Event Type", ascending=False, inplace=True)
