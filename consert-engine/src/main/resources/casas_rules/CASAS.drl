@@ -1,0 +1,117 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Motion
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Temperature
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.Phone
+
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.engine.EventTracker
+
+global EventTracker eventTracker;
+
+
+declare Motion
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+
+declare Item
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+
+declare Cabinet
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+declare Water
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+
+declare Temperature
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+declare Burner
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+declare Phone
+    @role(event)
+    @timestamp(startTimestamp)
+    @duration(eventDuration)
+end
+
+// =========== BaseEvent insert rules - needed to create the event streams
+
+rule "MotionInsertTest"
+    when
+        $motion : Motion(id : sensorId, status : status) from entry-point "MotionStream" 
+    then
+        System.out.println("Inserted MOTION event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
+end
+
+rule "ItemInsertTest"
+    when
+        $item : Item(id : sensorId, status : status) from entry-point "ItemStream" 
+    then
+        System.out.println("Inserted ITEM event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$item.getStartTimestamp());
+end
+
+rule "CabinetInsertTest"
+    when
+        $cabinet : Cabinet(id : sensorId, status : status) from entry-point "CabinetStream" 
+    then
+        System.out.println("Inserted CABINET event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$cabinet.getStartTimestamp());
+end
+
+rule "WaterInsertTest"
+    when
+        $water : Water(id : sensorId, val : value) from entry-point "WaterStream" 
+    then
+        System.out.println("Inserted WATER event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$water.getStartTimestamp());
+end
+
+rule "TemperatureInsertTest"
+    when
+        $temp : Temperature(id : sensorId, val : value) from entry-point "TemperatureStream" 
+    then
+        System.out.println("Inserted TEMPERATURE event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$temp.getStartTimestamp());
+end
+
+rule "BurnerInsertTest"
+    when
+        $burner : Burner(val : value) from entry-point "BurnerStream" 
+    then
+        System.out.println("Inserted BURNER event with value: " + val + ", timestamp: " + (long)$burner.getStartTimestamp());
+end
+
+
+rule "PhoneInsertTest"
+    when
+        $phone : Phone(val : value) from entry-point "PhoneStream" 
+    then
+        System.out.println("Inserted PHONE event with value: " + val + ", timestamp: " + (long)$phone.getStartTimestamp());
+end
