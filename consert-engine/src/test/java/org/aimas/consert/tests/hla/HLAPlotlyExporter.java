@@ -1,4 +1,4 @@
-package org.aimas.consert.utils;
+package org.aimas.consert.tests.hla;
 
 import org.apache.commons.lang.SystemUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Created by mihai on 5/20/17.
  */
-public class PlotlyExporter {
+public class HLAPlotlyExporter {
 
     public static String MINICONDA_BIN_FOLDER;
 

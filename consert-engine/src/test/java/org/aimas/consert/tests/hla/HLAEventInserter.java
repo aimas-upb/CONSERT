@@ -1,4 +1,4 @@
-package org.aimas.consert.utils;
+package org.aimas.consert.tests.hla;
 
 import java.io.File;
 import java.util.Queue;
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.aimas.consert.engine.EventTracker;
 import org.aimas.consert.model.content.ContextAssertion;
 
-public class EventInserter {
+public class HLAEventInserter {
 	
 	public static final String POSITION_ENTRYPOINT 	= "PositionStream";
 	public static final String LLA_ENTRYPOINT 		= "LLAStream";
@@ -26,14 +26,14 @@ public class EventInserter {
 	private ScheduledExecutorService readerService;
 	private ExecutorService insertionService;
 	
-	public EventInserter(File eventInputFile, EventTracker eventTracker) {
+	public HLAEventInserter(File eventInputFile, EventTracker eventTracker) {
 		this.eventInputFile = eventInputFile;
 		this.eventTracker = eventTracker;
 		events = parseEvents();
 	}
 	
 	private Queue<Object> parseEvents() {
-	    return JSONEventReader.parseEvents(eventInputFile);
+	    return HLAEventReader.parseEvents(eventInputFile);
     }
 
 	public void start() {

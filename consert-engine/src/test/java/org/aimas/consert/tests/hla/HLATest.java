@@ -3,8 +3,7 @@ package org.aimas.consert.tests.hla;
 
 import org.aimas.consert.engine.EngineRunner;
 import org.aimas.consert.engine.EventTracker;
-import org.aimas.consert.utils.EventInserter;
-import org.aimas.consert.utils.PlotlyExporter;
+import org.aimas.consert.utils.TestSetup;
 import org.kie.api.runtime.KieSession;
 
 import java.io.File;
@@ -34,7 +33,7 @@ public class HLATest extends TestSetup {
 	    	
 	    	File inputFile = getFileNameFromResources("files/single_hla_120s_01er_015fd.json");
 	    	EventTracker eventTracker = new EventTracker(kSession);
-	    	EventInserter eventInserter = new EventInserter(inputFile, eventTracker);
+	    	HLAEventInserter eventInserter = new HLAEventInserter(inputFile, eventTracker);
 	    	
 	    	// start the engine thread and the inserter, wait for the inserter to finish then exit
 	    	engineRunner.start();
@@ -49,7 +48,7 @@ public class HLATest extends TestSetup {
 	    	engineRunner.join(10000);
 	    	
 			
-	    	PlotlyExporter.exportToHTML(null, kSession);
+	    	HLAPlotlyExporter.exportToHTML(null, kSession);
             
 	    	eventInserter.stop();
 
