@@ -1,9 +1,8 @@
-package org.aimas.consert.tests.hla;
+package org.aimas.consert.utils;
 
 import java.io.File;
 import java.util.Collection;
 
-import org.aimas.consert.utils.SerializationHelper;
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.kie.api.KieBase;
 import org.kie.api.KieBaseConfiguration;

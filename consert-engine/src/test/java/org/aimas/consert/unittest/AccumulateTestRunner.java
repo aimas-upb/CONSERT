@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.aimas.consert.engine.EngineRunner;
 import org.aimas.consert.engine.EventTracker;
-import org.aimas.consert.tests.hla.TestSetup;
+import org.aimas.consert.utils.TestSetup;
 import org.kie.api.runtime.KieSession;
 
 /**
