@@ -18,7 +18,7 @@ public abstract class LLA extends BinaryContextAssertion {
 	
 
     Person person;                  /* the person which does the LLA */
-    LLAType type;                      /* LLA type */
+    LLAType type;                   /* LLA type */
 
     protected LLA(LLAType type) {
     	this.type = type;

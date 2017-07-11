@@ -11,10 +11,10 @@ import org.aimas.consert.tests.hla.entities.Person;
 public class ExerciseHLA extends HLA {
     
 	public ExerciseHLA() {
-    	super(HLAType.DISCUSSING);
+    	super(new HLAType("EXERCISE"));
     }
 	
     public ExerciseHLA(Person person, AnnotationData annotationData) {
-    	super(person, HLAType.EXERCISE, annotationData);
+    	super(person, new HLAType("EXERCISE"), annotationData);
     }
 }

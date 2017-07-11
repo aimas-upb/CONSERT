@@ -2,6 +2,7 @@ package org.aimas.consert.tests.hla.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.tests.hla.entities.HLAType;
+import org.aimas.consert.tests.hla.entities.LLAType;
 import org.aimas.consert.tests.hla.entities.Person;
 
 /*
@@ -9,11 +10,11 @@ import org.aimas.consert.tests.hla.entities.Person;
 */
 public class WorkingHLA extends HLA {
     public WorkingHLA() {
-        super(HLAType.WORKING);
+        super(new HLAType("WORKING"));
     }
 
     public WorkingHLA(Person person, AnnotationData annotationData) {
-        super(person, HLAType.WORKING, annotationData);
+        super(person, new HLAType("WORKING"), annotationData);
     }
 
 }

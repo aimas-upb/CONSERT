@@ -9,10 +9,10 @@ import org.aimas.consert.tests.hla.entities.Person;
 */
 public class StandingLLA extends LLA {
     public StandingLLA() {
-        super(LLAType.STANDING);
+        super(new LLAType("STANDING"));
     }
 
     public StandingLLA(Person person, AnnotationData annotationData) {
-        super(person, LLAType.STANDING, annotationData);
+        super(person, new LLAType("STANDING"), annotationData);
     }
 }
