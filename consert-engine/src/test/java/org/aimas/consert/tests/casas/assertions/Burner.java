@@ -24,4 +24,8 @@ public class Burner extends UnaryContextAssertion {
 		this.value = value;
 		setInvolvedEntity(new NumericLiteral(value));
 	}
+	
+	public String getSensorId() {
+		return "burner";
+	}
 }

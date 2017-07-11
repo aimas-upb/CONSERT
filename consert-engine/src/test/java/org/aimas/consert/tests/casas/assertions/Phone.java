@@ -2,26 +2,30 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.UnaryContextAssertion;
-import org.aimas.consert.tests.casas.entities.PhoneUsage;
+import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Phone extends UnaryContextAssertion {
-	
-	PhoneUsage value;
+	/** can be one of {START, END} */
+	String value;
 	
 	public Phone() {}
 	
-	public Phone(PhoneUsage value, AnnotationData annotations) {
-		super(value, AcquisitionType.SENSED, annotations);
+	public Phone(String value, AnnotationData annotations) {
+		super(new StringLiteral(value), AcquisitionType.SENSED, annotations);
 		
 		this.value = value;
 	}
 
-	public PhoneUsage getValue() {
+	public String getValue() {
 		return value;
 	}
 
-	public void setValue(PhoneUsage value) {
+	public void setValue(String value) {
 		this.value = value;
-		setInvolvedEntity(value);
+		setInvolvedEntity(new StringLiteral(value));
+	}
+
+	public String getSensorId() {
+		return "phone";
 	}
 }

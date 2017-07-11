@@ -2,18 +2,19 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
-import org.aimas.consert.tests.casas.entities.MotionStatus;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Motion extends BinaryContextAssertion {
 	
 	String sensorId;
-	MotionStatus status;
+	
+	/** can be one of {ON, OFF} */
+	String status;
 	
 	public Motion() {}
 	
-	public Motion(String sensorId, MotionStatus status, AnnotationData annotations) {
-		super(new StringLiteral(sensorId), status, AcquisitionType.SENSED, annotations);
+	public Motion(String sensorId, String status, AnnotationData annotations) {
+		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
 		
 		this.sensorId = sensorId;
 		this.status = status;
@@ -28,12 +29,12 @@ public class Motion extends BinaryContextAssertion {
 		setSubject(new StringLiteral(sensorId));
 	}
 
-	public MotionStatus getStatus() {
+	public String  getStatus() {
 		return status;
 	}
 
-	public void setStatus(MotionStatus status) {
+	public void setStatus(String status) {
 		this.status = status;
-		setObject(status);
+		setObject(new StringLiteral(status));
 	}
 }
