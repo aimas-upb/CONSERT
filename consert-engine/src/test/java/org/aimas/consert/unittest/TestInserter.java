@@ -44,7 +44,7 @@ public class TestInserter {
 			now.add(Calendar.SECOND, 1);
 			
 			DefaultAnnotationData ann = new DefaultAnnotationData(next.getTimeInMillis(), 1.0, next.getTime(), next.getTime());
-			Position pos =  new Position(testPerson, Area.WORK_AREA, ann);
+			Position pos =  new Position(testPerson, new Area("WORK_AREA"), ann);
 			events.offer(pos);			
 		}
 		

@@ -11,10 +11,10 @@ import org.aimas.consert.tests.hla.entities.Person;
 public class DiningHLA extends HLA {
 
     public DiningHLA() {
-        super(HLAType.DINING);
+        super(new HLAType("DINING"));
     }
 
     public DiningHLA(Person person, AnnotationData annotationData) {
-        super(person, HLAType.DINING, annotationData);
+        super(person, new HLAType("DINING"), annotationData);
     }
 }
