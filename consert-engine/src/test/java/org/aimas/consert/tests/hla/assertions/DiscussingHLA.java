@@ -9,11 +9,11 @@ import org.aimas.consert.tests.hla.entities.Person;
 */
 public class DiscussingHLA extends HLA {
     public DiscussingHLA() {
-        super(HLAType.DISCUSSING);
+        super(new HLAType("DISCUSSING"));
     }
     
     
     public DiscussingHLA(Person person, AnnotationData annotationData) {
-        super(person, HLAType.DISCUSSING, annotationData);
+        super(person, new HLAType("DISCUSSING"), annotationData);
     }
 }

@@ -81,4 +81,6 @@ public class Person implements ContextEntity {
     public String getEntityId() {
 	    return name;
     }
+	
+	public void setEntityId(String entityId) { }
 }

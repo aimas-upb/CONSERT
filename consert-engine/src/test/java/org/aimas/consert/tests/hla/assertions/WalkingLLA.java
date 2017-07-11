@@ -10,10 +10,10 @@ import org.aimas.consert.tests.hla.entities.Person;
 public class WalkingLLA extends LLA {
     
 	public WalkingLLA() {
-        super(LLAType.WALKING);
+        super(new LLAType("WALKING"));
     }
 
     public WalkingLLA(Person person, AnnotationData annotationData) {
-        super(person, LLAType.WALKING, annotationData);
+        super(person, new LLAType("WALKING"), annotationData);
     }
 }

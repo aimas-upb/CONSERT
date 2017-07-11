@@ -1,16 +1,19 @@
 package org.aimas.consert.tests.hla.entities;
 
 import org.aimas.consert.model.content.ContextEntity;
+import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
-@RDFNamespaces(
-    "area = http://example.org/hlatest/" 
-)
+@RDFNamespaces({
+    "area = http://example.org/hlatest/",
+    "rdfs = http://www.w3.org/2000/01/rdf-schema#"
+})
 @RDFBean("area:AreaType")
-public enum Area implements ContextEntity {
-    WORK_AREA,
+public class Area implements ContextEntity {
+    /*
+	WORK_AREA,
     DINING_AREA,
     SITTING_AREA,
     CONFERENCE_AREA,
@@ -18,6 +21,24 @@ public enum Area implements ContextEntity {
     SNACK_AREA,
     EXERCISE_AREA,
     HYGENE_AREA;
+     */
+	
+	String type;
+	
+	public Area() {}
+	
+	public Area(String type) {
+		this.type = type;
+	}
+
+	@RDF("rdfs:label")
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 
 	@Override
     public boolean isLiteral() {
@@ -30,9 +51,12 @@ public enum Area implements ContextEntity {
     }
 
 	@Override
-	@RDFSubject(prefix = "area:AreaType#")
+	@RDFSubject(prefix = "area:")
     public String getEntityId() {
-	    // TODO Auto-generated method stub
-	    return this.name();
+		return type;
     }
+	
+	public void setEntityId(String entityIdentifier) {
+		this.type = entityIdentifier;
+	}
 }
