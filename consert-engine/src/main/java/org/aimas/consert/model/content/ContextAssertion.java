@@ -57,6 +57,8 @@ public abstract class ContextAssertion {
 		return this.getClass().getName();
 	}
 	
+	public void setQualifiedBindingClassName(String name) {	}
+	
 	protected int arity = BINARY;
 	protected AcquisitionType acquisitionType = AcquisitionType.SENSED;
 	

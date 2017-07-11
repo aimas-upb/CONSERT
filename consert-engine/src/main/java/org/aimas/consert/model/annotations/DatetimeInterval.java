@@ -8,7 +8,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
-@RDFNamespaces("annotation = " + Constants.ANNOTATION_BASE_URI)
+@RDFNamespaces("annotation = " + Constants.ANNOTATION_NS)
 @RDFBean("annotation:DatetimeInterval")
 public class DatetimeInterval {
 	private static long instanceCt = 1;
