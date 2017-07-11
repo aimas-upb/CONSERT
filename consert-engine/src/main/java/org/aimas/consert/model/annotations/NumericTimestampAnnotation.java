@@ -1,42 +1,29 @@
 package org.aimas.consert.model.annotations;
 
 import org.aimas.consert.model.Constants;
+import org.cyberborean.rdfbeans.annotations.RDFBean;
+import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 
-public class NumericTimestampAnntation implements StructuredAnnotation {
-	private static long instanceCt = 1;
-	private String annotationIdentifier;
+@RDFNamespaces("annotation = " + Constants.ANNOTATION_NS)
+@RDFBean("annotation:NumericTimestampAnnotation")
+public class NumericTimestampAnnotation extends StructuredAnnotation {
 	
 	private double value;
 	private String continuityFunction;
 	private String extensionOperator;
 	private String combinationOperator;
 	
-	public NumericTimestampAnntation() {
+	public NumericTimestampAnnotation() {
 		
 	}
 
-	public NumericTimestampAnntation(double value, String continuityFunction,
+	public NumericTimestampAnnotation(double value, String continuityFunction,
             String extensionOperator, String combinationOperator) {
 	    this.value = value;
 	    this.continuityFunction = continuityFunction;
 	    this.extensionOperator = extensionOperator;
 	    this.combinationOperator = combinationOperator;
     }
-	
-	
-	@Override
-	public String getAnnotationIdentifier() {
-		if (annotationIdentifier == null) {
-			annotationIdentifier = Constants.ANNOTATION_BASE_URI + "NumerticCertaintyAnnotation#Certainty" + (instanceCt++); 
-		}
-		
-		return annotationIdentifier;
-	}
-	
-	@Override
-	public void setAnnotationIdentifier(String annotationId) {
-		this.annotationIdentifier = annotationId;
-	}
 	
 	@Override
     public Object getValue() {
@@ -91,8 +78,4 @@ public class NumericTimestampAnntation implements StructuredAnnotation {
 		this.combinationOperator = combinationOperator;
 	}
 	
-	@Override
-    public String getBindingClassName() {
-	    return getClass().getName();
-    }
 }

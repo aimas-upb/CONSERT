@@ -7,20 +7,35 @@ import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
 @RDFNamespaces({
-	"annotation = " + Constants.ANNOTATION_BASE_URI,
+	"annotation = " + Constants.ANNOTATION_NS,
 	"rdfbeans = " + Constants.RDFBEANS_URI
 })
 @RDFBean("annotation:ContextAnnotation")
-public interface ContextAnnotation {
+public abstract class ContextAnnotation {
+	protected static long instanceCt = 1;
+	
+	protected String annotationIdentifier;
 	
 	@RDF("annotation:hasValue")
-	Object getValue();
+	public abstract Object getValue();
 	
 	@RDF("rdfbeans:bindingClass")
-	String getBindingClassName();
+	public String getBindingClassName() {
+		return getClass().getName();
+	}
+	
+	public void setBindingClassName(String bindingClassName) {}
 	
 	@RDFSubject
-	String getAnnotationIdentifier();
+	public String getAnnotationIdentifier() {
+		if (annotationIdentifier == null) {
+			annotationIdentifier = Constants.ANNOTATION_NS + getClass().getSimpleName() + "-" + (instanceCt++); 
+		}
+		
+		return annotationIdentifier;
+	}
 	
-	void setAnnotationIdentifier(String annotationIdentifier);
+	public void setAnnotationIdentifier(String annotationIdentifier) {
+		this.annotationIdentifier = annotationIdentifier;
+	}
 }

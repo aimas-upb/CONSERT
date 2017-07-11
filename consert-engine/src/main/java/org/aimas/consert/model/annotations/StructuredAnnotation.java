@@ -4,14 +4,14 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 
 @RDFBean("annotation:StructuredAnnotation")
-public interface StructuredAnnotation extends ContextAnnotation {
+public abstract class StructuredAnnotation extends ContextAnnotation {
 	
 	@RDF("annotation:hasContinuityFunction")
-	String getContinuityFunction();
+	public abstract String getContinuityFunction();
 	
 	@RDF("annotation:hasJoinOperator")
-	String getExtensionOperator();
+	public abstract String getExtensionOperator();
 	
 	@RDF("annotation:hasMeetOperator")
-	String getCombinationOperator();
+	public abstract String getCombinationOperator();
 }
