@@ -78,6 +78,18 @@ public class EventTracker extends BaseEventTracker {
 		return null;
 	}
 	
+	/**
+	 * Insert an event that is not required to go through the verifications OF temporal continuity.
+	 * @param event The event to be inserted.
+	 */
+	public void insertSimpleEvent(ContextAssertion event) {
+		String eventStream = event.getStreamName();
+		
+		if (event.getAnnotations().allowsAnnotationInsertion()) {
+			kSession.getEntryPoint(eventStream).insert(event);
+		}
+	}
+	
 
 	/**
 	 * Insert an atomic event. The event will go through the verifications of temporal continuity.
@@ -173,6 +185,22 @@ public class EventTracker extends BaseEventTracker {
     		
     	}
     }
+    
+    
+//	/**
+//	 * Insert a derived event. This method will usually be called in the right-hand-side of a 
+//     * ContextDerivationRule. The method will check for duplicates of events that have already been
+//     * derived, but which have still not been garbage collected.
+//     * However, no continuity check will be performed
+//	 * @param derivedEvent The derived event to be inserted.
+//	 */
+//	public void insertSimpleDerivedEvent(ContextAssertion derivedEvent) {
+//		if (!checkPreviouslyDerived(derivedEvent)) {
+//			String derivedEventStream = derivedEvent.getExtendedStreamName();
+//			kSession.getEntryPoint(derivedEventStream).insert(derivedEvent);
+//		}
+//	}
+	
     
     /**
      * Insert a derived event. This method will usually be called in the right-hand-side of a 
