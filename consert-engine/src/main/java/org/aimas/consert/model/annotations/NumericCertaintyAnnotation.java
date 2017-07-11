@@ -1,12 +1,9 @@
 package org.aimas.consert.model.annotations;
 
-import org.aimas.consert.model.Constants;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 
 @RDFBean("annotation:NumerticCertaintyAnnotation")
-public class NumericCertaintyAnnotation implements StructuredAnnotation {
-	private static long instanceCt = 1;
-	private String annotationIdentifier;
+public class NumericCertaintyAnnotation extends StructuredAnnotation {
 	
 	private double value;
 	private String continuityFunction;
@@ -25,19 +22,6 @@ public class NumericCertaintyAnnotation implements StructuredAnnotation {
 	    this.combinationOperator = combinationOperator;
     }
 	
-	@Override
-	public String getAnnotationIdentifier() {
-		if (annotationIdentifier == null) {
-			annotationIdentifier = Constants.ANNOTATION_BASE_URI + "NumerticCertaintyAnnotation#Certainty" + (instanceCt++); 
-		}
-		
-		return annotationIdentifier;
-	}
-	
-	@Override
-	public void setAnnotationIdentifier(String annotationId) {
-		this.annotationIdentifier = annotationId;
-	}
 	
 	
 	public void setValue(Object value) {
@@ -91,10 +75,4 @@ public class NumericCertaintyAnnotation implements StructuredAnnotation {
     public String getCombinationOperator() {
 	    return combinationOperator;
     }
-
-	@Override
-    public String getBindingClassName() {
-	    return getClass().getName();
-    }
-	
 }

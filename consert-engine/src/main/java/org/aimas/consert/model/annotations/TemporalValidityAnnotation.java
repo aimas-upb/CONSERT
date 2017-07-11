@@ -1,10 +1,12 @@
 package org.aimas.consert.model.annotations;
 
 import org.aimas.consert.model.Constants;
+import org.cyberborean.rdfbeans.annotations.RDFBean;
+import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 
-public class TemporalValidityAnnotation implements StructuredAnnotation {
-	private static long instanceCt = 1;
-	private String annotationIdentifier;
+@RDFNamespaces("annotation = " + Constants.ANNOTATION_NS)
+@RDFBean("annotation:TemporalValidityAnnotation")
+public class TemporalValidityAnnotation extends StructuredAnnotation {
 	
 	DatetimeInterval value;
 	private String continuityFunction;
@@ -21,20 +23,7 @@ public class TemporalValidityAnnotation implements StructuredAnnotation {
 	    this.extensionOperator = extensionOperator;
 	    this.combinationOperator = combinationOperator;
     }
-
-	@Override
-	public String getAnnotationIdentifier() {
-		if (annotationIdentifier == null) {
-			annotationIdentifier = Constants.ANNOTATION_BASE_URI + "NumerticCertaintyAnnotation#Certainty" + (instanceCt++); 
-		}
-		
-		return annotationIdentifier;
-	}
 	
-	@Override
-	public void setAnnotationIdentifier(String annotationId) {
-		this.annotationIdentifier = annotationId;
-	}
 	
 	@Override
     public Object getValue() {
@@ -71,10 +60,5 @@ public class TemporalValidityAnnotation implements StructuredAnnotation {
 	public void setCombinationOperator(String combinationOperator) {
 		this.combinationOperator = combinationOperator;
 	}
-	
-	@Override
-    public String getBindingClassName() {
-	    return getClass().getName();
-    }
 	
 }

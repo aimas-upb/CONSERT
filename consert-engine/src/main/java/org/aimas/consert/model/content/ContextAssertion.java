@@ -53,9 +53,11 @@ public abstract class ContextAssertion {
 	}
 	
 	@RDF("rdfbeans:bindingClass")
-	public String getQualifiedBindingClassName() {
-		return this.getClass().getName();
+	public String getBindingClassName() {
+		return getClass().getName();
 	}
+	
+	public void setBindingClassName(String name) {	}
 	
 	protected int arity = BINARY;
 	protected AcquisitionType acquisitionType = AcquisitionType.SENSED;
