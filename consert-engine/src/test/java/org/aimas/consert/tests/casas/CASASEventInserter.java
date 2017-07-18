@@ -1,4 +1,4 @@
-package org.aimas.consert.tests.casas.utils;
+package org.aimas.consert.tests.casas;
 
 import java.io.File;
 import java.util.Queue;

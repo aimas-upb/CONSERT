@@ -1,9 +1,10 @@
-package org.aimas.consert.tests.casas.utils;
+package org.aimas.consert.tests.casas;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
@@ -21,17 +22,19 @@ public class CASASPlotlyExporter {
     public static String MINICONDA_BIN_FOLDER;
 
 
-    public static boolean exportToHTML(String outputHTMLFilename, KieSession session) {
+    public static boolean exportToHTML(String person, String task, KieSession session) {
 
         if (SystemUtils.IS_OS_LINUX)
             MINICONDA_BIN_FOLDER = "/home/alex/miniconda2/bin";
         else
             MINICONDA_BIN_FOLDER = "C:\\Users\\David\\Miniconda2";
 
-        // Check outputHTMLFilename and set default
-        if(outputHTMLFilename == null || outputHTMLFilename.isEmpty())
-            outputHTMLFilename = ".." + File.separator  + "casas-event-visualizer" + File.separator + "outputs" + File.separator + "casas-kb-visualizer.html";
-
+        // Check outputHTMLFolder and set default
+        File cwd = new File(Paths.get("").toAbsolutePath().toString());
+        File parentFolder = cwd.getParentFile();
+        
+        String outputHTMLFolder = parentFolder.getAbsolutePath() + File.separator  + "casas-event-visualizer" + File.separator + "outputs" + File.separator + task;
+        
         // Create temporary folder
         Path tmp;
         try {
@@ -66,7 +69,7 @@ public class CASASPlotlyExporter {
                 command[1]="-c";
                 command[2]=  "source activate consert; " +
                         "python ../casas-event-visualizer/casas_plotly_generator.py --f " +
-                        tmp + " --o " + outputHTMLFilename;
+                        tmp + " --o " + outputHTMLFolder + " --p " + person;
             }
             else
                 {
@@ -74,7 +77,7 @@ public class CASASPlotlyExporter {
                     command[1]="/C";
                     command[2]=  "activate consert & " +
                             "python ..\\casas-event-visualizer\\casas_plotly_generator.py --f " +
-                            tmp + " --o " + outputHTMLFilename;
+                            tmp + " --o " + outputHTMLFolder + " --p " + person;
                 }
 
             // build PATH environment variable value
