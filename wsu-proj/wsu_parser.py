@@ -295,8 +295,8 @@ if os.path.isdir(sys.argv[1]):
     if os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
 
-    # create output dir
-    os.mkdir(output_dir)
+    # create output dirs
+    os.makedirs(output_dir)
 
     print("[INFO] Parsing folder: " + sys.argv[1])
 
