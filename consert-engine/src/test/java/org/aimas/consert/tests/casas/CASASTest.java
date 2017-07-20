@@ -29,10 +29,10 @@ public class CASASTest extends TestSetup {
 	    	*/
     		
     		// Read all files from the CASAS Dataset
-    		String datasetFolderPath = "files" + File.separator + "casas_adlnormal";
+    		String datasetFolderPath = "files/" + "casas_adlnormal";
     		//String datasetFolderPath = "files" + File.separator + "casas_adlinterwieved";
     		File casasFolder = getFileNameFromResources(datasetFolderPath);
-    		
+    		System.out.println(casasFolder.getCanonicalPath());
     		File[] datasetFiles = casasFolder.listFiles(new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
@@ -64,7 +64,7 @@ public class CASASTest extends TestSetup {
     	// set up engine runner thread and event inserter
     	Thread engineRunner = new Thread(new EngineRunner(kSession));
     	
-    	String filePath = datasetFolderPath + File.separator + filename;
+    	String filePath = datasetFolderPath + "/"+ filename;
     	File inputFile = getFileNameFromResources(filePath);
     	
     	EventTracker eventTracker = new EventTracker(kSession);
