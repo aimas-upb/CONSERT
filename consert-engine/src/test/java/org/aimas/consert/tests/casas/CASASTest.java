@@ -32,7 +32,6 @@ public class CASASTest extends TestSetup {
     		String datasetFolderPath = "files/" + "casas_adlnormal";
     		//String datasetFolderPath = "files" + File.separator + "casas_adlinterwieved";
     		File casasFolder = getFileNameFromResources(datasetFolderPath);
-    		System.out.println(casasFolder.getCanonicalPath());
     		File[] datasetFiles = casasFolder.listFiles(new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
