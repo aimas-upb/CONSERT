@@ -158,15 +158,6 @@ rule "SittingOnCouch"
                System.out.println("Inserted SittingAtTable event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp() );
         end
 
-rule "Cooking"
-    when
-        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status : status) from entry-point "MotionStream"
-        $item : Item(id2 : sensorId == "I01" || sensorId == "I02" || sensorId == "I03" || sensorId == "I04" || sensorId == "I05"  , status2 : status == "ABSENT")  from entry-point "ItemStream"
-        eval((long) $item.getStartTimestamp() > (long)$motion.getStartTimestamp())
-    then
-        System.out.println("Inserted Cooking event with sensorId: " + id2 + ", status: " + status2 + ", timestamp: " + (long)$item.getStartTimestamp());
-end
-
 /* eats if it is at the dining room table, it has the pot with the outmeal and the medicine container */
 
 rule "Eating"
@@ -175,12 +166,12 @@ rule "Eating"
         $item1 : Item(id2 : sensorId == "I07" , status2 : status == "ABSENT")  from entry-point "ItemStream"
          forall (
                     $itemaux : Item(idaux: sensorId == id2, eval((long) $itemaux.getStartTimestamp() <= (long)$item1.getStartTimestamp())) from entry-point "ItemStream"
-                  ) /* the last event should be "present" */
+                  ) /* the last event should be "absent" */
 
         $item2:  Item(id3 : sensorId == "I06" , status3 : status == "ABSENT")  from entry-point "ItemStream"
           forall (
                      $itemaux : Item(idaux: sensorId == id3, eval((long) $itemaux.getStartTimestamp() <= (long)$item2.getStartTimestamp())) from entry-point "ItemStream"
-                   ) /*the last event should be "present" */
+                   ) /*the last event should be "absent" */
       then
         System.out.println("Inserted Eating event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
 end
@@ -192,4 +183,22 @@ rule "Cleaning"
      $item1 : Item(id3 : sensorId == "I07" , status2 : status == "ABSENT")  from entry-point "ItemStream"
       then
              System.out.println("Inserted Cleaning event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
+end
+
+rule "Cooking"
+    when
+        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status : status) from entry-point "MotionStream"
+        $item : Item(id2 : sensorId == "I01" || sensorId == "I02" || sensorId == "I03" || sensorId == "I04" || sensorId == "I05"  , status2 : status == "ABSENT")  from entry-point "ItemStream"
+        eval((long) $item.getStartTimestamp() > (long)$motion.getStartTimestamp())
+    then
+        System.out.println("Inserted Cooking event with sensorId: " + id2 + ", status: " + status2 + ", timestamp: " + (long)$item.getStartTimestamp());
+end
+
+rule "Cooking outmeal"
+    when
+        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status : status) from entry-point "MotionStream"
+        $item : Item(id2 : sensorId == "I01" , status2 : status == "ABSENT")  from entry-point "ItemStream"
+        eval((long) $item.getStartTimestamp() > (long)$motion.getStartTimestamp())
+    then
+        System.out.println("Inserted Cooking event with sensorId: " + id2 + ", status: " + status2 + ", timestamp: " + (long)$item.getStartTimestamp());
 end
