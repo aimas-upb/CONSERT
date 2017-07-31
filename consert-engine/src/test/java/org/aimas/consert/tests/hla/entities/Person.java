@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 
 @RDFNamespaces({
-    "person = http://example.com/hlatest/" 
+    "person = http://example.org/hlatest/" 
 })
 @RDFBean("person:Person")
 public class Person implements ContextEntity {

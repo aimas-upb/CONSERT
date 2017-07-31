@@ -29,7 +29,7 @@ public class DatetimeInterval {
 	@RDFSubject
 	public String getInstanceId() {
 		if (instanceId == null) {
-			instanceId = Constants.ANNOTATION_BASE_URI + "DatetimeInterval#Interval" + (instanceCt++); 
+			instanceId = Constants.ANNOTATION_NS + "DatetimeInterval-" + (instanceCt++); 
 		}
 		
 		return instanceId;

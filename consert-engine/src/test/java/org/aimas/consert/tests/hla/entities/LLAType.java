@@ -7,7 +7,7 @@ import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
 @RDFNamespaces(
-	    "lla = http://example.com/hlatest/" 
+	    "lla = http://example.org/hlatest/" 
 	)
 @RDFBean("lla:LLAType")
 public class LLAType implements ContextEntity {

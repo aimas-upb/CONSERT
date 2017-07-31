@@ -1,6 +1,7 @@
 package org.aimas.consert.model.annotations;
 
 import org.aimas.consert.model.Constants;
+import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 
@@ -26,7 +27,8 @@ public class NumericTimestampAnnotation extends StructuredAnnotation {
     }
 	
 	@Override
-    public Object getValue() {
+	@RDF("annotation:hasValue")
+    public Double getValue() {
 	    return value;
     }
 
@@ -45,7 +47,16 @@ public class NumericTimestampAnnotation extends StructuredAnnotation {
 	    return combinationOperator;
     }
 
-	public void setValue(Object value) {
+	//@Override
+	public void setValue(Double value) {
+		if (value != null) {
+			this.value = value;
+		}
+		else {
+			this.value = 0;
+		}
+		
+		/*
 		if (value instanceof Double) {
 			this.value = ((Double) value).doubleValue();
 		}
@@ -61,6 +72,7 @@ public class NumericTimestampAnnotation extends StructuredAnnotation {
 		else {
 			this.value = 0;
 		}
+		*/
 	}
 	
 	

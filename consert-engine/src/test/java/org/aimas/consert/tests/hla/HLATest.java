@@ -32,7 +32,7 @@ public class HLATest extends TestSetup {
 	    	// set up engine runner thread and event inserter
 	    	Thread engineRunner = new Thread(new EngineRunner(kSession));
 	    	
-	    	File inputFile = getFileNameFromResources("files/single_hla_120s_01er_015fd.json");
+	    	File inputFile = TestSetup.getFileNameFromResources("files/single_hla_120s_01er_015fd.json");
 	    	EventTracker eventTracker = new EventTracker(kSession);
 	    	EventInserter eventInserter = new EventInserter(inputFile, eventTracker);
 	    	
