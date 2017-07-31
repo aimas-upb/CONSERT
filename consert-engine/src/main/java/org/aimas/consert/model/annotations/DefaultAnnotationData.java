@@ -1,10 +1,15 @@
 package org.aimas.consert.model.annotations;
 import java.util.Date;
 
+import org.cyberborean.rdfbeans.annotations.RDF;
+import org.cyberborean.rdfbeans.annotations.RDFBean;
+
 /*
  * Class for modeling annotations information and metadata
  * when an atomic event arrives.
  */
+
+@RDFBean("annotation:DefaultAnnotationData")
 public class DefaultAnnotationData implements AnnotationData {
     
 	public static final double CONFIDENCE_VALUE_THRESHOLD 	= 0.5;
@@ -30,6 +35,7 @@ public class DefaultAnnotationData implements AnnotationData {
 	    setDuration(startTime, endTime);
     }
 
+    @RDF("annotation:lastUpdated")
 	public double getLastUpdated() {
         return lastUpdated;
     }
@@ -38,6 +44,7 @@ public class DefaultAnnotationData implements AnnotationData {
         this.lastUpdated = lastUpdated;
     }
 
+    @RDF("annotation:confidence")
     public double getConfidence() {
         return confidence;
     }
@@ -46,6 +53,7 @@ public class DefaultAnnotationData implements AnnotationData {
         this.confidence = confidence;
     }
 
+    @RDF("annotation:endTime")
     public Date getEndTime() {
         return endTime;
     }
@@ -54,6 +62,7 @@ public class DefaultAnnotationData implements AnnotationData {
         this.endTime = endTime;
     }
 
+    @RDF("annotation:startTime")
     public Date getStartTime() {
         return startTime;
     }
@@ -77,10 +86,14 @@ public class DefaultAnnotationData implements AnnotationData {
     public long getDuration() {
 		return duration;
 	}
-    
+
     @Override
     public double getTimestamp() {
     	return lastUpdated;
+    }
+    
+    public void setTimestamp(double timestamp) {
+    	this.setLastUpdated(timestamp);
     }
 	
     

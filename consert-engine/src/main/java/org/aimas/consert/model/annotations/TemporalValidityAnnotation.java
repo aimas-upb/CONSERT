@@ -1,6 +1,7 @@
 package org.aimas.consert.model.annotations;
 
 import org.aimas.consert.model.Constants;
+import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 
@@ -26,7 +27,8 @@ public class TemporalValidityAnnotation extends StructuredAnnotation {
 	
 	
 	@Override
-    public Object getValue() {
+	@RDF("annotation:hasValue")
+    public DatetimeInterval getValue() {
 	    return value;
     }
 
@@ -48,7 +50,7 @@ public class TemporalValidityAnnotation extends StructuredAnnotation {
 	public void setValue(DatetimeInterval value) {
 		this.value = value;
 	}
-
+	
 	public void setContinuityFunction(String continuityFunction) {
 		this.continuityFunction = continuityFunction;
 	}
