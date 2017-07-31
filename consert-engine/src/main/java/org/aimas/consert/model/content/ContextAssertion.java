@@ -6,14 +6,16 @@ import org.aimas.consert.model.Constants;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationUtils;
 import org.cyberborean.rdfbeans.annotations.RDF;
+import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
 @RDFNamespaces({
-	"core = " + Constants.CORE_BASE_URI,
-	"annotation = " + Constants.ANNOTATION_BASE_URI,
+	"core = " + Constants.CORE_NS,
+	"annotation = " + Constants.ANNOTATION_NS,
 	"rdfbeans = " + Constants.RDFBEANS_URI
 })
+@RDFBean("core:ContextAssertion")
 public abstract class ContextAssertion {
 	private static int assertionCounter = 1;
 	
@@ -137,6 +139,7 @@ public abstract class ContextAssertion {
 	}
 	
 	
+	@RDF("annotation:hasAnnotation")
 	public AnnotationData getAnnotations() {
 		return annotationData;
 	}

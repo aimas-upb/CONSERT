@@ -13,7 +13,6 @@ import org.aimas.consert.tests.hla.assertions.Position;
 import org.aimas.consert.tests.hla.assertions.SittingLLA;
 import org.aimas.consert.tests.hla.assertions.StandingLLA;
 import org.aimas.consert.tests.hla.assertions.WalkingLLA;
-import org.aimas.consert.tests.hla.entities.LLAType;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,10 +43,10 @@ public class EventReader {
                 }
                 else if (nodeType.equals("lla")) {
                     JsonNode eventInfoNode = eventDataNode.get("event_info");
-                    LLAType llaType = LLAType.valueOf(eventInfoNode.get("type").textValue());
+                    //LLAType llaType = LLAType.valueOf(eventInfoNode.get("type").textValue());
                     LLA lla = null;
 
-                    switch(llaType) {
+                    /*switch(llaType) {
                         case SITTING:
                             lla = mapper.treeToValue(eventInfoNode, SittingLLA.class);
                             break;
@@ -59,6 +58,22 @@ public class EventReader {
                             break;
                         default:
                             throw new Exception("Unknown value for LLA type: " + llaType);
+                    }*/
+                    
+                	String llaType = eventInfoNode.get("type").textValue().toUpperCase();
+                    
+                    switch(llaType) {
+                    	case "SITTING":
+                    		lla = mapper.treeToValue(eventInfoNode, SittingLLA.class);
+                    		break;
+                    	case "STANDING":
+                    		lla = mapper.treeToValue(eventInfoNode, StandingLLA.class);
+                    		break;
+                    	case "WALKING":
+                    		lla = mapper.treeToValue(eventInfoNode, WalkingLLA.class);
+                    		break;
+                		default:
+                			throw new Exception("Unknown value for LLA type: " + llaType);
                     }
 
                     if (lla != null)

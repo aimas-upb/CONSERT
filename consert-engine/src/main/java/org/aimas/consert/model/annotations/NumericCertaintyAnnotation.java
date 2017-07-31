@@ -1,5 +1,6 @@
 package org.aimas.consert.model.annotations;
 
+import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 
 @RDFBean("annotation:NumerticCertaintyAnnotation")
@@ -23,8 +24,15 @@ public class NumericCertaintyAnnotation extends StructuredAnnotation {
     }
 	
 	
-	
-	public void setValue(Object value) {
+	//@Override
+	public void setValue(Double value) {
+		if (value != null) {
+			this.value = value;
+		}
+		else {
+			this.value = 0;
+		}
+		/*
 		if (value instanceof Double) {
 			this.value = ((Double) value).doubleValue();
 		}
@@ -40,6 +48,7 @@ public class NumericCertaintyAnnotation extends StructuredAnnotation {
 		else {
 			this.value = 0;
 		}
+		*/
 	}
 
 	public void setContinuityFunction(String continuityFunction) {
@@ -56,7 +65,8 @@ public class NumericCertaintyAnnotation extends StructuredAnnotation {
 
 
 	@Override
-    public Object getValue() {
+	@RDF("annotation:hasValue")
+    public Double getValue() {
 	    return value;
     }
 

@@ -23,7 +23,7 @@ public class TestSetup {
 	public static RuleEngineOption 		PHREAK = RuleEngineOption.PHREAK;
 	public static EventProcessingOption STREAM = EventProcessingOption.STREAM;
 	
-	protected static KieSession getKieSessionFromResources( String... classPathResources ) {
+	public static KieSession getKieSessionFromResources( String... classPathResources ) {
         KieBase kbase = loadKnowledgeBase( null, null, classPathResources );
         return kbase.newKieSession();
     }
