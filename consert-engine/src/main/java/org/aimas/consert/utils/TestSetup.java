@@ -22,12 +22,12 @@ public class TestSetup {
 	public static RuleEngineOption 		PHREAK = RuleEngineOption.PHREAK;
 	public static EventProcessingOption STREAM = EventProcessingOption.STREAM;
 	
-	protected static KieSession getKieSessionFromResources( String... classPathResources ) {
+	public static KieSession getKieSessionFromResources( String... classPathResources ) {
         KieBase kbase = loadKnowledgeBase( null, null, classPathResources );
         return kbase.newKieSession();
     }
     
-	protected static KnowledgeBase loadKnowledgeBase(KnowledgeBuilderConfiguration kbuilderConf, KieBaseConfiguration kbaseConf, String... classPathResources) {
+	public static KnowledgeBase loadKnowledgeBase(KnowledgeBuilderConfiguration kbuilderConf, KieBaseConfiguration kbaseConf, String... classPathResources) {
 		Collection<KnowledgePackage> knowledgePackages = loadKnowledgePackages(kbuilderConf, classPathResources);
 
 		if (kbaseConf == null) {
@@ -47,12 +47,12 @@ public class TestSetup {
 	}
     
 	
-	protected static Collection<KnowledgePackage> loadKnowledgePackages( KnowledgeBuilderConfiguration kbuilderConf, String... classPathResources) {
+	public static Collection<KnowledgePackage> loadKnowledgePackages( KnowledgeBuilderConfiguration kbuilderConf, String... classPathResources) {
         return loadKnowledgePackages(kbuilderConf, true, classPathResources);
     }
 	
 	
-	protected static Collection<KnowledgePackage> loadKnowledgePackages( KnowledgeBuilderConfiguration kbuilderConf, boolean serialize, String... classPathResources) {
+	public static Collection<KnowledgePackage> loadKnowledgePackages( KnowledgeBuilderConfiguration kbuilderConf, boolean serialize, String... classPathResources) {
 		if (kbuilderConf == null) {
 			kbuilderConf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
 		}
@@ -80,7 +80,7 @@ public class TestSetup {
 	}
     
 	
-	protected static File getFileNameFromResources(String fileName) {
+	public static File getFileNameFromResources(String fileName) {
         ClassLoader classLoader = TestSetup.class.getClassLoader();
         return new File(classLoader.getResource(fileName).getFile());
     }
