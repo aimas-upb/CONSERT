@@ -22,7 +22,7 @@ __date__ = "23/05/2017"
 __version__ = "1.0.0"
 
 
-status_streams = ["MotionStream", "ItemStream", "CabinetStream", "PhoneStream"]
+status_streams = ["MotionStream", "ItemStream", "CabinetStream", "PhoneStream", "PersonLocationStream"]
 numeric_streams = ["WaterStream", "BurnerStream", "TemperatureStream"]
 
 status_mapping = {
@@ -160,6 +160,8 @@ for f in files:
             key = 'CABINET'
         elif f.lower().find('phone') != -1:
             key = 'PHONE'
+        elif f.lower().find('personlocation') != -1:
+            key = 'PersonLocation'
         else:
             # print 'Skipping JSON file \'' + f + '\''
             continue
@@ -209,7 +211,8 @@ colors = {
     'WATER': 'rgb(0, 0, 220)',
     'CABINET': 'rgb(220, 0, 0)',
     'TEMPERATURE': 'rgb(220, 0, 220)',
-    'PHONE': 'rgb(0, 220, 220)'
+    'PHONE': 'rgb(0, 220, 220)',
+    'PersonLocation': 'rgb(0, 169, 0)'
 }
 
 # Create Gantt figure

@@ -33,7 +33,8 @@ public class CASASPlotlyExporter {
         File cwd = new File(Paths.get("").toAbsolutePath().toString());
         File parentFolder = cwd.getParentFile();
         
-        String outputHTMLFolder = parentFolder.getAbsolutePath() + File.separator  + "casas-event-visualizer" + File.separator + "outputs" + File.separator + task;
+        //String outputHTMLFolder = parentFolder.getAbsolutePath() + File.separator  + "casas-event-visualizer" + File.separator + "outputs" + File.separator + task;
+        String outputHTMLFolder = parentFolder.getAbsolutePath() + File.separator  + "casas-event-visualizer" + File.separator + "experiment" + File.separator + task;
         
         // Create temporary folder
         Path tmp;
