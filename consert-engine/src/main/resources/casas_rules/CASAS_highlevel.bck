@@ -1,0 +1,86 @@
+rule "UsingKitchenSink"
+    when
+        $motion : Motion(id : sensorId == "M17" || sensorId == "M18", status : status) from entry-point "MotionStream"
+
+        $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B", val : value) from entry-point "WaterStream"
+        eval((long) $water.getStartTimestamp() < (long)$motion.getStartTimestamp())
+    then
+        System.out.println("Inserted UsingKitchenSink event with sensorId: " + id2 + ", value: " + val + ", timestamp: " + (long)$water.getStartTimestamp());
+end
+
+rule "UsingBurner"
+    when
+        $motion : Motion(id : sensorId == "M17" , status : status) from entry-point "MotionStream"
+
+        $burner : Burner(val : value) from entry-point "BurnerStream"
+        eval((long) $burner.getStartTimestamp() < (long)$motion.getStartTimestamp())
+    then
+        System.out.println("Inserted UsingBurner event with value: " + val + ", timestamp: " + (long)$burner.getStartTimestamp());
+end
+
+rule "SittingAtTable"
+    when
+        $motion : Motion(id : sensorId == "M13" || sensorId == "M14" , status : status == "OFF") from entry-point "MotionStream"
+        forall (
+                $motion2 : Motion(id2 : sensorId , status2 : status == "OFF") from entry-point "MotionStream"
+                $motion3 : Motion(id3: sensorId == id2, eval((long) $motion3.getStartTimestamp() <= (long)$motion2.getStartTimestamp())) from entry-point "MotionStream"
+                )
+        then
+               System.out.println("Inserted SittingAtTable event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp() );
+        end
+
+rule "SittingOnCouch"
+    when
+        $motion : Motion(id : sensorId == "M02" || sensorId == "M03" , status : status == "OFF") from entry-point "MotionStream"
+        forall (
+                $motion2 : Motion(id2 : sensorId , status2 : status == "OFF") from entry-point "MotionStream"
+                $motion3 : Motion(id3: sensorId == id2, eval((long) $motion3.getStartTimestamp() <= (long)$motion2.getStartTimestamp())) from entry-point "MotionStream"
+                )
+        then
+               System.out.println("Inserted SittingAtTable event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp() );
+        end
+
+/* eats if it is at the dining room table, it has the pot with the outmeal and the medicine container */
+
+rule "Eating"
+    when
+        $motion : Motion(id : sensorId == "M13" || sensorId == "M14" , status : status == "OFF") from entry-point "MotionStream"
+        $item1 : Item(id2 : sensorId == "I07" , status2 : status == "ABSENT")  from entry-point "ItemStream"
+         forall (
+                    $itemaux : Item(idaux: sensorId == id2, eval((long) $itemaux.getStartTimestamp() <= (long)$item1.getStartTimestamp())) from entry-point "ItemStream"
+                  ) /* the last event should be "absent" */
+
+        $item2:  Item(id3 : sensorId == "I06" , status3 : status == "ABSENT")  from entry-point "ItemStream"
+          forall (
+                     $itemaux : Item(idaux: sensorId == id3, eval((long) $itemaux.getStartTimestamp() <= (long)$item2.getStartTimestamp())) from entry-point "ItemStream"
+                   ) /*the last event should be "absent" */
+      then
+        System.out.println("Inserted Eating event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
+end
+
+rule "Cleaning"
+    when
+     $motion : Motion(id : sensorId == "M17" || sensorId == "M18", status : status) from entry-point "MotionStream"
+     $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B", val : value) from entry-point "WaterStream"
+     $item1 : Item(id3 : sensorId == "I07" , status2 : status == "ABSENT")  from entry-point "ItemStream"
+      then
+             System.out.println("Inserted Cleaning event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
+end
+
+rule "Cooking"
+    when
+        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status : status) from entry-point "MotionStream"
+        $item : Item(id2 : sensorId == "I01" || sensorId == "I02" || sensorId == "I03" || sensorId == "I04" || sensorId == "I05"  , status2 : status == "ABSENT")  from entry-point "ItemStream"
+        eval((long) $item.getStartTimestamp() > (long)$motion.getStartTimestamp())
+    then
+        System.out.println("Inserted Cooking event with sensorId: " + id2 + ", status: " + status2 + ", timestamp: " + (long)$item.getStartTimestamp());
+end
+
+rule "Cooking outmeal"
+    when
+        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status : status) from entry-point "MotionStream"
+        $item : Item(id2 : sensorId == "I01" , status2 : status == "ABSENT")  from entry-point "ItemStream"
+        eval((long) $item.getStartTimestamp() > (long)$motion.getStartTimestamp())
+    then
+        System.out.println("Inserted Cooking event with sensorId: " + id2 + ", status: " + status2 + ", timestamp: " + (long)$item.getStartTimestamp());
+end

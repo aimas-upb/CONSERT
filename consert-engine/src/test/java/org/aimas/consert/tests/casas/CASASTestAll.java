@@ -13,7 +13,7 @@ import org.kie.api.runtime.KieSession;
 /**
  * Created by alex on 06.04.2017.
  */
-public class CASASTest extends TestSetup {
+public class CASASTestAll extends TestSetup {
     
 	public static void main(String[] args) {
     	
@@ -58,7 +58,7 @@ public class CASASTest extends TestSetup {
 		System.out.println("RUNNING EVENTS FOR file: " + datasetFolderPath + File.separator + filename);
 		
 		// create a new session
-		KieSession kSession = getKieSessionFromResources( "casas_rules/CASAS.drl" );
+		KieSession kSession = getKieSessionFromResources( "casas_rules/CASAS_base.drl",  "casas_rules/CASAS_highlevel.drl");
 
     	// set up engine runner thread and event inserter
     	Thread engineRunner = new Thread(new EngineRunner(kSession));
