@@ -313,18 +313,22 @@ public class EventTracker extends BaseEventTracker {
 	
 
 	public void objectDeleted(ObjectDeletedEvent event) {
-	    // TODO Auto-generated method stub
-	    
+		System.out.println("DELETED EVENT with handle: " + event.getFactHandle());
+		System.out.println("DELETED EVENT object: " + event.getOldObject());
+		System.out.println();
     }
 
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
-		
+		System.out.println("INSERTED EVENT with handle: " + insertEvent.getFactHandle());
+		System.out.println("INSERTED EVENT object: " + insertEvent.getObject());
+		System.out.println();
     }
 
 
 	public void objectUpdated(ObjectUpdatedEvent event) {
-	    // TODO Auto-generated method stub
-	    
+		System.out.println("UPDATED EVENT with handle: " + event.getFactHandle());
+		System.out.println("UPDATED EVENT object: " + event.getObject());
+		System.out.println();
     }
 
 }
