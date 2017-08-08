@@ -58,12 +58,12 @@ public abstract class LLA extends BinaryContextAssertion {
        
     
     @Override
-	public String getStreamName() {
+	public String getAtomicStreamName() {
 		return LLA.class.getSimpleName() + "Stream";
 	}
 	
 	public String getExtendedStreamName() {
-		return "Extended" + getStreamName();
+		return "Extended" + getAtomicStreamName();
 	}
 }
 

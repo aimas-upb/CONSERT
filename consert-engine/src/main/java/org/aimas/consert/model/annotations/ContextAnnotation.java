@@ -16,7 +16,7 @@ public abstract class ContextAnnotation {
 	
 	protected String annotationIdentifier;
 	
-	@RDF("annotation:hasValue")
+	//@RDF("annotation:hasValue")
 	public abstract Object getValue();
 	
 	@RDF("rdfbeans:bindingClass")

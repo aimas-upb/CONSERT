@@ -6,14 +6,16 @@ import org.aimas.consert.model.Constants;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationUtils;
 import org.cyberborean.rdfbeans.annotations.RDF;
+import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
 @RDFNamespaces({
-	"core = " + Constants.CORE_BASE_URI,
-	"annotation = " + Constants.ANNOTATION_BASE_URI,
+	"core = " + Constants.CORE_NS,
+	"annotation = " + Constants.ANNOTATION_NS,
 	"rdfbeans = " + Constants.RDFBEANS_URI
 })
+@RDFBean("core:ContextAssertion")
 public abstract class ContextAssertion {
 	private static int assertionCounter = 1;
 	
@@ -53,11 +55,11 @@ public abstract class ContextAssertion {
 	}
 	
 	@RDF("rdfbeans:bindingClass")
-	public String getBindingClassName() {
-		return getClass().getName();
+	public String getQualifiedBindingClassName() {
+		return this.getClass().getName();
 	}
 	
-	public void setBindingClassName(String name) {	}
+	public void setQualifiedBindingClassName(String name) {	}
 	
 	protected int arity = BINARY;
 	protected AcquisitionType acquisitionType = AcquisitionType.SENSED;
@@ -137,6 +139,7 @@ public abstract class ContextAssertion {
 	}
 	
 	
+	@RDF("annotation:hasAnnotation")
 	public AnnotationData getAnnotations() {
 		return annotationData;
 	}
@@ -156,12 +159,20 @@ public abstract class ContextAssertion {
 	
 	
 	/* ================== Auxiliary methods ================== */ 
+	public boolean isAtomic() {
+		return annotationData != null && annotationData.getDuration() == 0;
+	}
+	
 	public String getStreamName() {
+		return isAtomic() ? getAtomicStreamName() : getExtendedStreamName(); 
+	}
+	
+	public String getAtomicStreamName() {
 		return getClass().getSimpleName() + "Stream";
 	};
 	
 	public String getExtendedStreamName() {
-		return "Extended" + getStreamName();
+		return "Extended" + getAtomicStreamName();
 	}
 	
 	public int getContentHash() {
@@ -205,5 +216,17 @@ public abstract class ContextAssertion {
 	public boolean isOverlappedBy(ContextAssertion event) {
 	    return AnnotationUtils.isValidityOverlap(getAnnotations(), event.getAnnotations());
 	}    
-
+	
+	@Override
+	public String toString() {
+		String str = getClass().getSimpleName() + "[";
+		for (String entityRole : getEntities().keySet()) {
+			str += entityRole + ": " + getEntities().get(entityRole) + ", ";
+		}
+		
+		str += "\n" + getAnnotations().toString();
+		str += "]";
+		
+		return str;
+	}
 }
