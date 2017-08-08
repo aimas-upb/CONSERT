@@ -159,12 +159,20 @@ public abstract class ContextAssertion {
 	
 	
 	/* ================== Auxiliary methods ================== */ 
+	public boolean isAtomic() {
+		return annotationData != null && annotationData.getDuration() == 0;
+	}
+	
 	public String getStreamName() {
+		return isAtomic() ? getAtomicStreamName() : getExtendedStreamName(); 
+	}
+	
+	public String getAtomicStreamName() {
 		return getClass().getSimpleName() + "Stream";
 	};
 	
 	public String getExtendedStreamName() {
-		return "Extended" + getStreamName();
+		return "Extended" + getAtomicStreamName();
 	}
 	
 	public int getContentHash() {
@@ -208,5 +216,17 @@ public abstract class ContextAssertion {
 	public boolean isOverlappedBy(ContextAssertion event) {
 	    return AnnotationUtils.isValidityOverlap(getAnnotations(), event.getAnnotations());
 	}    
-
+	
+	@Override
+	public String toString() {
+		String str = getClass().getSimpleName() + "[";
+		for (String entityRole : getEntities().keySet()) {
+			str += entityRole + ": " + getEntities().get(entityRole) + ", ";
+		}
+		
+		str += "\n" + getAnnotations().toString();
+		str += "]";
+		
+		return str;
+	}
 }

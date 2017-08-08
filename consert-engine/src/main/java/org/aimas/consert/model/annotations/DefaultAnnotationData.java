@@ -15,7 +15,7 @@ public class DefaultAnnotationData implements AnnotationData {
 	public static final double CONFIDENCE_VALUE_THRESHOLD 	= 0.5;
 	public static final double CONFIDENCE_DIFF_THRESHOLD 	= 0.3;
 	
-	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 5000;		// in ms
+	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 10000;		// in ms
 	
 	
 	double lastUpdated; 	/* last Updated time*/
@@ -25,6 +25,16 @@ public class DefaultAnnotationData implements AnnotationData {
     long duration;			/* duration of the event */
     
     public DefaultAnnotationData() {}
+    
+    public DefaultAnnotationData(double lastUpdated, double confidence) {
+    	this.lastUpdated = lastUpdated;
+    	this.confidence = confidence;
+    	
+    	this.startTime = new Date((long)lastUpdated);
+    	this.endTime = this.startTime;
+    	
+    	setDuration(startTime, endTime);
+    }
     
     public DefaultAnnotationData(double lastUpdated, double confidence, Date startTime, Date endTime) {
 	    this.lastUpdated = lastUpdated;

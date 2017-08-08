@@ -30,4 +30,8 @@ public class StringLiteral implements ContextEntity {
 	    return SimpleValueFactory.getInstance().createLiteral(literal).getLabel();
     }
 	
+	@Override
+	public String toString() {
+		return literal;
+	}
 }
