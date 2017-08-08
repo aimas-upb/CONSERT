@@ -1,10 +1,6 @@
 package org.aimas.consert.engine;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import org.aimas.consert.engine.TrackedAssertionStore.TrackedEventData;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationDataFactory;
 import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
@@ -19,33 +15,7 @@ import org.kie.api.runtime.rule.FactHandle;
 
 public class EventTracker extends BaseEventTracker {
 	
-	public static class TrackedEventData {
-		private FactHandle existingHandle;
-		private EntryPoint existingEventEntryPoint;
-		private ContextAssertion existingEvent;
-		
-		public TrackedEventData(FactHandle existingHandle, EntryPoint existingEventEntryPoint, ContextAssertion existingEvent) {
-	        this.existingHandle = existingHandle;
-	        this.existingEventEntryPoint = existingEventEntryPoint;
-	        this.existingEvent = existingEvent;
-        }
-
-		public FactHandle getHandle() {
-			return existingHandle;
-		}
-
-		public EntryPoint getEntryPoint() {
-			return existingEventEntryPoint;
-		}
-
-		public ContextAssertion getEventObject() {
-			return existingEvent;
-		}
-	}
-	
-	
-	Map<Class<? extends ContextAssertion>, List<FactHandle>> lastValidEventMap = new HashMap<Class<? extends ContextAssertion>, List<FactHandle>>();
-	Map<Class<? extends ContextAssertion>, List<FactHandle>> lastValidDeducedMap = new HashMap<Class<? extends ContextAssertion>, List<FactHandle>>();
+	private TrackedAssertionStore trackedAssertionStore = TrackedAssertionStore.getInstance();
 	
 	private AnnotationDataFactory annotationFactory = new DefaultAnnotationDataFactory();
 	
@@ -62,41 +32,21 @@ public class EventTracker extends BaseEventTracker {
 		kSession.setGlobal("eventTracker", this);
 	}
 	
-	private TrackedEventData searchHandleByContent(Map<Class<? extends ContextAssertion>, List<FactHandle>> recencyMap, ContextAssertion event, KieSession kSession) {
-		List<FactHandle> handleList = recencyMap.get(event.getClass());
-		for (FactHandle existingHandle : handleList) {
-			EntryPoint existingEventEntry = searchEntryPoint(existingHandle, kSession);
-			ContextAssertion existingEvent = (ContextAssertion)existingEventEntry.getObject(existingHandle);
-			
-			if (existingEvent.getContentHash() == event.getContentHash()) {
-				if (existingEvent.allowsContentContinuity(event)) {
-					return new TrackedEventData(existingHandle, existingEventEntry, existingEvent);
-				}
-			}
-		}
-		
-		return null;
-	}
 	
-
+	
 	/**
 	 * Insert an atomic event. The event will go through the verifications of temporal continuity.
 	 * @param event The atomic event to insert
 	 */
     public void insertAtomicEvent(final ContextAssertion event) {
-    	//System.out.println(event.getClass());
     	String eventStream = event.getStreamName();
     	
     	// if this is the first event of its type
-    	if (!lastValidEventMap.containsKey(event.getClass())) {
-    		
+    	if (!trackedAssertionStore.tracksSensed(event.getClass())) {
     		if (event.getAnnotations().allowsAnnotationInsertion()) {
     			// go through with insertion in the map and the KieBase
-	    		List<FactHandle> handleList = new LinkedList<FactHandle>();
-	    		lastValidEventMap.put(event.getClass(), handleList);
-    			
-	    		FactHandle handle = kSession.getEntryPoint(eventStream).insert(event);
-	    		handleList.add(handle);
+    			FactHandle handle = kSession.getEntryPoint(eventStream).insert(event);
+    			trackedAssertionStore.trackSensed(event, handle, kSession.getEntryPoint(eventStream));
     		}
     		else {
     			// Go through with event insertion in its appropriate stream anyway, just don't hold the handle in the lastValidEventMap
@@ -114,33 +64,34 @@ public class EventTracker extends BaseEventTracker {
 				@Override
 				public void execute(KieSession kSession) {
 					// check to see if it matches one of the previous stored events by content
-		    		TrackedEventData existingEventData = searchHandleByContent(lastValidEventMap, event, kSession);
+					TrackedEventData existingEventData = trackedAssertionStore.searchSensedAssertionByContent(event); 
 		    		if (existingEventData != null) {
 		    			// if it DOES match any monitored event by content 
-		    			FactHandle existingEventHandle = existingEventData.getHandle();
-		    			ContextAssertion updatedEvent = existingEventData.getEventObject();
-		    			EntryPoint existingEventEntry = existingEventData.getEntryPoint();
+		    			FactHandle existingEventHandle = existingEventData.getExistingHandle();
+		    			ContextAssertion updatedEvent = existingEventData.getExistingEvent();
+		    			EntryPoint existingEventEntry = existingEventData.getExistingEventEntryPoint();
+		    			
+		    			//System.out.println("Existing event entrypoint: " + existingEventEntry.getEntryPointId());
 		    			
 		    			// if it allows continuity by annotation
 		    			if (updatedEvent.getAnnotations().allowsAnnotationContinuity(event.getAnnotations())) { // time s
 			    			// create event clone
-							System.out.println( updatedEvent.getProcessingTimeStamp());
+							//System.out.println( updatedEvent.getProcessingTimeStamp());
+		    				//System.out.println("FOUND EXTENSION for existing event: " + updatedEvent + ", new event: " + event);
 			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
 			    					.applyExtensionOperator(event.getAnnotations());
 			    			
 			    			updatedEvent.setAnnotations(updatedAnnotations);
 			    			
 			    			// if the event allows continuity, remove the old instance and insert the new one
-			    			// DO THIS AS ATOMIC ACTION
-			    			//EntryPoint existingEventEntry = searchEntryPoint(existingEventHandle, kSession);
-			    			existingEventEntry.delete(existingEventHandle);
+			    			if (existingEventHandle != null)
+			    				existingEventEntry.delete(existingEventHandle);
 			    			
-			    			List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
-			    			handleList.remove(existingEventHandle);
+			    			trackedAssertionStore.removeSensed(existingEventData);
 			    			
 			    			String extendedEventStream = updatedEvent.getExtendedStreamName();
 			    			FactHandle handle = kSession.getEntryPoint(extendedEventStream).insert(updatedEvent);
-		        			handleList.add(handle);
+			    			trackedAssertionStore.trackSensed(updatedEvent, handle, kSession.getEntryPoint(extendedEventStream));
 			    			
 			    			// TEST SIZE OF KnowledgeBase
 			    			//System.out.println("COUNT OF EVENTS FOR " + existingEventEntry.getEntryPointId() + " IS: " + existingEventEntry.getObjects().size());
@@ -149,10 +100,8 @@ public class EventTracker extends BaseEventTracker {
 		    			else {
 		    				if (event.getAnnotations().allowsAnnotationInsertion()) {
 		    					// if allowed by confidence allowed, set the new event as the most recently valid one
-		    					List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
-		    					handleList.remove(existingEventHandle);
-		    					handleList.add(newEventHandle);
-		    					//handleList.add(finalNewEventHandle);
+		    					trackedAssertionStore.removeSensed(existingEventData);
+		    					trackedAssertionStore.trackSensed(event, newEventHandle, kSession.getEntryPoint(eventStream));
 		    				}
 			    		}
 		    		}
@@ -161,9 +110,7 @@ public class EventTracker extends BaseEventTracker {
 		    			if (event.getAnnotations().allowsAnnotationInsertion()) {
 		    				// if the confidence value check allows it to be inserted,
 							// add it to the list of monitored events for this type
-		    				List<FactHandle> handleList = lastValidEventMap.get(event.getClass());
-		    				handleList.add(newEventHandle);
-		    				//handleList.add(finalNewEventHandle);
+		    				trackedAssertionStore.trackSensed(event, newEventHandle, kSession.getEntryPoint(eventStream));
 		    			}
 		    		}
 					
@@ -224,17 +171,14 @@ public class EventTracker extends BaseEventTracker {
     private void doDerivedInsertion(final ContextAssertion eventObject) {
 		//BaseEvent insertedEventObject = (BaseEvent)insertEvent.getObject();
 		
-    	final String derivedEventStream = eventObject.getExtendedStreamName();
+    	final String derivedEventStream = eventObject.getStreamName();
     	
 		// perform same type of checks as in the case of temporal validity extension
 		// if this is the first event of its type
-    	if (!lastValidDeducedMap.containsKey(eventObject.getClass())) {
+    	if (!trackedAssertionStore.tracksDerived(eventObject.getClass())) {
     		// go through with insertion in the map
-    		List<FactHandle> handleList = new LinkedList<FactHandle>();
     		FactHandle handle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
-    		handleList.add(handle);
-    		
-    		lastValidDeducedMap.put(eventObject.getClass(), handleList);
+    		trackedAssertionStore.trackDerived(eventObject, handle, kSession.getEntryPoint(derivedEventStream));
     	}
     	else {
     		// do the overlap verification steps as an atomic action
@@ -245,37 +189,39 @@ public class EventTracker extends BaseEventTracker {
 		    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
 					
 					// check to see if it matches one of the previous stored events by content
-		    		TrackedEventData existingEventData = searchHandleByContent(lastValidDeducedMap, eventObject, kSession);
+		    		TrackedEventData existingEventData = trackedAssertionStore.searchDerivedAssertionByContent(eventObject);
 		    		if (existingEventData != null) {
 		    			// if it DOES match any monitored event by content 
-		    			FactHandle existingEventHandle = existingEventData.getHandle();
-		    			ContextAssertion updatedEvent = existingEventData.getEventObject();
-		    			EntryPoint existingEventEntry = existingEventData.getEntryPoint();
+		    			FactHandle existingEventHandle = existingEventData.getExistingHandle();
+		    			ContextAssertion updatedEvent = existingEventData.getExistingEvent();
+		    			EntryPoint existingEventEntry = existingEventData.getExistingEventEntryPoint();
 		    			
 		    			// if the validity interval of the previous deduced event is included in the interval of the extended one 
+//		    			System.out.println("0000000000000000000000000");
+//		    			System.out.println("Updated Event: " + updatedEvent);
+//		    			System.out.println("New Event (that extends): " + eventObject);
+//		    			System.out.println("0000000000000000000000000");
+		    			
+		    			
 		    			if (updatedEvent.isOverlappedBy(eventObject)) {
 			    			System.out.println("!!!!!!!!!![EventTracker] Analyzing garbage collection for DEDUCED event " + updatedEvent);
-		    				// if the event allows continuity, remove the old instance and insert the new one
-			    			// DO THIS AS ATOMIC ACTION
-			    			//EntryPoint existingEventEntry = searchEntryPoint(existingEventHandle, kSession);
-			    			existingEventEntry.delete(existingEventHandle);
+		    				
+			    			if (existingEventHandle != null) 
+			    				existingEventEntry.delete(existingEventHandle);
 			    			
-			    			List<FactHandle> handleList = lastValidDeducedMap.get(eventObject.getClass());
-			    			handleList.remove(existingEventHandle);
-		        			handleList.add(derivedEventHandle);
+			    			trackedAssertionStore.removeDerived(existingEventData);
+		        			trackedAssertionStore.trackDerived(eventObject, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
 		    			}
 		    			else {
 		    				// if it is not overlapped, then it means it just has to replace the existing event in the lastValidDeducedMap
-		    				List<FactHandle> handleList = lastValidDeducedMap.get(eventObject.getClass());
-			    			handleList.remove(existingEventHandle);
-		        			handleList.add(derivedEventHandle);
+		    				trackedAssertionStore.removeDerived(existingEventData);
+		        			trackedAssertionStore.trackDerived(eventObject, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
 		    			}
 		    		}
 		    		else {
 		    			// If it DOES NOT match any monitored event by content,
 						// add it to the list of monitored events for this type
-	    				List<FactHandle> handleList = lastValidDeducedMap.get(eventObject.getClass());
-	    				handleList.add(derivedEventHandle);
+		    			trackedAssertionStore.trackDerived(eventObject, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
 		    		}
 				}
 			});
@@ -285,17 +231,23 @@ public class EventTracker extends BaseEventTracker {
 	
 
 	public void objectDeleted(ObjectDeletedEvent event) {
-	    // TODO Auto-generated method stub
+		//System.out.println("--------------------- Deleting object: " + event.getOldObject() + " from: " + event.getFactHandle().toExternalForm());
+		
+		FactHandle deletedHandle = event.getFactHandle();
+	    ContextAssertion deletedAssertion = (ContextAssertion)event.getOldObject();
 	    
+	    if (!trackedAssertionStore.wasUntracked(deletedHandle, deletedAssertion)) {
+	    	trackedAssertionStore.markExpired(deletedHandle, deletedAssertion);
+	    }
     }
-
+	
+	
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
 		
     }
 
 
 	public void objectUpdated(ObjectUpdatedEvent event) {
-	    // TODO Auto-generated method stub
 	    
     }
 
