@@ -36,6 +36,8 @@ public class HLATest extends TestSetup {
 	    	EventTracker eventTracker = new EventTracker(kSession);
 	    	EventInserter eventInserter = new EventInserter(inputFile, eventTracker);
 	    	
+	    	kSession.addEventListener(eventTracker);
+	    	
 	    	// start the engine thread and the inserter, wait for the inserter to finish then exit
 	    	engineRunner.start();
 	    	eventInserter.start();
