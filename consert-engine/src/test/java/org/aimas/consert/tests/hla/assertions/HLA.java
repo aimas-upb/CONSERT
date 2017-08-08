@@ -30,13 +30,11 @@ public abstract class HLA extends BinaryContextAssertion {
     }
     
     @RDF("hlatest:hasHLATypeRole")
-    public HLAType getType()
-    {
+    public HLAType getType() {
         return type;
     }
     
-    public void setType(HLAType type)
-    {
+    public void setType(HLAType type) {
         this.type = type;
         setObject(type);
     }
@@ -55,14 +53,4 @@ public abstract class HLA extends BinaryContextAssertion {
     public String toString() {
         return "HLA [" + "person=" + person + ",  type=" + type + ", annotations=" + annotationData + "]";
     }
-    
-    @Override
-	public String getStreamName() {
-		return getClass().getSimpleName() + "Stream";
-	}
-	
-    @Override
-	public String getExtendedStreamName() {
-		return "Extended" + getStreamName();
-	}
 }
