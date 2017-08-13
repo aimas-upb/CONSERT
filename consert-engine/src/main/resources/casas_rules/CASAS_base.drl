@@ -22,8 +22,8 @@ global EventTracker eventTracker;
 
 declare Motion
     @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
+    //@timestamp(startTimestamp)
+    //@duration(eventDuration)
 end
 
 
@@ -66,13 +66,14 @@ declare Phone
 end
 
 // =========== BaseEvent insert rules - needed to create the event streams
-
+/*
 rule "MotionInsertTest"
     when
         $motion : Motion(id : sensorId, status : status) from entry-point "MotionStream" 
     then
         System.out.println("Inserted MOTION event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
 end
+*/
 
 rule "ItemInsertTest"
     when
@@ -119,6 +120,7 @@ end
 
 
 rule "PersonLocationTest"
+    salience -10
     when
         $loc : PersonLocation(location : location) from entry-point "PersonLocationStream" 
     then
@@ -126,3 +128,11 @@ rule "PersonLocationTest"
         " duration: " + (long)$loc.getEventDuration());
 end
 
+rule "PersonLocationExtended"
+    salience -10
+    when
+        $loc : PersonLocation(location : location) from entry-point "ExtendedPersonLocationStream" 
+    then
+        System.out.println("Inserted EXTENDED PersonLocation event with location: " + location + ", timestamp: " + (long)$loc.getStartTimestamp() + 
+        " duration: " + (long)$loc.getEventDuration());
+end

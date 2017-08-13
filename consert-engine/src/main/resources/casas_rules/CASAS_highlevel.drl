@@ -19,67 +19,38 @@ import org.aimas.consert.engine.EventTracker
 global EventTracker eventTracker;
 
 
-declare Motion
-    @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
-end
-
-
-declare Item
-    @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
-end
-
-
-declare Cabinet
-    @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
-end
-
-declare Water
-    @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
-end
-
-
-declare Temperature
-    @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
-end
-
-declare Burner
-    @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
-end
-
-declare Phone
-    @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
-end
 
 declare PersonLocation
     @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
+    //@timestamp(startTimestamp)
+    //@duration(eventDuration)
 end
 
 // =========== High level derivation rules
 // ================ at_dining_table
+
 rule "At Dining Table"
-    salience 100
+    salience 10
     when 
-        $motion : Motion(sensorId == "M13" || sensorId == "M14" , status == "ON") from entry-point "MotionStream"
+        //$motion : Motion(sensorId == "M13" || sensorId == "M14", annMotion : annotations) from entry-point "MotionStream"
+        //not ( //PersonLocation(loc : location != "DiningTable", $annBase : annotations, this before[0s, 5s] $motion) from entry-point "PersonLocationStream" || 
+        //      PersonLocation(loc : location != "DiningTable", annExtended : annotations) from entry-point "ExtendedPersonLocationStream" &&
+        //      eval( ((DefaultAnnotationData)annExtended).getStartTime().before(((DefaultAnnotationData)annMotion).getStartTime()) && 
+        //      ((DefaultAnnotationData)annMotion).getStartTime().getTime() - ((DefaultAnnotationData)annExtended).getEndTime().getTime() <= 1000 )
+        //)
+        $motion : Motion(sensorId == "M13" || sensorId == "M14") from entry-point "MotionStream"
+        not (
+            Motion(id1 : sensorId, id1 not in ("M13", "M14"), this before[0s, 2s] $motion) from entry-point "MotionStream" &&
+            Motion(id2 : sensorId, id2 not in ("M13", "M14"), this after[0s, 2s] $motion) from entry-point "MotionStream"
+        )
     then
+        System.out.println("{}{}{}{} Triggering INIT AT DINING TABLE rule following event: " + $motion + "\n");
+        
         // create atomic PersonLocation ContextAssertion
         DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
-        DefaultAnnotationData ann = new DefaultAnnotationData(motionAnn.getLastUpdated(), motionAnn.getConfidence());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts, motionAnn.getConfidence());
         PersonLocation loc = new PersonLocation("DiningTable", ann);
         
         eventTracker.insertAtomicEvent(loc);
@@ -89,11 +60,18 @@ end
 rule "Stay At Dining Table"
     when
         $motion : Motion(id : sensorId == "M13" || sensorId == "M14" , status == "OFF") from entry-point "MotionStream"
-        not( Motion(id_other : sensorId, id_other != id, id_other not in ("M13", "M14"), status == "ON", this after[0s, 5s] $motion) from entry-point "MotionStream")
+        $motionPrev : Motion(id2: sensorId, id2 in ("M13", "M14"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( 
+            Motion(id_other : sensorId, id_other != id, id_other not in ("M13", "M14"), this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            PersonLocation(location != "DiningTable", this before[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+        )
     then
+        System.out.println("[][][][][][] Triggering STAY AT DINING TABLE RULE following event: " + $motion + "\n");
         // create atomic PersonLocation ContextAssertion
         DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
-        DefaultAnnotationData ann = new DefaultAnnotationData(motionAnn.getLastUpdated() + 5000, motionAnn.getConfidence());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts, motionAnn.getConfidence());
         PersonLocation loc = new PersonLocation("DiningTable", ann);
         
         eventTracker.insertAtomicEvent(loc);
@@ -101,30 +79,61 @@ end
 
 
 rule "Remain at dining table"
-    timer (int: 0s 5s)
+    salience 20
+    //timer (int: 0s 2s)
+    //duration(10s)
     when
-        $loc : PersonLocation(location == "Kitchen") from entry-point "PersonLocationStream"
-        not( Motion(id_other : sensorId, id_other not in ("M13", "M14"), status == "ON", this after[0s, 5s] $loc) from entry-point "MotionStream")
-    then
-        // create atomic PersonLocation ContextAssertion
-        DefaultAnnotationData motionAnn = (DefaultAnnotationData)$loc.getAnnotations();
-        DefaultAnnotationData ann = new DefaultAnnotationData(motionAnn.getLastUpdated() + 5000, motionAnn.getConfidence());
-        PersonLocation sameLoc = new PersonLocation("DiningTable", ann);
+        loc : PersonLocation(location1 : location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
+        not( PersonLocation(location2: location != location1, this after loc) from entry-point "ExtendedPersonLocationStream" )
+        not( Motion(status == "ON", this after[0s, 3s] loc) from entry-point "MotionStream")
         
+        //loc : Motion(id1 : sensorId, stat: status) from entry-point "MotionStream"
+        //loc2: Motion(this != loc, id2 : sensorId == id1, status == stat, this after[8s, 10s] loc) from entry-point "MotionStream"
+    then
+        System.out.println("[][][][][][] Triggering REMAIN AT DINING TABLE RULE following event: " + loc + "\n");
+        // create atomic PersonLocation ContextAssertion
+        DefaultAnnotationData locAnn = (DefaultAnnotationData)loc.getAnnotations();
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence());
+        PersonLocation sameLoc = new PersonLocation("DiningTable", ann);
+     
         eventTracker.insertAtomicEvent(sameLoc);
+        
+        //System.out.println("Triggering REMAIN AT DINING TABLE RULE following events: " + loc + "\n" + loc2);
+        //System.out.println("Triggering REMAIN AT DINING TABLE RULE following event: " + loc + "\n");
 end
 
 
 
 // ================ in the kitchen
 rule "In the kitchen"
-    salience 100
+    salience 10
     when 
-        $motion : Motion(sensorId == "M16" || sensorId == "M17" || sensorId == "M18" , status : status == "ON") from entry-point "MotionStream"
+        //$motion : Motion(sensorId == "M16" || sensorId == "M17" || sensorId == "M18") from entry-point "MotionStream"
+        //not ( PersonLocation(loc : location != "Kitchen", this before[0s, 5s] $motion) from entry-point "PersonLocationStream" || 
+        //      PersonLocation(loc : location != "Kitchen", this before[0s, 5s] $motion) from entry-point "ExtendedPersonLocationStream" )
+        //not ( $motionBefore : Motion(id : sensorId, id not in ("M16", "M17", "M18"), this before[0s, 5s] $motion) from entry-point "MotionStream")
+        
+        //$motion : Motion(sensorId == "M16" || sensorId == "M17" || sensorId == "M18", annMotion : annotations) from entry-point "MotionStream"
+        //not (  
+        //      PersonLocation(loc : location != "Kitchen", annExtended : annotations) from entry-point "ExtendedPersonLocationStream" &&
+        //      eval( ((DefaultAnnotationData)annExtended).getStartTime().before(((DefaultAnnotationData)annMotion).getStartTime()) && 
+        //      ((DefaultAnnotationData)annMotion).getStartTime().getTime() - ((DefaultAnnotationData)annExtended).getEndTime().getTime() <= 1000 )
+        //)
+        $motion : Motion(sensorId == "M16" || sensorId == "M17" || sensorId == "M18") from entry-point "MotionStream"
+        not (
+            Motion(id1 : sensorId, id1 not in ("M16", "M17", "M18"), this before[0s, 2s] $motion) from entry-point "MotionStream" &&
+            Motion(id2 : sensorId, id2 not in ("M16", "M17", "M18"), this after[0s, 2s] $motion) from entry-point "MotionStream"
+        )
     then
+        System.out.println("{}{}{}{} Triggering INIT AT KITCHEN rule following event: " + $motion + "\n");
+        
         // create atomic PersonLocation ContextAssertion
         DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
-        DefaultAnnotationData ann = new DefaultAnnotationData(motionAnn.getLastUpdated(), motionAnn.getConfidence());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts, motionAnn.getConfidence());
         PersonLocation loc = new PersonLocation("Kitchen", ann);
         
         eventTracker.insertAtomicEvent(loc);
@@ -134,11 +143,19 @@ end
 rule "Stay in kitchen"
     when
         $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status : status == "OFF") from entry-point "MotionStream"
-        not( Motion(id_other : sensorId, id_other != id, id_other not in ("M16", "M17", "M18"), status == "ON", this after[0s, 5s] $motion) from entry-point "MotionStream")
+        $motionPrev : Motion(id2: sensorId, id2 in ("M16", "M17", "M18"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( 
+            Motion(id_other : sensorId, id_other != id, id_other not in ("M16", "M17", "M18"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            PersonLocation(location != "Kitchen", this before[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+        )
     then
+        System.out.println("[][][][][][] Triggering STAY IN KITCHEN rule following event: " + $motion + "\n");
+        
         // create atomic PersonLocation ContextAssertion
         DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
-        DefaultAnnotationData ann = new DefaultAnnotationData(motionAnn.getLastUpdated() + 5000, motionAnn.getConfidence());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts, motionAnn.getConfidence());
         PersonLocation loc = new PersonLocation("Kitchen", ann);
         
         eventTracker.insertAtomicEvent(loc);
@@ -146,15 +163,21 @@ end
 
 
 rule "Remain in kitchen"
-    timer(int: 0s 5s )
+    salience 20
+    //timer(int: 0s 5s)
     when
-        $loc : PersonLocation() from entry-point "PersonLocationStream"
-        not( Motion(id_other : sensorId, id_other not in ("M16", "M17", "M18"), status == "ON", this after[0s, 5s] $loc) from entry-point "MotionStream")
+        loc : PersonLocation(location1 : location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+        not( PersonLocation(location2: location != location1, this after loc) from entry-point "ExtendedPersonLocationStream" )
+        not( Motion(status == "ON", this after[0s, 5s] loc) from entry-point "MotionStream")
     then
-        // create atomic PersonLocation ContextAssertion
-        DefaultAnnotationData motionAnn = (DefaultAnnotationData)$loc.getAnnotations();
-        DefaultAnnotationData ann = new DefaultAnnotationData(motionAnn.getLastUpdated() + 5000, motionAnn.getConfidence());
-        PersonLocation loc = new PersonLocation("Kitchen", ann);
+        System.out.println("[][][][][][] Triggering REMAIN AT KITCHEN rule following event: " + loc + "\n");
         
-        eventTracker.insertAtomicEvent(loc);
+        // create atomic PersonLocation ContextAssertion
+        DefaultAnnotationData locAnn = (DefaultAnnotationData)loc.getAnnotations();
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence());
+        PersonLocation sameLoc = new PersonLocation("Kitchen", ann);
+        
+        eventTracker.insertAtomicEvent(sameLoc);
 end
