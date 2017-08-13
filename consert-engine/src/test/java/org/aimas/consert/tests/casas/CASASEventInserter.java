@@ -106,7 +106,8 @@ public class CASASEventInserter {
 		public void run() {
 			// filter by event instance type to see on which stream to insert
 			event.setProcessingTimeStamp(System.currentTimeMillis());
-			eventTracker.insertSimpleEvent(event);
+			//eventTracker.insertSimpleEvent(event, false);
+			eventTracker.insertSimpleEvent(event, true);
         }
 	}
 }
