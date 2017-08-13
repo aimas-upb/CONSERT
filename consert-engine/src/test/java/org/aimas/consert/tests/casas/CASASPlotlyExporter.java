@@ -50,15 +50,18 @@ public class CASASPlotlyExporter {
         ObjectMapper mapper = new ObjectMapper();
         Collection<EntryPoint> entryPoints = (Collection<EntryPoint>) session.getEntryPoints();
         for(EntryPoint entryPoint : entryPoints) {
-            //if (entryPoint.getEntryPointId().startsWith("Extended")) {
-	        	try {
-	                File entryPointTempFile = new File(tmp +  File.separator + "output_" + entryPoint.getEntryPointId() + ".json");
-	                mapper.writeValue(entryPointTempFile, entryPoint.getObjects());
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	                return false;
-	            }
-            //}
+            if (!entryPoint.getEntryPointId().startsWith("Extended")) {
+	        	if (entryPoint.getEntryPointId().contains("PersonLocation"))
+	        		continue;
+            }
+            
+            try {
+                File entryPointTempFile = new File(tmp +  File.separator + "output_" + entryPoint.getEntryPointId() + ".json");
+                mapper.writeValue(entryPointTempFile, entryPoint.getObjects());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         // Call the python script which generates a plotly gantt chart
