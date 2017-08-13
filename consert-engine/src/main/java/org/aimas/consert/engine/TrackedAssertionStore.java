@@ -19,7 +19,7 @@ public class TrackedAssertionStore {
 		private ContextAssertion existingEvent;
 		
 		public TrackedEventData(FactHandle existingHandle, EntryPoint existingEventEntryPoint, ContextAssertion existingEvent) {
-	        this.existingHandle = existingHandle;
+			this.existingHandle = existingHandle;
 	        this.existingEventEntryPoint = existingEventEntryPoint;
 	        this.existingEvent = existingEvent;
         }

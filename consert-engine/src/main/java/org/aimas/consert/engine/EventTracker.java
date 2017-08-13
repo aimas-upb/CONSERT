@@ -1,8 +1,11 @@
 package org.aimas.consert.engine;
 
+import java.util.Date;
+
 import org.aimas.consert.engine.TrackedAssertionStore.TrackedEventData;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationDataFactory;
+import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.kie.api.event.rule.ObjectDeletedEvent;
@@ -36,11 +39,19 @@ public class EventTracker extends BaseEventTracker {
 	/**
 	 * Insert an event that is not required to go through the verifications OF temporal continuity.
 	 * @param event The event to be inserted.
+	 * @param setTimestamp Boolean value controlling whether to set the timestamp of the event based on the kSession clock.
 	 */
-	public void insertSimpleEvent(ContextAssertion event) {
+	public void insertSimpleEvent(ContextAssertion event, boolean setTimestamp) {
 		String eventStream = event.getStreamName();
 		
 		if (event.getAnnotations().allowsAnnotationInsertion()) {
+			if (setTimestamp) {
+				DefaultAnnotationData ann = (DefaultAnnotationData)event.getAnnotations();
+				ann.setTimestamp(kSession.getSessionClock().getCurrentTime());
+				ann.setStartTime(new Date(kSession.getSessionClock().getCurrentTime()));
+				ann.setEndTime(new Date(kSession.getSessionClock().getCurrentTime()));
+			}
+			
 			kSession.getEntryPoint(eventStream).insert(event);
 		}
 	}
@@ -83,7 +94,7 @@ public class EventTracker extends BaseEventTracker {
 		    			ContextAssertion updatedEvent = existingEventData.getExistingEvent();
 		    			EntryPoint existingEventEntry = existingEventData.getExistingEventEntryPoint();
 		    			
-		    			//System.out.println("Existing event entrypoint: " + existingEventEntry.getEntryPointId());
+		    			//System.out.println("TRACKED DATA exists: " + updatedEvent);
 		    			
 		    			// if it allows continuity by annotation
 		    			if (updatedEvent.getAnnotations().allowsAnnotationContinuity(event.getAnnotations())) { // time s
@@ -167,7 +178,7 @@ public class EventTracker extends BaseEventTracker {
     
     
 	private boolean checkPreviouslyDerived(ContextAssertion derivedEvent) {
-		String derivedStreamName = derivedEvent.getExtendedStreamName();
+		String derivedStreamName = derivedEvent.getStreamName();
 		EntryPoint derivedEventStream = kSession.getEntryPoint(derivedStreamName);
 		
 		//System.out.println("Derived Event Stream name: " + derivedStreamName);
@@ -259,21 +270,30 @@ public class EventTracker extends BaseEventTracker {
 	
 
 	public void objectDeleted(ObjectDeletedEvent event) {
-		//System.out.println("--------------------- Deleting object: " + event.getOldObject() + " from: " + event.getFactHandle().toExternalForm());
+		System.out.println("DELETED EVENT object: " + event.getOldObject());
+		System.out.println("	HANDLE: " + event.getFactHandle());
+		
+		if (event.getRule() != null) {
+			System.out.println("	RULE: " + event.getRule().getName());
+		}
+		System.out.println();
+		
 		FactHandle deletedHandle = event.getFactHandle();
 	    ContextAssertion deletedAssertion = (ContextAssertion)event.getOldObject();
 	    
-	    if (!trackedAssertionStore.wasUntracked(deletedHandle, deletedAssertion)) {
+	    if (trackedAssertionStore.wasUntracked(deletedHandle, deletedAssertion)) {
 	    	trackedAssertionStore.markExpired(deletedHandle, deletedAssertion);
 	    }
-
     }
 	
 	
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
-//		System.out.println("INSERTED EVENT with handle: " + insertEvent.getFactHandle());
-//		System.out.println("INSERTED EVENT object: " + insertEvent.getObject());
-//		System.out.println();
+		System.out.println("INSERTED EVENT object: " + insertEvent.getObject());
+		System.out.println("	HANDLE: " + insertEvent.getFactHandle());
+		if (insertEvent.getRule() != null) {
+			System.out.println("	RULE: " + insertEvent.getRule().getName());
+		}
+		System.out.println();
     }
 
 
