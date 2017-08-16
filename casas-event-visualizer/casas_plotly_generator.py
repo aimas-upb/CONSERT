@@ -21,8 +21,8 @@ __maintainer__ = "Mihai Trascau"
 __date__ = "23/05/2017"
 __version__ = "1.0.0"
 
-
-status_streams = ["MotionStream", "ItemStream", "CabinetStream", "PhoneStream", "PersonLocationStream"]
+raw_event_types = ["MOTION", "ITEM", "CABINET", "PHONE", "WATER", "BURNER", "TEMPERATURE"]
+status_streams = ["MotionStream", "ItemStream", "CabinetStream", "PhoneStream"]
 numeric_streams = ["WaterStream", "BurnerStream", "TemperatureStream"]
 
 status_mapping = {
@@ -172,7 +172,10 @@ for f in files:
 
         session_data += raw_data
 
-processed_status_data, processed_numeric_data = process_casas_raw_output(session_data)
+base_session_data = [elem for elem in session_data if elem["Event Type"] in raw_event_types]
+derived_session_data = [elem for elem in session_data if not elem["Event Type"] in raw_event_types]
+
+processed_status_data, processed_numeric_data = process_casas_raw_output(base_session_data)
 
 # if processed_status_data:
 #     partial_status_frame = json_normalize(processed_status_data)
@@ -184,24 +187,43 @@ processed_status_data, processed_numeric_data = process_casas_raw_output(session
 #     partial_numeric_frame['Event Type'] = key
 #     all_numeric_frames.append(partial_numeric_frame)
 
-""" Process the status sensors """
-# df_status = pd.concat(all_status_frames)
-df_status = json_normalize(processed_status_data)
-
+""" PROCESS THE BASE STATUS SENSORS """
+# df_status_base = pd.concat(all_status_frames)
+df_status_base = json_normalize(processed_status_data)
 
 # Keep only the needed columns for status sensors
-df_status = df_status[['sensorId', 'annotations.startTime', 'annotations.endTime', 'Event Type']]
+df_status_base = df_status_base[['sensorId', 'annotations.startTime', 'annotations.endTime', 'Event Type']]
+#df_status_base = df_status_base[['entities.hasSubject.entityId', 'entities.hasEntity.entityId', 'annotations.startTime', 'annotations.endTime', 'Event Type']]
 
 # Convert annotations to datetime from UNIX timestamps (dtype int64)
-df_status['annotations.startTime'] = pd.to_datetime(df_status['annotations.startTime'], unit='ms')
-df_status['annotations.endTime'] = pd.to_datetime(df_status['annotations.endTime'], unit='ms')
+df_status_base['annotations.startTime'] = pd.to_datetime(df_status_base['annotations.startTime'], unit='ms')
+df_status_base['annotations.endTime'] = pd.to_datetime(df_status_base['annotations.endTime'], unit='ms')
 
 # Rename columns to match plotly conventions
-df_status.rename(columns={'sensorId': 'Task', 'annotations.startTime': 'Start', 'annotations.endTime': 'Finish'}, inplace=True)
+df_status_base.rename(columns={'sensorId': 'Task', 'annotations.startTime': 'Start', 'annotations.endTime': 'Finish'}, inplace=True)
 
 # Sort dataframe so we get HLAs in the lower part of the Gantt
-df_status.sort_values(by="Event Type", ascending=False, inplace=True)
-df_status.reset_index(inplace=True)
+df_status_base.sort_values(by="Event Type", ascending=False, inplace=True)
+df_status_base.reset_index(inplace=True)
+
+""" PROCESS THE DERIVED STATUS SENSORS """
+def fun(d):
+    if 'hasEntity' in d['entities']:
+        return d['entities']['hasEntity']['entityId']
+    else:
+        return d['entities']['hasSubject']['entityId']
+
+derived_session_data = [dict(d, entityId = fun(d)) for d in derived_session_data]
+df_status_derived = json_normalize(derived_session_data)
+
+df_status_derived = df_status_derived[['entityId', 'annotations.startTime', 'annotations.endTime', 'Event Type']]
+df_status_derived['annotations.startTime'] = pd.to_datetime(df_status_derived['annotations.startTime'], unit='ms')
+df_status_derived['annotations.endTime'] = pd.to_datetime(df_status_derived['annotations.endTime'], unit='ms')
+df_status_derived.rename(columns={'entityId': 'Task', 'annotations.startTime': 'Start', 'annotations.endTime': 'Finish'}, inplace=True)
+df_status_derived.sort_values(by="Event Type", ascending=False, inplace=True)
+df_status_derived.reset_index(inplace=True)
+
+df_status = pd.concat([df_status_base, df_status_derived], ignore_index = True)
 
 # Set color map for different event types
 colors = {
