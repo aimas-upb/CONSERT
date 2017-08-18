@@ -1,6 +1,9 @@
 package org.aimas.consert.engine;
 
 import org.aimas.consert.engine.TrackedAssertionStore.TrackedEventData;
+import org.aimas.consert.engine.api.ContextAssertionListener;
+import org.aimas.consert.engine.api.ContextAssertionListenerRegistrer;
+import org.aimas.consert.engine.api.ContextAssertionNotifier;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationDataFactory;
 import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
@@ -13,11 +16,13 @@ import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
 
-public class EventTracker extends BaseEventTracker {
+public class EventTracker extends BaseEventTracker implements ContextAssertionListenerRegistrer {
 	
 	private TrackedAssertionStore trackedAssertionStore = TrackedAssertionStore.getInstance();
 	
 	private AnnotationDataFactory annotationFactory = new DefaultAnnotationDataFactory();
+	
+	private ContextAssertionNotifier eventNotifier = ContextAssertionNotifier.getInstance();
 	
 	public AnnotationDataFactory getAnnotationFactory() {
 		return annotationFactory;
@@ -32,6 +37,10 @@ public class EventTracker extends BaseEventTracker {
 		kSession.setGlobal("eventTracker", this);
 	}
 	
+	/*
+	 * The current device model captures data about manufacturer, model and serial number. While this should be sufficient to uniquely identify a device, access to this data is not always readily available from an API perspective.
+In order to quickly add the 
+	 * */
 	
 	
 	/**
@@ -187,7 +196,7 @@ public class EventTracker extends BaseEventTracker {
 				public void execute(KieSession kSession) {
 					// The newly derived event has to make it to the KnowledgeBase in any case, so we perform the insert here
 		    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
-					
+		    		
 					// check to see if it matches one of the previous stored events by content
 		    		TrackedEventData existingEventData = trackedAssertionStore.searchDerivedAssertionByContent(eventObject);
 		    		if (existingEventData != null) {
@@ -239,11 +248,14 @@ public class EventTracker extends BaseEventTracker {
 	    if (!trackedAssertionStore.wasUntracked(deletedHandle, deletedAssertion)) {
 	    	trackedAssertionStore.markExpired(deletedHandle, deletedAssertion);
 	    }
+	    
+	    eventNotifier.notifyEventDeleted(deletedAssertion);
     }
 	
 	
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
-		
+		// notify insertion of new event
+		eventNotifier.notifyEventInserted((ContextAssertion)insertEvent.getObject());
     }
 
 
@@ -251,4 +263,15 @@ public class EventTracker extends BaseEventTracker {
 	    
     }
 
+	@Override
+    public void addEventListener(ContextAssertionListener eventListener) {
+	    eventNotifier.addEventListener(eventListener);
+    }
+
+	@Override
+    public void removeEventListener(ContextAssertionListener eventListener) {
+	    eventNotifier.removeEventListener(eventListener);
+    }
+	
+	
 }
