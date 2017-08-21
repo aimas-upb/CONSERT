@@ -1,8 +1,11 @@
 package org.aimas.consert.model.annotations;
 
+import org.aimas.consert.model.Constants;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
+import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 
+@RDFNamespaces("annotation = " + Constants.ANNOTATION_NS)
 @RDFBean("annotation:StructuredAnnotation")
 public abstract class StructuredAnnotation extends ContextAnnotation {
 	

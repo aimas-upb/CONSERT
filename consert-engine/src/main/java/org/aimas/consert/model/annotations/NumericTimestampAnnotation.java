@@ -90,4 +90,8 @@ public class NumericTimestampAnnotation extends StructuredAnnotation {
 		this.combinationOperator = combinationOperator;
 	}
 	
+	@Override
+	public String toString() {
+		return "[NumericTimestampAnnotation value = " + value + "]";
+	}
 }

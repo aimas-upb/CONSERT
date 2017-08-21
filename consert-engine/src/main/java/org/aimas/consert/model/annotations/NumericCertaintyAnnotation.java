@@ -1,9 +1,12 @@
 package org.aimas.consert.model.annotations;
 
+import org.aimas.consert.model.Constants;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
+import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 
-@RDFBean("annotation:NumerticCertaintyAnnotation")
+@RDFNamespaces("annotation = " + Constants.ANNOTATION_NS)
+@RDFBean("annotation:NumericCertaintyAnnotation")
 public class NumericCertaintyAnnotation extends StructuredAnnotation {
 	
 	private double value;
@@ -85,4 +88,9 @@ public class NumericCertaintyAnnotation extends StructuredAnnotation {
     public String getCombinationOperator() {
 	    return combinationOperator;
     }
+	
+	@Override
+	public String toString() {
+		return "[NumericCertaintyAnnotation value = " + value + "]";
+	}
 }
