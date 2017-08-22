@@ -2,6 +2,7 @@ package org.aimas.consert.model.content;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.aimas.consert.model.Constants;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationUtils;
@@ -143,7 +144,7 @@ public abstract class ContextAssertion {
 	public AnnotationData getAnnotations() {
 		return annotationData;
 	}
-
+	@JsonIgnore
 	public void setAnnotations(AnnotationData annotationData) {
 		this.annotationData = annotationData;
 		setOccurrenceInfo(annotationData);

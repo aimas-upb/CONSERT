@@ -5,9 +5,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Queue;
 
+import org.aimas.consert.model.annotations.*;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.hla.assertions.LLA;
 import org.aimas.consert.tests.hla.assertions.Position;
 import org.aimas.consert.tests.hla.assertions.SittingLLA;
@@ -24,6 +31,50 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JSONEventReader {
 
+    private static ContextAssertion setAnnotations(String node, ContextAssertion assertion) throws ParseException {
+
+        if (node.indexOf("annotations")>=0)
+        {
+            if (node.indexOf("confidence")>=0)
+            {
+                int index = node.indexOf("confidence")+12;
+                int fin = index;
+                while ( (node.charAt(fin)>='0' && node.charAt(fin)<='9' ) || node.charAt(fin)=='.'|| node.charAt(fin)=='E')
+                    fin++;
+                double val = Double.parseDouble(node.substring(index, fin));
+                ((DefaultAnnotationData) assertion.getAnnotations()).add(new NumericCertaintyAnnotation(val,"","",""));
+            }
+            if (node.indexOf("lastUpdated")>=0)
+            {
+                int index = node.indexOf("lastUpdated")+13;
+                int fin = index;
+                while ( (node.charAt(fin)>='0' && node.charAt(fin)<='9' ) || node.charAt(fin)=='.'|| node.charAt(fin)=='E' )
+                    fin++;
+                double val = Double.parseDouble(node.substring(index, fin));
+                ((DefaultAnnotationData) assertion.getAnnotations()).add(new NumericTimestampAnnotation(val,"","",""));
+            }
+            if (node.indexOf("endTime")>=0)
+            {
+                int index = node.indexOf("endTime")+10;
+                int fin = index;
+
+                while ( node.charAt(fin)!='"')
+                    fin++;
+                DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.ENGLISH);
+                Date endTime = format.parse(node.substring(index,fin));
+
+                index = node.indexOf("startTime") + 12;
+                fin = index;
+                while ( node.charAt(fin)!='"')
+                    fin++;
+
+                Date startTime = format.parse(node.substring(index,fin));
+                DatetimeInterval time = new DatetimeInterval(startTime,endTime);
+                ((DefaultAnnotationData) assertion.getAnnotations()).add(new TemporalValidityAnnotation(time,"","",""));
+            }
+        }
+        return assertion;
+    }
     public static Queue<Object> parseEvents(File inputFile) {
         Queue<Object> eventList = new LinkedList<Object>();
 
@@ -40,6 +91,10 @@ public class JSONEventReader {
                 if (nodeType.equals("pos")) {
                     JsonNode eventInfoNode = eventDataNode.get("event_info");
                     Position pos = mapper.treeToValue(eventInfoNode, Position.class);
+                    pos.setAnnotations(new DefaultAnnotationData());
+                    String node = eventInfoNode.toString();
+                    pos = (Position) setAnnotations(node,pos);
+
                     eventList.offer(pos);
                 }
                 else if (nodeType.equals("lla")) {
@@ -61,8 +116,12 @@ public class JSONEventReader {
                             throw new Exception("Unknown value for LLA type: " + llaType);
                     }
 
-                    if (lla != null)
+                    if (lla != null) {
+                        lla.setAnnotations(new DefaultAnnotationData());
+                        String node = eventInfoNode.toString();
+                        lla = (LLA) setAnnotations(node, lla);
                         eventList.offer(lla);
+                    }
 
                 }
             }

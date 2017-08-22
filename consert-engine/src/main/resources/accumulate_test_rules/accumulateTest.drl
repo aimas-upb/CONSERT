@@ -21,7 +21,7 @@ global EventTracker eventTracker;
 
 rule "PositionInsertTest"
     when
-        $pos : Position(p : person, t : type) from entry-point "PositionStream" 
+        $pos : Position(p : person, t : type) from entry-point "PositionStream"
     then
         System.out.println("Inserted TEST POS event with person: " + p.getName() + ", type: " + t + ", timestamp: " +
             (long)$pos.getStartTimestamp() + ", duration: " + $pos.getEventDuration());

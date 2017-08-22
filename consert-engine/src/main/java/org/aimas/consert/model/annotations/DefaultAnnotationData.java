@@ -1,6 +1,8 @@
 package org.aimas.consert.model.annotations;
 import java.util.Date;
+import java.util.LinkedList;
 
+import org.aimas.consert.model.content.ContextAssertion;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 
@@ -10,7 +12,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
  */
 
 @RDFBean("annotation:DefaultAnnotationData")
-public class DefaultAnnotationData implements AnnotationData {
+public class DefaultAnnotationData extends LinkedList<ContextAnnotation> implements AnnotationData  {
     
 	public static final double CONFIDENCE_VALUE_THRESHOLD 	= 0.5;
 	public static final double CONFIDENCE_DIFF_THRESHOLD 	= 0.3;
@@ -171,7 +173,7 @@ public class DefaultAnnotationData implements AnnotationData {
 	@Override
     public AnnotationData applyExtensionOperator(AnnotationData otherAnn) {
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
-		
+
 		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
 		
 		double meanConfidence = AnnotationUtils.meanConfidence(getConfidence(), ann.getConfidence());
