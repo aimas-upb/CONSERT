@@ -19,31 +19,20 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	
 	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 10000;		// in ms
 	
-	
-	double lastUpdated; 	/* last Updated time*/
-    double confidence;  	/* confidence for the event */
-    Date startTime; 	/* start time of the event */
-    Date endTime; 		/* end time of the event */
+
     long duration;			/* duration of the event */
     
     public DefaultAnnotationData() {}
-    
+
     public DefaultAnnotationData(double lastUpdated, double confidence) {
-    	this.lastUpdated = lastUpdated;
-    	this.confidence = confidence;
-    	
-    	this.startTime = new Date((long)lastUpdated);
-    	this.endTime = this.startTime;
-    	
+
+
     	//setDuration(startTime, endTime);
     }
-    
+
     public DefaultAnnotationData(double lastUpdated, double confidence, Date startTime, Date endTime) {
-	    this.lastUpdated = lastUpdated;
-	    this.confidence = confidence;
-	    this.startTime = startTime;
-	    this.endTime = endTime;
-	    
+
+
 	   // setDuration(startTime, endTime);
     }
 
@@ -79,10 +68,9 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		//System.out.println(this.size());
 		for (int i= 0; i< this.size(); i++)
 		{
-			//System.out.println(this.get(i).getClass());
 			if (this.get(i) instanceof TemporalValidityAnnotation)
 			{
-			//	if (((TemporalValidityAnnotation) this.get(i)).getValue().getEnd()!=null)
+				if (((TemporalValidityAnnotation) this.get(i)).getValue().getEnd()!=null)
 				return ((TemporalValidityAnnotation) this.get(i)).getValue().getEnd();
 			}
 
@@ -163,7 +151,7 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		for (int i= 0; i< this.size(); i++)
 		{
 			if (this.get(i) instanceof NumericTimestampAnnotation)
-				((NumericTimestampAnnotation) this.get(i)).setValue(lastUpdated);
+				((NumericTimestampAnnotation) this.get(i)).setValue(getTimestamp());
 		}
     }
 	
@@ -252,7 +240,7 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		
 		double meanConfidence = AnnotationUtils.meanConfidence(getConfidence(), ann.getConfidence());
 
-		DatetimeInterval DateInt = new DatetimeInterval(startTime, ann.getEndTime());
+		DatetimeInterval DateInt = new DatetimeInterval(ann.getStartTime(), ann.getEndTime());
 
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
 
