@@ -121,9 +121,8 @@ public abstract class ContextAssertion {
 	protected double startTimestamp;
 	protected long eventDuration;
 
-	public void setOccurrenceInfo(AnnotationData annotationData) {
+	private void setOccurrenceInfo(AnnotationData annotationData) {
 		if (annotationData != null) {
-			//System.out.println("cv");
 			startTimestamp = annotationData.getTimestamp();
 	    	eventDuration = annotationData.getDuration();
 		}

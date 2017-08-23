@@ -170,7 +170,7 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
     
 	@Override
     public String toString() {
-        return "Annotations [" + "lastUpdated=" + (long)lastUpdated + ", confidence=" + confidence + ", startTime=" +
+        return "Annotations [" + "lastUpdated=" + (long) getTimestamp() + ", confidence=" + getConfidence() + ", startTime=" +
                 getStartTime().getTime() + ", endTime=" + getEndTime().getTime() + "]";
     }
 	

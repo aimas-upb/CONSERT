@@ -33,6 +33,8 @@ public class JSONEventReader {
 
     private static ContextAssertion setAnnotations(String node, ContextAssertion assertion) throws ParseException {
 
+        DefaultAnnotationData annotations = new DefaultAnnotationData();
+
         if (node.indexOf("annotations")>=0)
         {
             if (node.indexOf("confidence")>=0)
@@ -42,7 +44,7 @@ public class JSONEventReader {
                 while ( (node.charAt(fin)>='0' && node.charAt(fin)<='9' ) || node.charAt(fin)=='.'|| node.charAt(fin)=='E')
                     fin++;
                 double val = Double.parseDouble(node.substring(index, fin));
-                ((DefaultAnnotationData) assertion.getAnnotations()).add(new NumericCertaintyAnnotation(val,"","",""));
+                    annotations.add(new NumericCertaintyAnnotation(val,"","",""));
             }
             if (node.indexOf("lastUpdated")>=0)
             {
@@ -51,7 +53,7 @@ public class JSONEventReader {
                 while ( (node.charAt(fin)>='0' && node.charAt(fin)<='9' ) || node.charAt(fin)=='.'|| node.charAt(fin)=='E' )
                     fin++;
                 double val = Double.parseDouble(node.substring(index, fin));
-                ((DefaultAnnotationData) assertion.getAnnotations()).add(new NumericTimestampAnnotation(val,"","",""));
+                annotations.add(new NumericTimestampAnnotation(val,"","",""));
             }
             if (node.indexOf("endTime")>=0)
             {
@@ -73,10 +75,11 @@ public class JSONEventReader {
                 startTime = format2.parse(node.substring(index,fin));
 
                 DatetimeInterval time = new DatetimeInterval(startTime, endTime);
-                ((DefaultAnnotationData) assertion.getAnnotations()).add(new TemporalValidityAnnotation(time,"","",""));
+                annotations.add(new TemporalValidityAnnotation(time,"","",""));
             }
         }
-        assertion.setOccurrenceInfo(assertion.getAnnotations());
+
+        assertion.setAnnotations(annotations);
         return assertion;
     }
     public static Queue<Object> parseEvents(File inputFile) {
@@ -95,7 +98,7 @@ public class JSONEventReader {
                 if (nodeType.equals("pos")) {
                     JsonNode eventInfoNode = eventDataNode.get("event_info");
                     Position pos = mapper.treeToValue(eventInfoNode, Position.class);
-                    pos.setAnnotations(new DefaultAnnotationData());
+
                     String node = eventInfoNode.toString();
                     pos = (Position) setAnnotations(node,pos);
 
@@ -121,7 +124,6 @@ public class JSONEventReader {
                     }
 
                     if (lla != null) {
-                        lla.setAnnotations(new DefaultAnnotationData());
                         String node = eventInfoNode.toString();
                         lla = (LLA) setAnnotations(node, lla);
                         eventList.offer(lla);
