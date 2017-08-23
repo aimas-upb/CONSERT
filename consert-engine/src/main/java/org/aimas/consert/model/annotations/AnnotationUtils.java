@@ -132,8 +132,8 @@ public class AnnotationUtils {
 		if (thisAnn instanceof DefaultAnnotationData && otherAnn instanceof DefaultAnnotationData) {
 			DefaultAnnotationData ann1 = (DefaultAnnotationData) thisAnn;
 			DefaultAnnotationData ann2 = (DefaultAnnotationData) otherAnn;
-			
-			return intersects(ann1.getStartTime(), ann1.getEndTime(), ann2.getStartTime(), ann2.getEndTime()); 
+			if (ann1.getEndTime()!=null && ann1.getStartTime()!=null && ann2.getEndTime()!=null && ann2.getStartTime()!=null)
+				return intersects(ann1.getStartTime(), ann1.getEndTime(), ann2.getStartTime(), ann2.getEndTime());
 		}
 		
 		return false;

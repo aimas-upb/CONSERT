@@ -73,6 +73,7 @@ public class JSONEventReader {
                 ((DefaultAnnotationData) assertion.getAnnotations()).add(new TemporalValidityAnnotation(time,"","",""));
             }
         }
+        assertion.setOccurrenceInfo(assertion.getAnnotations());
         return assertion;
     }
     public static Queue<Object> parseEvents(File inputFile) {

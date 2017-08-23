@@ -35,7 +35,7 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
     	this.startTime = new Date((long)lastUpdated);
     	this.endTime = this.startTime;
     	
-    	setDuration(startTime, endTime);
+    	//setDuration(startTime, endTime);
     }
     
     public DefaultAnnotationData(double lastUpdated, double confidence, Date startTime, Date endTime) {
@@ -44,43 +44,84 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	    this.startTime = startTime;
 	    this.endTime = endTime;
 	    
-	    setDuration(startTime, endTime);
+	   // setDuration(startTime, endTime);
     }
 
     @RDF("annotation:lastUpdated")
 	public double getLastUpdated() {
-        return lastUpdated;
+		return getTimestamp();
     }
 
     public void setLastUpdated(double lastUpdated) {
-        this.lastUpdated = lastUpdated;
+		setTimestamp(lastUpdated);
     }
 
     @RDF("annotation:confidence")
     public double getConfidence() {
-        return confidence;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof NumericCertaintyAnnotation)
+				return ((NumericCertaintyAnnotation) this.get(i)).getValue();
+		}
+		return 0;
     }
 
     public void setConfidence(double confidence) {
-        this.confidence = confidence;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof NumericCertaintyAnnotation)
+				((NumericCertaintyAnnotation) this.get(i)).setValue(confidence);
+		}
     }
 
     @RDF("annotation:endTime")
     public Date getEndTime() {
-        return endTime;
+		//System.out.println(this.size());
+		for (int i= 0; i< this.size(); i++)
+		{
+			//System.out.println(this.get(i).getClass());
+			if (this.get(i) instanceof TemporalValidityAnnotation)
+			{
+				if (((TemporalValidityAnnotation) this.get(i)).getValue().getEnd()!=null)
+				return ((TemporalValidityAnnotation) this.get(i)).getValue().getEnd();
+			}
+
+		}
+		return new Date(0);
     }
 
     public void setEndTime(Date endTime) {
-        this.endTime = endTime;
+    	DatetimeInterval date  = new DatetimeInterval();
+    	date.setStart(getStartTime());
+		date.setEnd(endTime);
+		for (int i= 0; i< this.size(); i++) {
+			if (this.get(i) instanceof TemporalValidityAnnotation)
+				((TemporalValidityAnnotation) this.get(i)).setValue(date);
+		}
     }
 
     @RDF("annotation:startTime")
     public Date getStartTime() {
-        return startTime;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof TemporalValidityAnnotation)
+			{
+				if (((TemporalValidityAnnotation) this.get(i)).getValue().getStart()!=null)
+				return ((TemporalValidityAnnotation) this.get(i)).getValue().getStart();
+			}
+
+		}
+		return new Date(0);
     }
 
     public void setStartTime(Date startTime) {
-        this.startTime = startTime;
+		DatetimeInterval date  = new DatetimeInterval();
+		date.setStart(startTime);
+		date.setEnd(getEndTime());
+		for (int i= 0; i< this.size(); i++) {
+			if (this.get(i) instanceof TemporalValidityAnnotation)
+				((TemporalValidityAnnotation) this.get(i)).setValue(date);
+		}
     }
     
     
@@ -92,27 +133,43 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	private void setDuration(Date startTime, Date endTime) {
 		duration = endTime.getTime() - startTime.getTime();
 	}
+
 	
 	
 	@Override
     public long getDuration() {
-		return duration;
+    	if (getEndTime()!=null && getStartTime() != null)
+			return getEndTime().getTime() - getStartTime().getTime();
+    	return 0;
 	}
 
     @Override
     public double getTimestamp() {
-    	return lastUpdated;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof NumericTimestampAnnotation)
+			{
+				return ((NumericTimestampAnnotation) this.get(i)).getValue();
+			}
+
+		}
+		//System.out.println("n-a gasit nimik!");
+		return 0;
     }
     
     public void setTimestamp(double timestamp) {
-    	this.setLastUpdated(timestamp);
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof NumericTimestampAnnotation)
+				((NumericTimestampAnnotation) this.get(i)).setValue(lastUpdated);
+		}
     }
 	
     
 	@Override
     public String toString() {
         return "Annotations [" + "lastUpdated=" + (long)lastUpdated + ", confidence=" + confidence + ", startTime=" +
-                startTime.getTime() + ", endTime=" + endTime.getTime() + "]";
+                getStartTime().getTime() + ", endTime=" + getEndTime().getTime() + "]";
     }
 	
 
@@ -126,11 +183,11 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
     			otherAnnotations.getStartTime().getTime(), 
     			TIMESTAMP_DIFF_THRESHOLD)) 
     		return false;
-    		
+
     	// check confidence continuity
     	if (!AnnotationUtils.allowsConfidenceContinuity(
-    			otherAnnotations.getConfidence(), 
-    			CONFIDENCE_VALUE_THRESHOLD)) 
+    			otherAnnotations.getConfidence(),
+    			CONFIDENCE_VALUE_THRESHOLD))
     		return false;
     	
     	if (!AnnotationUtils.allowsConfidenceContinuity(
@@ -140,6 +197,8 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
     		return false;
     	
     	return true;
+    	//return false;
+
     }
 	
 	@Override
@@ -147,6 +206,7 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	    return AnnotationUtils.allowsConfidenceContinuity(
 	    		getConfidence(), 
 	    		CONFIDENCE_VALUE_THRESHOLD);
+		//return false;
     }
 
 	@Override
@@ -160,12 +220,20 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
                 getStartTime(), getEndTime(),
                 ann.getStartTime(), ann.getEndTime());
 		
-		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData(
-				maxTimestamp, maxConfidence, 
-				hlaInterval.getStart(),
-				hlaInterval.getEnd()
-		);
-		
+		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
+
+		NumericCertaintyAnnotation NumCertAnn = new NumericCertaintyAnnotation();
+		NumCertAnn.setValue(maxConfidence);
+		updatedAnnotations.add(NumCertAnn);
+
+		NumericTimestampAnnotation NumTimeAnn = new NumericTimestampAnnotation();
+		NumTimeAnn.setValue(maxTimestamp);
+		updatedAnnotations.add(NumTimeAnn);
+
+		TemporalValidityAnnotation TempValAnn = new TemporalValidityAnnotation();
+		TempValAnn.setValue(hlaInterval);
+		updatedAnnotations.add(TempValAnn);
+
 		return updatedAnnotations;
     }
 
@@ -177,14 +245,25 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
 		
 		double meanConfidence = AnnotationUtils.meanConfidence(getConfidence(), ann.getConfidence());
-		
-		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData(
-				maxTimestamp, meanConfidence, 
-				getStartTime(),
-				ann.getEndTime()
-		);
-		
+
+		DatetimeInterval DateInt = new DatetimeInterval(startTime, ann.getEndTime());
+
+		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
+
+		NumericCertaintyAnnotation NumCertAnn = new NumericCertaintyAnnotation();
+		NumCertAnn.setValue(meanConfidence);
+		updatedAnnotations.add(NumCertAnn);
+
+		NumericTimestampAnnotation NumTimeAnn = new NumericTimestampAnnotation();
+		NumTimeAnn.setValue(maxTimestamp);
+		updatedAnnotations.add(NumTimeAnn);
+
+		TemporalValidityAnnotation TempValAnn = new TemporalValidityAnnotation();
+		TempValAnn.setValue(DateInt);
+		updatedAnnotations.add(TempValAnn);
+
 		return updatedAnnotations;
+
     }
 
 	@Override
