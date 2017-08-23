@@ -68,8 +68,11 @@ public class JSONEventReader {
                 while ( node.charAt(fin)!='"')
                     fin++;
 
-                Date startTime = format.parse(node.substring(index,fin));
-                DatetimeInterval time = new DatetimeInterval(startTime,endTime);
+                DateFormat format2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.ENGLISH);
+                Date startTime = new Date();
+                startTime = format2.parse(node.substring(index,fin));
+
+                DatetimeInterval time = new DatetimeInterval(startTime, endTime);
                 ((DefaultAnnotationData) assertion.getAnnotations()).add(new TemporalValidityAnnotation(time,"","",""));
             }
         }

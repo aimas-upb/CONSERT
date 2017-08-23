@@ -82,7 +82,7 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 			//System.out.println(this.get(i).getClass());
 			if (this.get(i) instanceof TemporalValidityAnnotation)
 			{
-				if (((TemporalValidityAnnotation) this.get(i)).getValue().getEnd()!=null)
+			//	if (((TemporalValidityAnnotation) this.get(i)).getValue().getEnd()!=null)
 				return ((TemporalValidityAnnotation) this.get(i)).getValue().getEnd();
 			}
 
@@ -107,7 +107,9 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 			if (this.get(i) instanceof TemporalValidityAnnotation)
 			{
 				if (((TemporalValidityAnnotation) this.get(i)).getValue().getStart()!=null)
-				return ((TemporalValidityAnnotation) this.get(i)).getValue().getStart();
+				{
+					return ((TemporalValidityAnnotation) this.get(i)).getValue().getStart();
+				}
 			}
 
 		}
@@ -178,24 +180,26 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		DefaultAnnotationData otherAnnotations = (DefaultAnnotationData)annotationData;
 		
     	// check timestamp continuity
-    	if (!AnnotationUtils.allowsTimestampContinuity(
-    			getEndTime().getTime(), 
-    			otherAnnotations.getStartTime().getTime(), 
-    			TIMESTAMP_DIFF_THRESHOLD)) 
-    		return false;
+		for (int i=0; i<this.size(); i++) {
+			if (this.get(i) instanceof TemporalValidityAnnotation) {
+				for (int j = 0; j < ((DefaultAnnotationData) annotationData).size(); j++) {
+					if (((DefaultAnnotationData) annotationData).get(j) instanceof TemporalValidityAnnotation)
+						if (!((TemporalValidityAnnotation) this.get(i)).allowsContinuity((TemporalValidityAnnotation) ((DefaultAnnotationData) annotationData).get(j)))
+							return false;
+				}
+			}
+		}
 
     	// check confidence continuity
-    	if (!AnnotationUtils.allowsConfidenceContinuity(
-    			otherAnnotations.getConfidence(),
-    			CONFIDENCE_VALUE_THRESHOLD))
-    		return false;
-    	
-    	if (!AnnotationUtils.allowsConfidenceContinuity(
-    			getConfidence(), 
-    			otherAnnotations.getConfidence(), 
-    			CONFIDENCE_DIFF_THRESHOLD)) 
-    		return false;
-    	
+    	for (int i=0; i<this.size(); i++) {
+			if (this.get(i) instanceof NumericCertaintyAnnotation) {
+				for (int j = 0; j < ((DefaultAnnotationData) annotationData).size(); j++) {
+					if (((DefaultAnnotationData) annotationData).get(j) instanceof NumericCertaintyAnnotation)
+						if (!((NumericCertaintyAnnotation) this.get(i)).allowsContinuity((NumericCertaintyAnnotation) ((DefaultAnnotationData) annotationData).get(j)))
+							return false;
+				}
+			}
+		}
     	return true;
     	//return false;
 
@@ -203,10 +207,12 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	
 	@Override
     public boolean allowsAnnotationInsertion() {
-	    return AnnotationUtils.allowsConfidenceContinuity(
-	    		getConfidence(), 
-	    		CONFIDENCE_VALUE_THRESHOLD);
-		//return false;
+		for (int i=0; i<this.size(); i++) {
+			if (this.get(i) instanceof NumericCertaintyAnnotation)
+				if (!((NumericCertaintyAnnotation) this.get(i)).allowsInsertion())
+					return false;
+		}
+		return true;
     }
 
 	@Override

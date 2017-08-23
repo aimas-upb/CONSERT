@@ -13,9 +13,14 @@ public class TemporalValidityAnnotation extends StructuredAnnotation {
 	private String continuityFunction;
 	private String extensionOperator;
 	private String combinationOperator;
-	
+	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 10000;		// in ms
+
 	public TemporalValidityAnnotation() { }
-	
+
+	public boolean allowsContinuity(TemporalValidityAnnotation other) {
+		return other.getValue().getStart().getTime() - getValue().getEnd().getTime() < TIMESTAMP_DIFF_THRESHOLD;
+	}
+
 	public TemporalValidityAnnotation(DatetimeInterval value,
             String continuityFunction, String extensionOperator,
             String combinationOperator) {

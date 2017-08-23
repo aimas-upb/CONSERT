@@ -13,7 +13,7 @@ public class NumericTimestampAnnotation extends StructuredAnnotation {
 	private String continuityFunction;
 	private String extensionOperator;
 	private String combinationOperator;
-	
+
 	public NumericTimestampAnnotation() {
 		
 	}

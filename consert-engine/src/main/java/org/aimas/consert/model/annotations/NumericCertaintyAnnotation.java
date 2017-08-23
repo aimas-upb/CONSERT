@@ -13,11 +13,32 @@ public class NumericCertaintyAnnotation extends StructuredAnnotation {
 	private String continuityFunction;
 	private String extensionOperator;
 	private String combinationOperator;
-	
+
+	public static final double CONFIDENCE_VALUE_THRESHOLD 	= 0.5;
+	public static final double CONFIDENCE_DIFF_THRESHOLD 	= 0.3;
+
 	public NumericCertaintyAnnotation() {
 		
 	}
-	
+	public boolean allowsContinuity(NumericCertaintyAnnotation other)
+	{
+		if (value < CONFIDENCE_VALUE_THRESHOLD)
+		return false;
+
+		if (Math.abs(value - other.getValue()) > CONFIDENCE_DIFF_THRESHOLD)
+			return false;
+
+		return true;
+	}
+
+	public boolean allowsInsertion()
+	{
+		if (value < CONFIDENCE_VALUE_THRESHOLD)
+			return false;
+
+		return true;
+	}
+
 	public NumericCertaintyAnnotation(double value, String continuityFunction,
             String extensionOperator, String combinationOperator) {
 	    this.value = value;
