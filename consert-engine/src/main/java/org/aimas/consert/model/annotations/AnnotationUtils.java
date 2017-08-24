@@ -5,7 +5,11 @@ import java.util.Date;
 
 
 public class AnnotationUtils {
-	
+
+	public static final double CONFIDENCE_VALUE_THRESHOLD 	= 0.5;
+	public static final double CONFIDENCE_DIFF_THRESHOLD 	= 0.3;
+	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 10000;		// in ms
+
 	public static double meanConfidence(double... confidenceValues) {
 		int nrVals = confidenceValues.length;
 		
@@ -82,28 +86,33 @@ public class AnnotationUtils {
 		
 		return min;
 	}
-	
-	
-	public static boolean allowsTimestampContinuity(long firstEventEnd, long secondEventStart, long threshold) {
+
+
+	public static boolean allowsTimestampContinuity(Double first, Double second)
+	{
+		return true;
+	}
+
+	public static boolean allowsValidityContinuity(DatetimeInterval t1, DatetimeInterval t2) {
+		Long threshold = TIMESTAMP_DIFF_THRESHOLD;
+		long firstEventEnd = t1.getEnd().getTime();
+		long secondEventStart = t2.getStart().getTime();
 		return secondEventStart - firstEventEnd < threshold;
 	}
 	
-	
-	public static boolean allowsConfidenceContinuity(double confidence, double valueThreshold) {
-		if (confidence < valueThreshold) 
+	public static boolean allowsConfidenceContinuity(Double firstEventConfidence, Double secondEventConfidence) {
+		Double differenceThreshold = CONFIDENCE_DIFF_THRESHOLD;
+		Double valueThreshold = CONFIDENCE_VALUE_THRESHOLD;
+
+		if (firstEventConfidence < valueThreshold)
 			return false;
-		
-		return true;
-	}
-	
-	
-	public static boolean allowsConfidenceContinuity(double firstEventConfidence, double secondEventConfidence, double differenceThreshold) {
 		if (Math.abs(firstEventConfidence - secondEventConfidence) > differenceThreshold)
 			return false;
 		
 		return true;
 	}
-	
+
+
 	
 	public static DatetimeInterval computeIntersection(DatetimeInterval t1, DatetimeInterval t2) {
 

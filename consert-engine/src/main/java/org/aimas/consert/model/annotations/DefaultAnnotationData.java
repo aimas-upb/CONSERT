@@ -69,7 +69,6 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 
     @RDF("annotation:endTime")
     public Date getEndTime() {
-		//System.out.println(this.size());
 		for (int i= 0; i< this.size(); i++)
 		{
 			if (this.get(i) instanceof TemporalValidityAnnotation)
@@ -147,7 +146,6 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 			}
 
 		}
-		//System.out.println("n-a gasit nimik!");
 		return 0;
     }
     
@@ -172,11 +170,31 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		DefaultAnnotationData otherAnnotations = (DefaultAnnotationData)annotationData;
 
 		for (int i=0; i<this.size(); i++) {
-				for (int j = 0; j < ((DefaultAnnotationData) annotationData).size(); j++) {
-					if (((DefaultAnnotationData) annotationData).get(j).getClass().equals( this.get(i).getClass()))
-						if (!((StructuredAnnotation) this.get(i)).allowsContinuity( (StructuredAnnotation)((DefaultAnnotationData) annotationData).get(j)))
-							return false;
+			for (int j = 0; j < ((DefaultAnnotationData) annotationData).size(); j++) {
+				if (((DefaultAnnotationData) annotationData).get(j).getClass().equals(this.get(i).getClass())) {
+					String method = ((StructuredAnnotation) (otherAnnotations).get(j)).getContinuityFunction();
+					Method meth = null;
+					try {
+						meth = AnnotationUtils.class.getMethod(method, this.get(i).getValue().getClass(), this.get(i).getValue().getClass());
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}
+					Object rez = new Object();
+					Object[] Args = new Object[2];
+					Args[0] = ((StructuredAnnotation) ((DefaultAnnotationData) this).get(i)).getValue();
+					Args[1] = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnnotations).get(j)).getValue();
+					try {
+						rez = meth.invoke(AnnotationUtils.class, Args);
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					}
+					if ((boolean) rez == false) {
+						return false;
+					}
 				}
+			}
 		}
 
     	// check confidence continuity
@@ -215,25 +233,21 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 					String method = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getCombinationOperator();
 					Method meth = null;
 					try {
-					//	System.out.println(method + "!!!" );
-					//	System.out.println(this.get(i).getClass());
 						meth = AnnotationUtils.class.getMethod(method, this.get(i).getValue().getClass(), this.get(i).getValue().getClass());
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}
 					Object rez = new Object();
 					Object[] Args = new Object[2];
-					Args[0] = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getValue();
-					Args[1] = ((StructuredAnnotation) ((DefaultAnnotationData) this).get(i)).getValue();
+
+					Args[0] = ((StructuredAnnotation) ((DefaultAnnotationData) this).get(i)).getValue();
+					Args[1] = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getValue();
 					try {
-					//	System.out.println(Args[0] + " " + Args[1]);
 						rez = meth.invoke(AnnotationUtils.class, Args);
 						String name = ((DefaultAnnotationData) this).get(i).getClass().toString().substring(6);
-						System.out.println(name);
 						Class<?> aClass = Class.forName(name);
 						Constructor<?> ctor = aClass.getConstructor(this.get(i).getValue().getClass(),String.class,String.class, String.class);
-						Object object = ctor.newInstance(rez, "", "", method);
-						System.out.println(object.getClass());
+						Object object = ctor.newInstance(rez, ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getContinuityFunction(), "", method);
 						updatedAnnotations.add((ContextAnnotation) object);
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
@@ -266,15 +280,15 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
 
-		NumericCertaintyAnnotation NumCertAnn = new NumericCertaintyAnnotation(0.0, "","","max2Confidence");
+		NumericCertaintyAnnotation NumCertAnn = new NumericCertaintyAnnotation(0.0, "allowsConfidenceContinuity","","max2Confidence");
 		NumCertAnn.setValue(meanConfidence);
 		updatedAnnotations.add(NumCertAnn);
 
-		NumericTimestampAnnotation NumTimeAnn = new NumericTimestampAnnotation(0.0,"","","max2Timestamp");
+		NumericTimestampAnnotation NumTimeAnn = new NumericTimestampAnnotation(0.0,"allowsTimestampContinuity","","max2Timestamp");
 		NumTimeAnn.setValue(maxTimestamp);
 		updatedAnnotations.add(NumTimeAnn);
 
-		TemporalValidityAnnotation TempValAnn = new TemporalValidityAnnotation(null,"","","computeIntersection");
+		TemporalValidityAnnotation TempValAnn = new TemporalValidityAnnotation(null,"allowsValidityContinuity","","computeIntersection");
 		TempValAnn.setValue(DateInt);
 		updatedAnnotations.add(TempValAnn);
 

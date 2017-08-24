@@ -47,7 +47,7 @@ public class NumericTimestampAnnotation extends StructuredAnnotation {
 	    return combinationOperator;
     }
 
-	@Override
+	//@Override
 	public boolean allowsContinuity(StructuredAnnotation other) {
 		return true;
 	}

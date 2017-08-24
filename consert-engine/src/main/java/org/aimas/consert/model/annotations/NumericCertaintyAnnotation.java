@@ -20,16 +20,7 @@ public class NumericCertaintyAnnotation extends StructuredAnnotation {
 	public NumericCertaintyAnnotation() {
 		
 	}
-	public boolean allowsContinuity(StructuredAnnotation other)
-	{
-		if (value < CONFIDENCE_VALUE_THRESHOLD)
-		return false;
 
-		if (Math.abs(value - ((NumericCertaintyAnnotation)other).getValue()) > CONFIDENCE_DIFF_THRESHOLD)
-			return false;
-
-		return true;
-	}
 
 	public boolean allowsInsertion()
 	{

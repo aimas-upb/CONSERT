@@ -18,5 +18,4 @@ public abstract class StructuredAnnotation extends ContextAnnotation {
 	@RDF("annotation:hasMeetOperator")
 	public abstract String getCombinationOperator();
 
-	public abstract boolean allowsContinuity(StructuredAnnotation other);
 }
