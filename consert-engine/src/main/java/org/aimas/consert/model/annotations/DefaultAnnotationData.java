@@ -247,7 +247,8 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 						String name = ((DefaultAnnotationData) this).get(i).getClass().toString().substring(6);
 						Class<?> aClass = Class.forName(name);
 						Constructor<?> ctor = aClass.getConstructor(this.get(i).getValue().getClass(),String.class,String.class, String.class);
-						Object object = ctor.newInstance(rez, ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getContinuityFunction(), "", method);
+						Object object = ctor.newInstance(rez, ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getContinuityFunction(),
+								((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getExtensionOperator(), method);
 						updatedAnnotations.add((ContextAnnotation) object);
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
@@ -271,30 +272,48 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	@Override
     public AnnotationData applyExtensionOperator(AnnotationData otherAnn) {
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
-
-		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
-		
-		double meanConfidence = AnnotationUtils.meanConfidence(getConfidence(), ann.getConfidence());
-
-		DatetimeInterval DateInt = new DatetimeInterval(getStartTime(), ann.getEndTime());
-
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
 
-		NumericCertaintyAnnotation NumCertAnn = new NumericCertaintyAnnotation(0.0, "allowsConfidenceContinuity","","max2Confidence");
-		NumCertAnn.setValue(meanConfidence);
-		updatedAnnotations.add(NumCertAnn);
+		for (int i=0; i<this.size(); i++) {
+			for (int j = 0; j < ((DefaultAnnotationData) otherAnn).size(); j++) {
+				if (((DefaultAnnotationData) otherAnn).get(j).getClass().equals(this.get(i).getClass())) {
+					String method = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getExtensionOperator();
+					Method meth = null;
+					try {
+						meth = AnnotationUtils.class.getMethod(method, this.get(i).getValue().getClass(), this.get(i).getValue().getClass());
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}
+					Object rez = new Object();
+					Object[] Args = new Object[2];
 
-		NumericTimestampAnnotation NumTimeAnn = new NumericTimestampAnnotation(0.0,"allowsTimestampContinuity","","max2Timestamp");
-		NumTimeAnn.setValue(maxTimestamp);
-		updatedAnnotations.add(NumTimeAnn);
-
-		TemporalValidityAnnotation TempValAnn = new TemporalValidityAnnotation(null,"allowsValidityContinuity","","computeIntersection");
-		TempValAnn.setValue(DateInt);
-		updatedAnnotations.add(TempValAnn);
+					Args[0] = ((StructuredAnnotation) ((DefaultAnnotationData) this).get(i)).getValue();
+					Args[1] = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getValue();
+					try {
+						rez = meth.invoke(AnnotationUtils.class, Args);
+						String name = ((DefaultAnnotationData) this).get(i).getClass().toString().substring(6);
+						Class<?> aClass = Class.forName(name);
+						Constructor<?> ctor = aClass.getConstructor(this.get(i).getValue().getClass(),String.class,String.class, String.class);
+						Object object = ctor.newInstance(rez, ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getContinuityFunction(),
+								method,   ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getCombinationOperator());
+						updatedAnnotations.add((ContextAnnotation) object);
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 
 		return updatedAnnotations;
-
-    }
+	}
 
 	@Override
     public boolean hasSameValidity(AnnotationData otherAnn) {

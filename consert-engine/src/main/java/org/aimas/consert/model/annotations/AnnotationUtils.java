@@ -39,7 +39,10 @@ public class AnnotationUtils {
 		if (c1>c2)
 			return c1;
 		return c2;
+	}
 
+	public static double mean2Confidence(Double c1, Double c2) {
+		return (c1+c2)/2;
 	}
 	
 	public static double minConfidence(double... confidenceValues) {
@@ -112,7 +115,11 @@ public class AnnotationUtils {
 		return true;
 	}
 
-
+	public static DatetimeInterval extendTimeInterval(DatetimeInterval t1, DatetimeInterval t2)
+	{
+		DatetimeInterval t = new DatetimeInterval(t1.getStart(), t2.getEnd());
+		return t;
+	}
 	
 	public static DatetimeInterval computeIntersection(DatetimeInterval t1, DatetimeInterval t2) {
 
