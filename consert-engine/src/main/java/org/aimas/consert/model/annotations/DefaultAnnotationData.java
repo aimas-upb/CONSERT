@@ -240,7 +240,7 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		
 		double meanConfidence = AnnotationUtils.meanConfidence(getConfidence(), ann.getConfidence());
 
-		DatetimeInterval DateInt = new DatetimeInterval(ann.getStartTime(), ann.getEndTime());
+		DatetimeInterval DateInt = new DatetimeInterval(getStartTime(), ann.getEndTime());
 
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
 
