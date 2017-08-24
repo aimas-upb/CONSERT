@@ -18,7 +18,7 @@ public class NumericTimestampAnnotation extends StructuredAnnotation {
 		
 	}
 
-	public NumericTimestampAnnotation(double value, String continuityFunction,
+	public NumericTimestampAnnotation(Double value, String continuityFunction,
             String extensionOperator, String combinationOperator) {
 	    this.value = value;
 	    this.continuityFunction = continuityFunction;
@@ -46,6 +46,11 @@ public class NumericTimestampAnnotation extends StructuredAnnotation {
     public String getCombinationOperator() {
 	    return combinationOperator;
     }
+
+	@Override
+	public boolean allowsContinuity(StructuredAnnotation other) {
+		return true;
+	}
 
 	//@Override
 	public void setValue(Double value) {

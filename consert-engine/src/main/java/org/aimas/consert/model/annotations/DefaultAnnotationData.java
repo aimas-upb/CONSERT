@@ -1,10 +1,14 @@
 package org.aimas.consert.model.annotations;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.LinkedList;
 
 import org.aimas.consert.model.content.ContextAssertion;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
+import org.eclipse.rdf4j.query.algebra.Str;
 
 /*
  * Class for modeling annotations information and metadata
@@ -166,20 +170,17 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	@Override
 	public boolean allowsAnnotationContinuity(AnnotationData annotationData) {
 		DefaultAnnotationData otherAnnotations = (DefaultAnnotationData)annotationData;
-		
-    	// check timestamp continuity
+
 		for (int i=0; i<this.size(); i++) {
-			if (this.get(i) instanceof TemporalValidityAnnotation) {
 				for (int j = 0; j < ((DefaultAnnotationData) annotationData).size(); j++) {
-					if (((DefaultAnnotationData) annotationData).get(j) instanceof TemporalValidityAnnotation)
-						if (!((TemporalValidityAnnotation) this.get(i)).allowsContinuity((TemporalValidityAnnotation) ((DefaultAnnotationData) annotationData).get(j)))
+					if (((DefaultAnnotationData) annotationData).get(j).getClass().equals( this.get(i).getClass()))
+						if (!((StructuredAnnotation) this.get(i)).allowsContinuity( (StructuredAnnotation)((DefaultAnnotationData) annotationData).get(j)))
 							return false;
 				}
-			}
 		}
 
     	// check confidence continuity
-    	for (int i=0; i<this.size(); i++) {
+    	/*for (int i=0; i<this.size(); i++) {
 			if (this.get(i) instanceof NumericCertaintyAnnotation) {
 				for (int j = 0; j < ((DefaultAnnotationData) annotationData).size(); j++) {
 					if (((DefaultAnnotationData) annotationData).get(j) instanceof NumericCertaintyAnnotation)
@@ -187,7 +188,7 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 							return false;
 				}
 			}
-		}
+		}*/
     	return true;
     	//return false;
 
@@ -206,27 +207,48 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	@Override
     public AnnotationData applyCombinationOperator(AnnotationData otherAnn) {
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
-		
-		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
-		double maxConfidence = AnnotationUtils.maxConfidence(getConfidence(), ann.getConfidence());
-		
-		DatetimeInterval hlaInterval = AnnotationUtils.computeIntersection(
-                getStartTime(), getEndTime(),
-                ann.getStartTime(), ann.getEndTime());
-		
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
 
-		NumericCertaintyAnnotation NumCertAnn = new NumericCertaintyAnnotation();
-		NumCertAnn.setValue(maxConfidence);
-		updatedAnnotations.add(NumCertAnn);
-
-		NumericTimestampAnnotation NumTimeAnn = new NumericTimestampAnnotation();
-		NumTimeAnn.setValue(maxTimestamp);
-		updatedAnnotations.add(NumTimeAnn);
-
-		TemporalValidityAnnotation TempValAnn = new TemporalValidityAnnotation();
-		TempValAnn.setValue(hlaInterval);
-		updatedAnnotations.add(TempValAnn);
+		for (int i=0; i<this.size(); i++) {
+			for (int j = 0; j < ((DefaultAnnotationData) otherAnn).size(); j++) {
+				if (((DefaultAnnotationData) otherAnn).get(j).getClass().equals(this.get(i).getClass())) {
+					String method = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getCombinationOperator();
+					Method meth = null;
+					try {
+					//	System.out.println(method + "!!!" );
+					//	System.out.println(this.get(i).getClass());
+						meth = AnnotationUtils.class.getMethod(method, this.get(i).getValue().getClass(), this.get(i).getValue().getClass());
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}
+					Object rez = new Object();
+					Object[] Args = new Object[2];
+					Args[0] = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getValue();
+					Args[1] = ((StructuredAnnotation) ((DefaultAnnotationData) this).get(i)).getValue();
+					try {
+					//	System.out.println(Args[0] + " " + Args[1]);
+						rez = meth.invoke(AnnotationUtils.class, Args);
+						String name = ((DefaultAnnotationData) this).get(i).getClass().toString().substring(6);
+						System.out.println(name);
+						Class<?> aClass = Class.forName(name);
+						Constructor<?> ctor = aClass.getConstructor(this.get(i).getValue().getClass(),String.class,String.class, String.class);
+						Object object = ctor.newInstance(rez, "", "", method);
+						System.out.println(object.getClass());
+						updatedAnnotations.add((ContextAnnotation) object);
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 
 		return updatedAnnotations;
     }
@@ -244,15 +266,15 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
 
-		NumericCertaintyAnnotation NumCertAnn = new NumericCertaintyAnnotation();
+		NumericCertaintyAnnotation NumCertAnn = new NumericCertaintyAnnotation(0.0, "","","max2Confidence");
 		NumCertAnn.setValue(meanConfidence);
 		updatedAnnotations.add(NumCertAnn);
 
-		NumericTimestampAnnotation NumTimeAnn = new NumericTimestampAnnotation();
+		NumericTimestampAnnotation NumTimeAnn = new NumericTimestampAnnotation(0.0,"","","max2Timestamp");
 		NumTimeAnn.setValue(maxTimestamp);
 		updatedAnnotations.add(NumTimeAnn);
 
-		TemporalValidityAnnotation TempValAnn = new TemporalValidityAnnotation();
+		TemporalValidityAnnotation TempValAnn = new TemporalValidityAnnotation(null,"","","computeIntersection");
 		TempValAnn.setValue(DateInt);
 		updatedAnnotations.add(TempValAnn);
 

@@ -4,6 +4,7 @@ import org.aimas.consert.model.Constants;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
+import org.eclipse.rdf4j.query.algebra.Str;
 
 @RDFNamespaces("annotation = " + Constants.ANNOTATION_NS)
 @RDFBean("annotation:TemporalValidityAnnotation")
@@ -17,8 +18,8 @@ public class TemporalValidityAnnotation extends StructuredAnnotation {
 
 	public TemporalValidityAnnotation() { }
 
-	public boolean allowsContinuity(TemporalValidityAnnotation other) {
-		return other.getValue().getStart().getTime() - getValue().getEnd().getTime() < TIMESTAMP_DIFF_THRESHOLD;
+	public boolean allowsContinuity(StructuredAnnotation other) {
+		return ((TemporalValidityAnnotation)other).getValue().getStart().getTime() - getValue().getEnd().getTime() < TIMESTAMP_DIFF_THRESHOLD;
 	}
 
 	public TemporalValidityAnnotation(DatetimeInterval value,

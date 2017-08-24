@@ -44,7 +44,7 @@ public class JSONEventReader {
                 while ( (node.charAt(fin)>='0' && node.charAt(fin)<='9' ) || node.charAt(fin)=='.'|| node.charAt(fin)=='E')
                     fin++;
                 double val = Double.parseDouble(node.substring(index, fin));
-                    annotations.add(new NumericCertaintyAnnotation(val,"","",""));
+                    annotations.add(new NumericCertaintyAnnotation(val,"","","max2Confidence"));
             }
             if (node.indexOf("lastUpdated")>=0)
             {
@@ -53,7 +53,7 @@ public class JSONEventReader {
                 while ( (node.charAt(fin)>='0' && node.charAt(fin)<='9' ) || node.charAt(fin)=='.'|| node.charAt(fin)=='E' )
                     fin++;
                 double val = Double.parseDouble(node.substring(index, fin));
-                annotations.add(new NumericTimestampAnnotation(val,"","",""));
+                annotations.add(new NumericTimestampAnnotation(val,"","","max2Timestamp"));
             }
             if (node.indexOf("endTime")>=0)
             {
@@ -75,7 +75,7 @@ public class JSONEventReader {
                 startTime = format2.parse(node.substring(index,fin));
 
                 DatetimeInterval time = new DatetimeInterval(startTime, endTime);
-                annotations.add(new TemporalValidityAnnotation(time,"","",""));
+                annotations.add(new TemporalValidityAnnotation(time,"","","computeIntersection"));
             }
         }
 

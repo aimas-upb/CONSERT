@@ -31,7 +31,12 @@ public class AnnotationUtils {
 		
 		return max;
 	}
-	
+	public static double max2Confidence(Double c1, Double c2) {
+		if (c1>c2)
+			return c1;
+		return c2;
+
+	}
 	
 	public static double minConfidence(double... confidenceValues) {
 		if (confidenceValues.length == 0)
@@ -57,8 +62,13 @@ public class AnnotationUtils {
 		
 		return max;
 	}
-	
-	
+
+	public static double max2Timestamp(Double t1, Double t2) {
+		if (t1>t2)
+			return t1;
+		return t2;
+	}
+
 	public static double minTimestamp(double... timestampValues) {
 		
 		if (timestampValues.length == 0) 
@@ -95,7 +105,13 @@ public class AnnotationUtils {
 	}
 	
 	
-	public static DatetimeInterval computeIntersection(Date firstStart, Date firstEnd, Date secondStart, Date secondEnd) {
+	public static DatetimeInterval computeIntersection(DatetimeInterval t1, DatetimeInterval t2) {
+
+		Date firstStart = t1.getStart();
+		Date firstEnd = t1.getEnd();
+		Date secondStart = t2.getStart();
+		Date secondEnd = t2.getEnd();
+
 		Date intersectStart = null;
 		Date intersectEnd = null;
 		
@@ -124,8 +140,10 @@ public class AnnotationUtils {
 		
 		Calendar secondEnd = Calendar.getInstance();
 		secondEnd.setTimeInMillis(secondTsEnd);
-		
-		return computeIntersection(firstStart.getTime(), firstEnd.getTime(), secondStart.getTime(), secondEnd.getTime());
+
+		DatetimeInterval t1 = new DatetimeInterval(firstStart.getTime(), firstEnd.getTime());
+		DatetimeInterval t2 = new DatetimeInterval(secondStart.getTime(), secondEnd.getTime());
+		return computeIntersection(t1,t2);
 	}
 	
 	public static boolean intersects(AnnotationData thisAnn, AnnotationData otherAnn) {
