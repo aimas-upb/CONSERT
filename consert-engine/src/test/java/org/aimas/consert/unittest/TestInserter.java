@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.engine.EventTracker;
-import org.aimas.consert.model.annotations.DefaultAnnotationData;
+import org.aimas.consert.model.annotations.*;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.hla.assertions.Position;
 import org.aimas.consert.tests.hla.entities.Area;
@@ -38,16 +38,20 @@ public class TestInserter {
 		Queue<Object> events = new LinkedList<Object>();
 		Person testPerson = new Person("mishu");
 		Calendar now = Calendar.getInstance();
-		
+
 		for (int i  = 0; i< NUM_EVENTS; i++) {
-			Calendar next = (Calendar)now.clone();
+			Calendar next = (Calendar) now.clone();
 			now.add(Calendar.SECOND, 1);
-			
-			DefaultAnnotationData ann = new DefaultAnnotationData(next.getTimeInMillis(), 1.0, next.getTime(), next.getTime());
-			Position pos =  new Position(testPerson, new Area("WORK_AREA"), ann);
-			events.offer(pos);			
+
+			DefaultAnnotationData ann = new DefaultAnnotationData();
+			ann.add(new NumericCertaintyAnnotation(1.0, "allowsConfidenceContinuity", "mean2Confidence", "max2Confidence"));
+			ann.add(new NumericTimestampAnnotation((double) next.getTimeInMillis(), "allowsTimestampContinuity", "max2Timestamp", "max2Timestamp"));
+			ann.add(new TemporalValidityAnnotation(new DatetimeInterval(next.getTime(), next.getTime()), "allowsValidityContinuity", "extendTimeInterval", "computeIntersection"));
+			Position pos = new Position(testPerson, new Area("WORK_AREA"), ann);
+			events.offer(pos);
 		}
-		
+
+
 		return events;
 	}
 	

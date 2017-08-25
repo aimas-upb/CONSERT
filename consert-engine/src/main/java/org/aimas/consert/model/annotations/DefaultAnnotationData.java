@@ -28,18 +28,6 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
     
     public DefaultAnnotationData() {}
 
-    public DefaultAnnotationData(double lastUpdated, double confidence) {
-
-
-    	//setDuration(startTime, endTime);
-    }
-
-    public DefaultAnnotationData(double lastUpdated, double confidence, Date startTime, Date endTime) {
-
-
-	   // setDuration(startTime, endTime);
-    }
-
     @RDF("annotation:lastUpdated")
 	public double getLastUpdated() {
 		return getTimestamp();
