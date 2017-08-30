@@ -1,5 +1,8 @@
 package org.aimas.consert.model.annotations;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.aimas.consert.model.Constants;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
@@ -27,4 +30,8 @@ public interface AnnotationData {
 	long getDuration();
 	
 	boolean hasSameValidity(AnnotationData otherAnn);
+	
+	List<ContextAnnotation> listAnnotations();
+	
+	Iterator<ContextAnnotation> iterator();
 }

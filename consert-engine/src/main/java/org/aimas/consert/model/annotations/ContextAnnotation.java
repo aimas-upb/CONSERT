@@ -19,6 +19,8 @@ public abstract class ContextAnnotation {
 	//@RDF("annotation:hasValue")
 	public abstract Object getValue();
 	
+	public abstract boolean isStructured();
+	
 	@RDF("rdfbeans:bindingClass")
 	public String getBindingClassName() {
 		return getClass().getName();
@@ -38,4 +40,6 @@ public abstract class ContextAnnotation {
 	public void setAnnotationIdentifier(String annotationIdentifier) {
 		this.annotationIdentifier = annotationIdentifier;
 	}
+	
+	
 }
