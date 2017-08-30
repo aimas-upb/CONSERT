@@ -30,9 +30,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Created by alex on 06.04.2017.
  */
 public class JSONEventReader {
-
+	public static final double CERTAINTY_VALUE_THRESHOLD 	= 0.5;
+	public static final double CERTAINTY_DIFF_THRESHOLD 	= 0.3;
+	
+	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 5000;		// in ms
+	
+	
     private static ContextAssertion setAnnotations(String node, ContextAssertion assertion) throws ParseException {
-
+    	
         DefaultAnnotationData annotations = new DefaultAnnotationData();
 
         if (node.indexOf("annotations")>=0)
@@ -44,7 +49,7 @@ public class JSONEventReader {
                 while ( (node.charAt(fin)>='0' && node.charAt(fin)<='9' ) || node.charAt(fin)=='.'|| node.charAt(fin)=='E')
                     fin++;
                 double val = Double.parseDouble(node.substring(index, fin));
-                    annotations.add(new NumericCertaintyAnnotation(val,"allowsConfidenceContinuity","mean2Confidence","max2Confidence"));
+                    annotations.add(new NumericCertaintyAnnotation(val,"allowsContinuity","avg","max", CERTAINTY_VALUE_THRESHOLD, CERTAINTY_DIFF_THRESHOLD));
             }
             if (node.indexOf("lastUpdated")>=0)
             {
@@ -53,7 +58,7 @@ public class JSONEventReader {
                 while ( (node.charAt(fin)>='0' && node.charAt(fin)<='9' ) || node.charAt(fin)=='.'|| node.charAt(fin)=='E' )
                     fin++;
                 double val = Double.parseDouble(node.substring(index, fin));
-                annotations.add(new NumericTimestampAnnotation(val,"allowsTimestampContinuity","max2Timestamp","max2Timestamp"));
+                annotations.add(new NumericTimestampAnnotation(val,"allowsContinuity","max","max", TIMESTAMP_DIFF_THRESHOLD));
             }
             if (node.indexOf("endTime")>=0)
             {
@@ -75,7 +80,7 @@ public class JSONEventReader {
                 startTime = format2.parse(node.substring(index,fin));
 
                 DatetimeInterval time = new DatetimeInterval(startTime, endTime);
-                annotations.add(new TemporalValidityAnnotation(time,"allowsValidityContinuity","extendTimeInterval","computeIntersection"));
+                annotations.add(new TemporalValidityAnnotation(time,"allowsContinuity","extend","intersect", TIMESTAMP_DIFF_THRESHOLD));
             }
         }
 
