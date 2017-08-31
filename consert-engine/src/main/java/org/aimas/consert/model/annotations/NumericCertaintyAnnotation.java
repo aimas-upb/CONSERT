@@ -165,7 +165,7 @@ public class NumericCertaintyAnnotation extends StructuredAnnotation {
 		BiFunction<NumericCertaintyAnnotation, 
 			NumericCertaintyAnnotation,
 			NumericCertaintyAnnotation> extensionOp = operatorMap.get(extensionOperator);
-		
+
 		return extensionOp.apply(this, otherAnn);
     }
 

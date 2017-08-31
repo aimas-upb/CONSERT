@@ -23,7 +23,12 @@ public class TestInserter {
 	private Object syncObj = new Object();
 	
 	private EventTracker eventTracker;
-	
+
+	public static final double CERTAINTY_VALUE_THRESHOLD 	= 0.5;
+	public static final double CERTAINTY_DIFF_THRESHOLD 	= 0.3;
+
+	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 5000;		// in ms
+
 	private Queue<Object> events;
 	
 	private ScheduledExecutorService readerService;
@@ -44,9 +49,11 @@ public class TestInserter {
 			now.add(Calendar.SECOND, 1);
 
 			DefaultAnnotationData ann = new DefaultAnnotationData();
-			ann.add(new NumericCertaintyAnnotation(1.0, "allowsConfidenceContinuity", "mean2Confidence", "max2Confidence"));
-			ann.add(new NumericTimestampAnnotation((double) next.getTimeInMillis(), "allowsTimestampContinuity", "max2Timestamp", "max2Timestamp"));
-			ann.add(new TemporalValidityAnnotation(new DatetimeInterval(next.getTime(), next.getTime()), "allowsValidityContinuity", "extendTimeInterval", "computeIntersection"));
+
+			ann.add(new NumericCertaintyAnnotation(1.0,"allowsContinuity","avg","max", CERTAINTY_VALUE_THRESHOLD, CERTAINTY_DIFF_THRESHOLD));
+			ann.add(new NumericTimestampAnnotation((double) next.getTimeInMillis(),"allowsContinuity","max","max", TIMESTAMP_DIFF_THRESHOLD));
+			ann.add(new TemporalValidityAnnotation(new DatetimeInterval(next.getTime(), next.getTime()),"allowsContinuity","extend","intersect", TIMESTAMP_DIFF_THRESHOLD));
+
 			Position pos = new Position(testPerson, new Area("WORK_AREA"), ann);
 			events.offer(pos);
 		}

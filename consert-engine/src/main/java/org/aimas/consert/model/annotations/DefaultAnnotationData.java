@@ -1,11 +1,10 @@
 package org.aimas.consert.model.annotations;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 
-import org.aimas.consert.model.content.ContextAssertion;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.eclipse.rdf4j.query.algebra.Str;
@@ -22,11 +21,35 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	public static final double CONFIDENCE_DIFF_THRESHOLD 	= 0.3;
 	
 	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 10000;		// in ms
-	
+	private Map<String, ContextAnnotation> Annotations;
 
     long duration;			/* duration of the event */
     
-    public DefaultAnnotationData() {}
+    public DefaultAnnotationData() {
+    	Annotations = new HashMap<String, ContextAnnotation>();
+	}
+
+	public  Map<String, ContextAnnotation> getAnnotationsMap()
+	{
+		return Annotations;
+	}
+    @Override
+	public boolean add(ContextAnnotation ctx)
+	{
+		super.add(ctx);
+		Annotations.put(ctx.getClass().toString(), ctx);
+
+		return true;
+	}
+
+	@Override
+	public boolean remove(Object ctx)
+	{
+		super.remove(ctx);
+		Annotations.remove(ctx.getClass().toString());
+
+		return true;
+	}
 
     @RDF("annotation:lastUpdated")
 	public double getLastUpdated() {
@@ -157,56 +180,27 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	public boolean allowsAnnotationContinuity(AnnotationData annotationData) {
 		DefaultAnnotationData otherAnnotations = (DefaultAnnotationData)annotationData;
 
-		for (int i=0; i<this.size(); i++) {
-			for (int j = 0; j < ((DefaultAnnotationData) annotationData).size(); j++) {
-				if (((DefaultAnnotationData) annotationData).get(j).getClass().equals(this.get(i).getClass())) {
-					String method = ((StructuredAnnotation) (otherAnnotations).get(j)).getContinuityFunction();
-					Method meth = null;
-					try {
-						meth = AnnotationUtils.class.getMethod(method, this.get(i).getValue().getClass(), this.get(i).getValue().getClass());
-					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
-					}
-					Object rez = new Object();
-					Object[] Args = new Object[2];
-					Args[0] = ((StructuredAnnotation) ((DefaultAnnotationData) this).get(i)).getValue();
-					Args[1] = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnnotations).get(j)).getValue();
-					try {
-						rez = meth.invoke(AnnotationUtils.class, Args);
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
-					}
-					if ((boolean) rez == false) {
-						return false;
-					}
+		for (String str: Annotations.keySet())
+		{
+			if (otherAnnotations.getAnnotationsMap().get(str)!=null)
+			{
+				if ( !((StructuredAnnotation)Annotations.get(str)).allowsContinuity(((StructuredAnnotation)otherAnnotations.getAnnotationsMap().get(str))))
+				{
+					return false;
 				}
 			}
 		}
 
-    	// check confidence continuity
-    	/*for (int i=0; i<this.size(); i++) {
-			if (this.get(i) instanceof NumericCertaintyAnnotation) {
-				for (int j = 0; j < ((DefaultAnnotationData) annotationData).size(); j++) {
-					if (((DefaultAnnotationData) annotationData).get(j) instanceof NumericCertaintyAnnotation)
-						if (!((NumericCertaintyAnnotation) this.get(i)).allowsContinuity((NumericCertaintyAnnotation) ((DefaultAnnotationData) annotationData).get(j)))
-							return false;
-				}
-			}
-		}*/
     	return true;
-    	//return false;
 
     }
 	
 	@Override
     public boolean allowsAnnotationInsertion() {
-		for (int i=0; i<this.size(); i++) {
-			if (this.get(i) instanceof NumericCertaintyAnnotation)
-				if (!((NumericCertaintyAnnotation) this.get(i)).allowsInsertion())
+		ContextAnnotation ctx = Annotations.get(new NumericCertaintyAnnotation().getClass().toString());
+		if (ctx!=null)
+			if (!((NumericCertaintyAnnotation)ctx).allowsInsertion())
 					return false;
-		}
 		return true;
     }
 
@@ -215,41 +209,10 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
 
-		for (int i=0; i<this.size(); i++) {
-			for (int j = 0; j < ((DefaultAnnotationData) otherAnn).size(); j++) {
-				if (((DefaultAnnotationData) otherAnn).get(j).getClass().equals(this.get(i).getClass())) {
-					String method = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getCombinationOperator();
-					Method meth = null;
-					try {
-						meth = AnnotationUtils.class.getMethod(method, this.get(i).getValue().getClass(), this.get(i).getValue().getClass());
-					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
-					}
-					Object rez = new Object();
-					Object[] Args = new Object[2];
-
-					Args[0] = ((StructuredAnnotation) ((DefaultAnnotationData) this).get(i)).getValue();
-					Args[1] = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getValue();
-					try {
-						rez = meth.invoke(AnnotationUtils.class, Args);
-						String name = ((DefaultAnnotationData) this).get(i).getClass().toString().substring(6);
-						Class<?> aClass = Class.forName(name);
-						Constructor<?> ctor = aClass.getConstructor(this.get(i).getValue().getClass(),String.class,String.class, String.class);
-						Object object = ctor.newInstance(rez, ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getContinuityFunction(),
-								((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getExtensionOperator(), method);
-						updatedAnnotations.add((ContextAnnotation) object);
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
-					} catch (InstantiationException e) {
-						e.printStackTrace();
-					}
-				}
+		for (String str: Annotations.keySet()) {
+			if (ann.getAnnotationsMap().get(str) != null) {
+				ContextAnnotation ctx = ((StructuredAnnotation) Annotations.get(str)).applyCombinationOperator(((StructuredAnnotation) ann.getAnnotationsMap().get(str)));
+				updatedAnnotations.add(ctx);
 			}
 		}
 
@@ -262,45 +225,15 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
 
-		for (int i=0; i<this.size(); i++) {
-			for (int j = 0; j < ((DefaultAnnotationData) otherAnn).size(); j++) {
-				if (((DefaultAnnotationData) otherAnn).get(j).getClass().equals(this.get(i).getClass())) {
-					String method = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getExtensionOperator();
-					Method meth = null;
-					try {
-						meth = AnnotationUtils.class.getMethod(method, this.get(i).getValue().getClass(), this.get(i).getValue().getClass());
-					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
-					}
-					Object rez = new Object();
-					Object[] Args = new Object[2];
-
-					Args[0] = ((StructuredAnnotation) ((DefaultAnnotationData) this).get(i)).getValue();
-					Args[1] = ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getValue();
-					try {
-						rez = meth.invoke(AnnotationUtils.class, Args);
-						String name = ((DefaultAnnotationData) this).get(i).getClass().toString().substring(6);
-						Class<?> aClass = Class.forName(name);
-						Constructor<?> ctor = aClass.getConstructor(this.get(i).getValue().getClass(),String.class,String.class, String.class);
-						Object object = ctor.newInstance(rez, ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getContinuityFunction(),
-								method,   ((StructuredAnnotation) ((DefaultAnnotationData) otherAnn).get(j)).getCombinationOperator());
-						updatedAnnotations.add((ContextAnnotation) object);
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
-					} catch (InstantiationException e) {
-						e.printStackTrace();
-					}
-				}
+		for (String str: Annotations.keySet()) {
+			if (ann.getAnnotationsMap().get(str) != null) {
+				ContextAnnotation ctx = ((StructuredAnnotation) Annotations.get(str)).applyExtensionOperator(((StructuredAnnotation) ann.getAnnotationsMap().get(str)));
+				updatedAnnotations.add(ctx);
 			}
 		}
 
 		return updatedAnnotations;
+
 	}
 
 	@Override
@@ -313,4 +246,9 @@ public class DefaultAnnotationData extends LinkedList<ContextAnnotation> impleme
 	    
 		return false;
     }
+
+	@Override
+	public List<ContextAnnotation> listAnnotations() {
+		return this;
+	}
 }
