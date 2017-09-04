@@ -33,7 +33,7 @@ public class CASASTestSingle extends TestSetup {
 		System.out.println("RUNNING EVENTS FOR file: " + filepath);
 		
 		// create a new session
-		KieSession kSession = getKieSessionFromResources( "casas_rules/CASAS_base.drl",  "casas_rules/CASAS_highlevel.drl");
+		KieSession kSession = getKieSessionFromResources( "casas_rules/CASAS_base.drl",  "casas_rules/CASAS_location.drl");
 		
     	// set up engine runner thread and event inserter
     	Thread engineRunner = new Thread(new EngineRunner(kSession));
