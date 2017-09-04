@@ -11,6 +11,7 @@ import org.aimas.consert.model.annotations.AnnotationDataFactory;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
 import org.aimas.consert.model.content.ContextAssertion;
+import org.aimas.consert.model.content.EntityDescription;
 import org.kie.api.event.rule.ObjectDeletedEvent;
 import org.kie.api.event.rule.ObjectInsertedEvent;
 import org.kie.api.event.rule.ObjectUpdatedEvent;
@@ -39,11 +40,28 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		super(kSession);
 		kSession.setGlobal("eventTracker", this);
 	}
+
+	/**
+	 * Insert an EntityDescription (a fact)
+	 * @param fact EntityDescription to be inserted.
+	 */
+	public void insertStaticEvent(EntityDescription fact) {
+		kSession.insert(fact);
+	}
 	
-	/*
-	 * The current device model captures data about manufacturer, model and serial number. While this should be sufficient to uniquely identify a device, access to this data is not always readily available from an API perspective.
-In order to quickly add the 
-	 * */
+	/**
+	 * Remove an EntityDescription. The implementation makes use of the 
+	 * <code>hashCode</code> and <code>equals</code> methods of an EntityDescription to identify the 
+	 * fact to be deleted in the Working Memory.
+	 * @param fact The EntityDescription to be removed.
+	 */
+	public void deleteStaticEvent(EntityDescription fact) {
+		FactHandle fh = kSession.getFactHandle(fact);
+		
+		if (fh != null) {
+			kSession.delete(fh);
+		}
+	}
 	
 	/**
 	 * Insert an event that is not required to go through the verifications OF temporal continuity.
