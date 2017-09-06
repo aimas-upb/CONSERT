@@ -2,9 +2,11 @@ package org.aimas.consert.model.content;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.aimas.consert.model.Constants;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationUtils;
+import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
@@ -143,7 +145,7 @@ public abstract class ContextAssertion {
 	public AnnotationData getAnnotations() {
 		return annotationData;
 	}
-
+	@JsonIgnore
 	public void setAnnotations(AnnotationData annotationData) {
 		this.annotationData = annotationData;
 		setOccurrenceInfo(annotationData);
@@ -156,7 +158,16 @@ public abstract class ContextAssertion {
 	public long getEventDuration() {
 		return eventDuration;
 	}
-	
+
+	public double getAnnotationsStartTimeStamp ()
+	{
+		return ((DefaultAnnotationData) annotationData).getStartTime().getTime();
+	}
+
+	public double getAnnotationsEndTimeStamp ()
+	{
+		return ((DefaultAnnotationData) annotationData).getEndTime().getTime();
+	}
 	
 	/* ================== Auxiliary methods ================== */ 
 	public boolean isAtomic() {

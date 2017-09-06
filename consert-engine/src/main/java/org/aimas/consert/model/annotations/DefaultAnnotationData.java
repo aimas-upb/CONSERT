@@ -1,8 +1,13 @@
 package org.aimas.consert.model.annotations;
-import java.util.Date;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
+import org.eclipse.rdf4j.query.algebra.Str;
 
 /*
  * Class for modeling annotations information and metadata
@@ -10,75 +15,117 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
  */
 
 @RDFBean("annotation:DefaultAnnotationData")
-public class DefaultAnnotationData implements AnnotationData {
+public class DefaultAnnotationData extends LinkedList<ContextAnnotation> implements AnnotationData  {
     
 	public static final double CONFIDENCE_VALUE_THRESHOLD 	= 0.5;
 	public static final double CONFIDENCE_DIFF_THRESHOLD 	= 0.3;
 	
 	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 10000;		// in ms
-	
-	
-	double lastUpdated; 	/* last Updated time*/
-    double confidence;  	/* confidence for the event */
-    Date startTime; 	/* start time of the event */
-    Date endTime; 		/* end time of the event */
+	private Map<String, ContextAnnotation> Annotations;
+
     long duration;			/* duration of the event */
     
-    public DefaultAnnotationData() {}
-    
-    public DefaultAnnotationData(double lastUpdated, double confidence) {
-    	this.lastUpdated = lastUpdated;
-    	this.confidence = confidence;
-    	
-    	this.startTime = new Date((long)lastUpdated);
-    	this.endTime = this.startTime;
-    	
-    	setDuration(startTime, endTime);
-    }
-    
-    public DefaultAnnotationData(double lastUpdated, double confidence, Date startTime, Date endTime) {
-	    this.lastUpdated = lastUpdated;
-	    this.confidence = confidence;
-	    this.startTime = startTime;
-	    this.endTime = endTime;
-	    
-	    setDuration(startTime, endTime);
-    }
+    public DefaultAnnotationData() {
+    	Annotations = new HashMap<String, ContextAnnotation>();
+	}
+
+	public  Map<String, ContextAnnotation> getAnnotationsMap()
+	{
+		return Annotations;
+	}
+    @Override
+	public boolean add(ContextAnnotation ctx)
+	{
+		super.add(ctx);
+		Annotations.put(ctx.getClass().toString(), ctx);
+
+		return true;
+	}
+
+	@Override
+	public boolean remove(Object ctx)
+	{
+		super.remove(ctx);
+		Annotations.remove(ctx.getClass().toString());
+
+		return true;
+	}
 
     @RDF("annotation:lastUpdated")
 	public double getLastUpdated() {
-        return lastUpdated;
+		return getTimestamp();
     }
 
     public void setLastUpdated(double lastUpdated) {
-        this.lastUpdated = lastUpdated;
+		setTimestamp(lastUpdated);
     }
 
     @RDF("annotation:confidence")
     public double getConfidence() {
-        return confidence;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof NumericCertaintyAnnotation)
+				return ((NumericCertaintyAnnotation) this.get(i)).getValue();
+		}
+		return 0;
     }
 
     public void setConfidence(double confidence) {
-        this.confidence = confidence;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof NumericCertaintyAnnotation)
+				((NumericCertaintyAnnotation) this.get(i)).setValue(confidence);
+		}
     }
 
     @RDF("annotation:endTime")
     public Date getEndTime() {
-        return endTime;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof TemporalValidityAnnotation)
+			{
+				if (((TemporalValidityAnnotation) this.get(i)).getValue().getEnd()!=null)
+				return ((TemporalValidityAnnotation) this.get(i)).getValue().getEnd();
+			}
+
+		}
+		return new Date(0);
     }
 
     public void setEndTime(Date endTime) {
-        this.endTime = endTime;
+    	DatetimeInterval date  = new DatetimeInterval();
+    	date.setStart(getStartTime());
+		date.setEnd(endTime);
+		for (int i= 0; i< this.size(); i++) {
+			if (this.get(i) instanceof TemporalValidityAnnotation)
+				((TemporalValidityAnnotation) this.get(i)).setValue(date);
+		}
     }
 
     @RDF("annotation:startTime")
     public Date getStartTime() {
-        return startTime;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof TemporalValidityAnnotation)
+			{
+				if (((TemporalValidityAnnotation) this.get(i)).getValue().getStart()!=null)
+				{
+					return ((TemporalValidityAnnotation) this.get(i)).getValue().getStart();
+				}
+			}
+
+		}
+		return new Date(0);
     }
 
     public void setStartTime(Date startTime) {
-        this.startTime = startTime;
+		DatetimeInterval date  = new DatetimeInterval();
+		date.setStart(startTime);
+		date.setEnd(getEndTime());
+		for (int i= 0; i< this.size(); i++) {
+			if (this.get(i) instanceof TemporalValidityAnnotation)
+				((TemporalValidityAnnotation) this.get(i)).setValue(date);
+		}
     }
     
     
@@ -90,80 +137,85 @@ public class DefaultAnnotationData implements AnnotationData {
 	private void setDuration(Date startTime, Date endTime) {
 		duration = endTime.getTime() - startTime.getTime();
 	}
+
 	
 	
 	@Override
     public long getDuration() {
-		return duration;
+    	if (getEndTime()!=null && getStartTime() != null)
+			return getEndTime().getTime() - getStartTime().getTime();
+    	return 0;
 	}
 
     @Override
     public double getTimestamp() {
-    	return lastUpdated;
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof NumericTimestampAnnotation)
+			{
+				return ((NumericTimestampAnnotation) this.get(i)).getValue();
+			}
+
+		}
+		return 0;
     }
     
     public void setTimestamp(double timestamp) {
-    	this.setLastUpdated(timestamp);
+		for (int i= 0; i< this.size(); i++)
+		{
+			if (this.get(i) instanceof NumericTimestampAnnotation)
+				((NumericTimestampAnnotation) this.get(i)).setValue(getTimestamp());
+		}
     }
 	
     
 	@Override
     public String toString() {
-        return "Annotations [" + "lastUpdated=" + (long)lastUpdated + ", confidence=" + confidence + ", startTime=" +
-                startTime.getTime() + ", endTime=" + endTime.getTime() + "]";
+        return "Annotations [" + "lastUpdated=" + (long) getTimestamp() + ", confidence=" + getConfidence() + ", startTime=" +
+                getStartTime().getTime() + ", endTime=" + getEndTime().getTime() + "]";
     }
 	
 
 	@Override
 	public boolean allowsAnnotationContinuity(AnnotationData annotationData) {
 		DefaultAnnotationData otherAnnotations = (DefaultAnnotationData)annotationData;
-		
-    	// check timestamp continuity
-    	if (!AnnotationUtils.allowsTimestampContinuity(
-    			getEndTime().getTime(), 
-    			otherAnnotations.getStartTime().getTime(), 
-    			TIMESTAMP_DIFF_THRESHOLD)) 
-    		return false;
-    		
-    	// check confidence continuity
-    	if (!AnnotationUtils.allowsConfidenceContinuity(
-    			otherAnnotations.getConfidence(), 
-    			CONFIDENCE_VALUE_THRESHOLD)) 
-    		return false;
-    	
-    	if (!AnnotationUtils.allowsConfidenceContinuity(
-    			getConfidence(), 
-    			otherAnnotations.getConfidence(), 
-    			CONFIDENCE_DIFF_THRESHOLD)) 
-    		return false;
-    	
+
+		for (String str: Annotations.keySet())
+		{
+			if (otherAnnotations.getAnnotationsMap().get(str)!=null)
+			{
+				if ( !((StructuredAnnotation)Annotations.get(str)).allowsContinuity(((StructuredAnnotation)otherAnnotations.getAnnotationsMap().get(str))))
+				{
+					return false;
+				}
+			}
+		}
+
     	return true;
+
     }
 	
 	@Override
     public boolean allowsAnnotationInsertion() {
-	    return AnnotationUtils.allowsConfidenceContinuity(
-	    		getConfidence(), 
-	    		CONFIDENCE_VALUE_THRESHOLD);
+		ContextAnnotation ctx = Annotations.get(new NumericCertaintyAnnotation().getClass().toString());
+		if (ctx!=null)
+			if (!((NumericCertaintyAnnotation)ctx).allowsInsertion())
+					return false;
+		return true;
     }
 
 	@Override
     public AnnotationData applyCombinationOperator(AnnotationData otherAnn) {
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
-		
-		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
-		double maxConfidence = AnnotationUtils.maxConfidence(getConfidence(), ann.getConfidence());
-		
-		DatetimeInterval hlaInterval = AnnotationUtils.computeIntersection(
-                getStartTime(), getEndTime(),
-                ann.getStartTime(), ann.getEndTime());
-		
-		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData(
-				maxTimestamp, maxConfidence, 
-				hlaInterval.getStart(),
-				hlaInterval.getEnd()
-		);
-		
+		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
+
+		for (String str: Annotations.keySet()) {
+			if (ann.getAnnotationsMap().get(str) != null) {
+				ContextAnnotation ctx = ((StructuredAnnotation) Annotations.get(str)).applyCombinationOperator(((StructuredAnnotation) ann.getAnnotationsMap().get(str)));
+				updatedAnnotations.add(ctx);
+			}
+		}
+
 		return updatedAnnotations;
     }
 
@@ -171,19 +223,18 @@ public class DefaultAnnotationData implements AnnotationData {
 	@Override
     public AnnotationData applyExtensionOperator(AnnotationData otherAnn) {
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
-		
-		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
-		
-		double meanConfidence = AnnotationUtils.meanConfidence(getConfidence(), ann.getConfidence());
-		
-		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData(
-				maxTimestamp, meanConfidence, 
-				getStartTime(),
-				ann.getEndTime()
-		);
-		
+		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData();
+
+		for (String str: Annotations.keySet()) {
+			if (ann.getAnnotationsMap().get(str) != null) {
+				ContextAnnotation ctx = ((StructuredAnnotation) Annotations.get(str)).applyExtensionOperator(((StructuredAnnotation) ann.getAnnotationsMap().get(str)));
+				updatedAnnotations.add(ctx);
+			}
+		}
+
 		return updatedAnnotations;
-    }
+
+	}
 
 	@Override
     public boolean hasSameValidity(AnnotationData otherAnn) {
@@ -195,4 +246,9 @@ public class DefaultAnnotationData implements AnnotationData {
 	    
 		return false;
     }
+
+	@Override
+	public List<ContextAnnotation> listAnnotations() {
+		return this;
+	}
 }

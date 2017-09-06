@@ -21,7 +21,7 @@ global EventTracker eventTracker;
 
 rule "PositionInsertTest"
     when
-        $pos : Position(p : person, t : type) from entry-point "PositionStream" 
+        $pos : Position(p : person, t : type) from entry-point "PositionStream"
     then
         System.out.println("Inserted TEST POS event with person: " + p.getName() + ", type: " + t + ", timestamp: " +
             (long)$pos.getStartTimestamp() + ", duration: " + $pos.getEventDuration());
@@ -33,9 +33,7 @@ rule "ExtendedPositionInsertTest"
     then
      DefaultAnnotationData ann = (DefaultAnnotationData)$pos.getAnnotations();
         System.out.println("Inserted EXTENDED POS event with person: " + p.getName() + ", type: " + t +
-            ", lastUpdated: " + ann.getLastUpdated() + ", from: " +
-            ann.getStartTime().getTime() + ", to: " +
-            ann.getEndTime().getTime());
+            ", lastUpdated: " + ann.getLastUpdated() + ", from: " );
 end
 
 rule "ExtendedPositionAccumulateTest" salience 100

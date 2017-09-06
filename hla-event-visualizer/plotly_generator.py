@@ -47,20 +47,21 @@ for f in files:
             # print 'Skipping JSON file \'' + f + '\''
             continue
         raw_data = json.load(data_file)
+      
         partial_frame = json_normalize(raw_data)
         partial_frame['Event Type'] = key
         all_frames.append(partial_frame)
 df = pd.concat(all_frames)
 
 # Keep only the needed columns
-df = df[['type.type', 'annotations.startTime', 'annotations.endTime', 'Event Type']]
+df = df[['type.type', 'annotationsStartTimeStamp', 'annotationsEndTimeStamp', 'Event Type']]
 
 # Convert annotations to datetime from UNIX timestamps (dtype int64)
-df['annotations.startTime'] = pd.to_datetime(df['annotations.startTime'], unit='ms')
-df['annotations.endTime'] = pd.to_datetime(df['annotations.endTime'], unit='ms')
+df['annotationsStartTimeStamp'] = pd.to_datetime(df['annotationsStartTimeStamp'], unit='ms')
+df['annotationsEndTimeStamp'] = pd.to_datetime(df['annotationsEndTimeStamp'], unit='ms')
 
 # Rename columns to match plotly conventions
-df.rename(columns={'type.type': 'Task', 'annotations.startTime': 'Start', 'annotations.endTime': 'Finish'}, inplace=True)
+df.rename(columns={'type.type': 'Task', 'annotationsStartTimeStamp': 'Start', 'annotationsEndTimeStamp': 'Finish'}, inplace=True)
 
 # Sort dataframe so we get HLAs in the lower part of the Gantt
 df.sort_values(by="Event Type", ascending=False, inplace=True)

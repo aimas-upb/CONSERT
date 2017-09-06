@@ -5,97 +5,53 @@ import java.util.Date;
 
 
 public class AnnotationUtils {
+
+	public static final double CONFIDENCE_VALUE_THRESHOLD 	= 0.5;
+	public static final double CONFIDENCE_DIFF_THRESHOLD 	= 0.3;
+	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 10000;		// in ms
+
 	
-	public static double meanConfidence(double... confidenceValues) {
-		int nrVals = confidenceValues.length;
-		
-		if (nrVals == 0) 
-			return 0;
-		
-		double sum = 0;
-		for (double val : confidenceValues) {
-			sum += val;
-		}
-		
-		return sum / nrVals;
+	public static double maxConfidence(Double c1, Double c2) {
+		if (c1 > c2)
+			return c1;
+		return c2;
+	}
+
+	public static double avgConfidence(Double c1, Double c2) {
+		return (c1 + c2) / 2;
 	}
 	
-	
-	public static double maxConfidence(double... confidenceValues) {
-		double max = 0;
-		
-		for (double val : confidenceValues) {
-			if (val > max) 
-				max = val;
-		}
-		
-		return max;
+	public static double minConfidence(Double c1, Double c2) {
+		if (c1 < c2) 
+			return c1;
+		return c2;
+	}
+
+	public static double maxTimestamp(Double t1, Double t2) {
+		if (t1 > t2)
+			return t1;
+		return t2;
 	}
 	
-	
-	public static double minConfidence(double... confidenceValues) {
-		if (confidenceValues.length == 0)
-			return 0;
-		
-		double min = confidenceValues[0];
-		for (double val : confidenceValues) {
-			if (val < min) 
-				min = val;
-		}
-		
-		return min;
+	public static double minTimestamp(Double t1, Double t2) {
+		if (t1 < t2)
+			return t1;
+		return t2;
+	}
+
+	public static DatetimeInterval extendTimeInterval(DatetimeInterval t1, DatetimeInterval t2)
+	{
+		DatetimeInterval t = new DatetimeInterval(t1.getStart(), t2.getEnd());
+		return t;
 	}
 	
-	
-	public static double maxTimestamp(double... timestampValues) {
-		double max = 0;
-		
-		for (double val : timestampValues) {
-			if (val > max) 
-				max = val;
-		}
-		
-		return max;
-	}
-	
-	
-	public static double minTimestamp(double... timestampValues) {
-		
-		if (timestampValues.length == 0) 
-			return 0;
-		
-		double min = timestampValues[0];
-		for (double val : timestampValues) {
-			if (val < min) 
-				min = val;
-		}
-		
-		return min;
-	}
-	
-	
-	public static boolean allowsTimestampContinuity(long firstEventEnd, long secondEventStart, long threshold) {
-		return secondEventStart - firstEventEnd < threshold;
-	}
-	
-	
-	public static boolean allowsConfidenceContinuity(double confidence, double valueThreshold) {
-		if (confidence < valueThreshold) 
-			return false;
-		
-		return true;
-	}
-	
-	
-	public static boolean allowsConfidenceContinuity(double firstEventConfidence, double secondEventConfidence, double differenceThreshold) {
-		if (Math.abs(firstEventConfidence - secondEventConfidence) > differenceThreshold)
-			return false;
-		
-		return true;
-	}
-	
-	
-	public static DatetimeInterval computeIntersection(Date firstStart, Date firstEnd, Date secondStart, Date secondEnd) {
+	public static DatetimeInterval computeIntersection(DatetimeInterval t1, DatetimeInterval t2) {
+
+		Date firstStart = t1.getStart();
+		Date firstEnd = t1.getEnd();
+		Date secondStart = t2.getStart();
+		Date secondEnd = t2.getEnd();
+
 		Date intersectStart = null;
 		Date intersectEnd = null;
 		
@@ -124,16 +80,18 @@ public class AnnotationUtils {
 		
 		Calendar secondEnd = Calendar.getInstance();
 		secondEnd.setTimeInMillis(secondTsEnd);
-		
-		return computeIntersection(firstStart.getTime(), firstEnd.getTime(), secondStart.getTime(), secondEnd.getTime());
+
+		DatetimeInterval t1 = new DatetimeInterval(firstStart.getTime(), firstEnd.getTime());
+		DatetimeInterval t2 = new DatetimeInterval(secondStart.getTime(), secondEnd.getTime());
+		return computeIntersection(t1,t2);
 	}
 	
 	public static boolean intersects(AnnotationData thisAnn, AnnotationData otherAnn) {
 		if (thisAnn instanceof DefaultAnnotationData && otherAnn instanceof DefaultAnnotationData) {
 			DefaultAnnotationData ann1 = (DefaultAnnotationData) thisAnn;
 			DefaultAnnotationData ann2 = (DefaultAnnotationData) otherAnn;
-			
-			return intersects(ann1.getStartTime(), ann1.getEndTime(), ann2.getStartTime(), ann2.getEndTime()); 
+			if (ann1.getEndTime()!=null && ann1.getStartTime()!=null && ann2.getEndTime()!=null && ann2.getStartTime()!=null)
+				return intersects(ann1.getStartTime(), ann1.getEndTime(), ann2.getStartTime(), ann2.getEndTime());
 		}
 		
 		return false;
