@@ -69,6 +69,8 @@ def build_sensors():
 
     sensors['I09'] = {"type": "item", "id": "unknown", "value_type": DISCRETE, "accepted_values": ["ABSENT", "PRESENT"]}
 
+    sensors['asterisk'] = {"type": "phone", "id": "phone", "value_type": DISCRETE, "accepted_values": ["START", "END"]}
+
     # add cabinet sensors
     for sensor_id in range(1, 13):
         id_key = 'D' + str(sensor_id).zfill(2)
