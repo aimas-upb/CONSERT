@@ -23,10 +23,14 @@ public class TestSetup {
 	public static EventProcessingOption STREAM = EventProcessingOption.STREAM;
 	
 	public static KieSession getKieSessionFromResources( String... classPathResources ) {
-        KieBase kbase = loadKnowledgeBase( null, null, classPathResources );
-        return kbase.newKieSession();
+        return getKieSessionFromResources(null, classPathResources);
     }
     
+	public static KieSession getKieSessionFromResources(KnowledgeBuilderConfiguration kbuilderConf, String... classPathResources ) {
+		KieBase kbase = loadKnowledgeBase( kbuilderConf, null, classPathResources );
+        return kbase.newKieSession();
+	}
+	
 	public static KnowledgeBase loadKnowledgeBase(KnowledgeBuilderConfiguration kbuilderConf, KieBaseConfiguration kbaseConf, String... classPathResources) {
 		Collection<KnowledgePackage> knowledgePackages = loadKnowledgePackages(kbuilderConf, classPathResources);
 
