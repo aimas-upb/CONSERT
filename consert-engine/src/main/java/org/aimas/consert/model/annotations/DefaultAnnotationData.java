@@ -26,6 +26,16 @@ public class DefaultAnnotationData implements AnnotationData {
     
     public DefaultAnnotationData() {}
     
+    public DefaultAnnotationData(double lastUpdated) {
+    	this.lastUpdated = lastUpdated;
+    	this.confidence = 1;
+    	
+    	this.startTime = new Date((long)lastUpdated);
+    	this.endTime = this.startTime;
+    	
+    	setDuration(startTime, endTime);
+    }
+    
     public DefaultAnnotationData(double lastUpdated, double confidence) {
     	this.lastUpdated = lastUpdated;
     	this.confidence = confidence;
