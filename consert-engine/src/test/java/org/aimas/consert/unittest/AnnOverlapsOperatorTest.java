@@ -129,7 +129,7 @@ public class AnnOverlapsOperatorTest extends TestSetup {
 	
 	
 	/**
-     * Implements the 'includes' evaluator itself
+     * Implements the 'overlaps' evaluator itself
      */
     public static class AnnOveralapsEvaluator extends BaseEvaluator {
 
