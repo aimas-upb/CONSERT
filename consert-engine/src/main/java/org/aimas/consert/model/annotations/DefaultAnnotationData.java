@@ -17,6 +17,7 @@ public class DefaultAnnotationData implements AnnotationData {
 	
 	public static final long TIMESTAMP_DIFF_THRESHOLD 		= 10000;		// in ms
 	
+	public static final long MAX_DURATION = Long.MAX_VALUE;
 	
 	double lastUpdated; 	/* last Updated time*/
     double confidence;  	/* confidence for the event */
@@ -80,6 +81,7 @@ public class DefaultAnnotationData implements AnnotationData {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+        setDuration(this.startTime, this.endTime);
     }
 
     @RDF("annotation:startTime")
@@ -89,6 +91,7 @@ public class DefaultAnnotationData implements AnnotationData {
 
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
+        setDuration(this.startTime, this.endTime);
     }
     
     
@@ -98,7 +101,13 @@ public class DefaultAnnotationData implements AnnotationData {
 
 	
 	private void setDuration(Date startTime, Date endTime) {
-		duration = endTime.getTime() - startTime.getTime();
+		// if any of the endpoints are null, we consider the interval to be infinitely long
+		if (startTime == null || endTime == null) {
+			duration = MAX_DURATION;
+		}
+		else {
+			duration = endTime.getTime() - startTime.getTime();
+		}
 	}
 	
 	
@@ -123,6 +132,64 @@ public class DefaultAnnotationData implements AnnotationData {
                 startTime.getTime() + ", endTime=" + endTime.getTime() + "]";
     }
 	
+	
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+    @Override
+    public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    long temp;
+	    
+	    temp = Double.doubleToLongBits(lastUpdated);
+	    result = prime * result + (int) (temp ^ (temp >>> 32));
+	    
+	    temp = Double.doubleToLongBits(confidence);
+	    result = prime * result + (int) (temp ^ (temp >>> 32));
+	    result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
+	    result = prime * result + ((endTime == null) ? 0 : endTime.hashCode());
+	    
+	    return result;
+    }
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+    @Override
+    public boolean equals(Object obj) {
+	    if (this == obj)
+		    return true;
+	    if (obj == null)
+		    return false;
+	    if (getClass() != obj.getClass())
+		    return false;
+	    
+	    DefaultAnnotationData other = (DefaultAnnotationData) obj;
+	    
+	    if (Double.doubleToLongBits(lastUpdated) != Double.doubleToLongBits(other.lastUpdated))
+		    return false;
+	    
+	    if (Double.doubleToLongBits(confidence) != Double.doubleToLongBits(other.confidence))
+		    return false;
+	    
+	    if (startTime == null) {
+		    if (other.startTime != null)
+			    return false;
+	    }
+	    else if (!startTime.equals(other.startTime))
+		    return false;
+	    
+	    if (endTime == null) {
+		    if (other.endTime != null)
+			    return false;
+	    }
+	    else if (!endTime.equals(other.endTime))
+		    return false;
+	    
+	    return true;
+    }
 
 	@Override
 	public boolean allowsAnnotationContinuity(AnnotationData annotationData) {

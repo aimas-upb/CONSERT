@@ -186,6 +186,15 @@ public abstract class ContextAssertion {
 	    return result;
 	}
 	
+	int getAnnotationHash() {
+		final int prime = 31;
+		int result = 1;
+		
+		result = prime * result + ((annotationData == null) ? 0 : annotationData.hashCode());
+		
+		return result;
+	}
+	
 	
 	public boolean allowsContentContinuity(ContextAssertion event) {
 		if (event == null)
@@ -228,5 +237,36 @@ public abstract class ContextAssertion {
 		str += "]";
 		
 		return str;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		
+		result = prime * result + getContentHash();
+		
+		result = prime * result + getAnnotationHash();
+		
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+		    return true;
+	    if (obj == null)
+		    return false;
+	    if (getClass() != obj.getClass())
+		    return false;
+	    
+	    ContextAssertion other = (ContextAssertion)obj;
+	    if (!allowsContentContinuity(other)) 
+	    	return false;
+	    
+	    if (!annotationData.equals(other.getAnnotations())) 
+	    	return false;
+	    
+	    return true;
 	}
 }
