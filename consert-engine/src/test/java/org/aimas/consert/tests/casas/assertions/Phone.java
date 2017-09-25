@@ -11,7 +11,7 @@ public class Phone extends UnaryContextAssertion {
 	public Phone() {}
 	
 	public Phone(String value, AnnotationData annotations) {
-		super(new StringLiteral(value), AcquisitionType.SENSED, annotations);
+		super(new StringLiteral(value), AcquisitionType.PROFILED, annotations);
 		
 		this.value = value;
 	}

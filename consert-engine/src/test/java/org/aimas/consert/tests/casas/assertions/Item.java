@@ -14,7 +14,7 @@ public class Item extends BinaryContextAssertion {
 	public Item() {}
 	
 	public Item(String sensorId, String status, AnnotationData annotations) {
-		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
+		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.PROFILED, annotations);
 	
 		this.sensorId = sensorId;
 		this.status = status;

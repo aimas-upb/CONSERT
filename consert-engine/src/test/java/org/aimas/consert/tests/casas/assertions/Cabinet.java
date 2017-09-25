@@ -14,7 +14,7 @@ public class Cabinet extends BinaryContextAssertion {
 	public Cabinet() {}
 	
 	public Cabinet(String sensorId, String status, AnnotationData annotations) {
-		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
+		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.PROFILED, annotations);
 		
 		this.sensorId = sensorId;
 		this.status = status;

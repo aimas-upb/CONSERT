@@ -19,7 +19,6 @@ import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
 
-
 declare Motion
     @role(event)
     //@timestamp(startTimestamp)
@@ -29,39 +28,39 @@ end
 
 declare Item
     @role(event)
-    @timestamp(startTimestamp)
+    //@timestamp(startTimestamp)
     @duration(eventDuration)
 end
 
 
 declare Cabinet
     @role(event)
-    @timestamp(startTimestamp)
+    //@timestamp(startTimestamp)
     @duration(eventDuration)
 end
 
 declare Water
     @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
+    //@timestamp(startTimestamp)
+    //@duration(eventDuration)
 end
 
 
 declare Temperature
     @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
+    //@timestamp(startTimestamp)
+    //@duration(eventDuration)
 end
 
 declare Burner
     @role(event)
-    @timestamp(startTimestamp)
-    @duration(eventDuration)
+    //@timestamp(startTimestamp)
+    //@duration(eventDuration)
 end
 
 declare Phone
     @role(event)
-    @timestamp(startTimestamp)
+    //@timestamp(startTimestamp)
     @duration(eventDuration)
 end
 
