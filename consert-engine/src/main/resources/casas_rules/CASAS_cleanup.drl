@@ -1,0 +1,107 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Temperature
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.Phone
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.engine.EventTracker
+
+global EventTracker eventTracker;
+
+rule "Probably Cleaning"
+	when
+	    $loc: PersonLocation(location=="Kitchen") from entry-point "ExtendedPersonLocationStream"
+	    $locPrev: PersonLocation(location=="DiningRoom", this annHappensBefore[0s, 10s] $loc) from entry-point "ExtendedPersonLocationStream")
+	    $eat: Eating(this annBefore[0s, 30s]) from entry-point "ExtendedEatingStream"
+	then
+	    System.out.println("////// Triggering PROBABLY CLEANING rule following events: " + $loc + " AND " + 
+	        $locPrev + " AND " + $eat + "\n");
+	    
+	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
+	    
+	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+	    ProbablyCleaning probClean = new ProbClean(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+	    
+	    eventTracker.insertDerivedEvent(probClean);
+end    
+    
+rule "Probably Cleaning perpatuated"
+	when 
+	    $probClean: ProbablyCleaning(probCleanAnn : annotations) from entry-point "ExtendedProbablyCleaningStream"
+	    not ( Cleaning(this annIntersects $probClean) from entry-point "ExtendedCleaningStream") 
+	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $probClean) 
+	        from entry-point "ExtendedPersonLocationStream"
+	then
+	    System.out.println("////// Triggering PROBABLY CLEANING CONTINUED rule following events: " + $probClean + 
+	        " AND " + $loc + "\n");
+	    
+	    AnnotationData ann = probCleanAnn.applyExtensionOperator(locAnn);
+	    ProbablyCleaning probClean = new ProbablyCleaning(ann);
+	    
+	    eventTracker.insertDerivedEvent(probClean);
+end
+    
+rule "Definitely Cleaning 1"
+	when
+	    $probClean: ProbablyCleaning(probCleanAnn : annotations) from entry-point "ExtendedProbablyCleaningStream"
+	    not ( Cleaning(this annIntersects $probClean) from entry-point "ExtendedCleaningStream")
+	    $item: Item(sensorId == "I01" || sensorId == "I06" || sensorId == "I02" || sensorId == "I03", status == "PRESENT") from entry-point "ExtendedItemStream"
+	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $item) 
+	        from entry-point "ExtendedPersonLocationStream"
+	then
+	    System.out.println("////// Triggering CLEANING rule following events: " + $probClean + 
+	        " AND " + $item + " AND " + $loc + "\n");
+	    
+	    AnnotationData ann = probCleanAnn.applyExtensionOperator(locAnn);
+	    DefaultAnnotationData annDf = (DefaultAnnotationData)ann;
+	    annDf.setLastUpdated(drools.getWorkingMemory().getSessionClock().getCurrentTime()); 
+	    
+	    Cleaning clean = new Cleaning(annDf);
+	    
+	    eventTracker.insertDerivedEvent(clean);
+end
+
+rule "Definitely Cleaning 2"
+	when
+	    $probClean: ProbablyCleaning(probCleanAnn : annotations) from entry-point "ExtendedProbablyCleaningStream"
+	    not ( Cleaning(this annIntersects $probClean) from entry-point "ExtendedCleaningStream")
+	    $water: Water(value > 0, waterAnn : annotations) from entry-point "WaterStream"
+	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $water) 
+	        from entry-point "ExtendedPersonLocationStream"
+	then
+	    System.out.println("////// Triggering CLEANING rule following events: " + $probClean + 
+	        " AND " + $water + " AND " + $loc + "\n");
+	    
+	    AnnotationData ann1 = probCleanAnn.applyExtensionOperator(waterAnn);
+	    AnnotationData ann2 = ann1.applyExtensionOperator(locAnn);
+	    Cleaning clean = new Cleaning(ann2);
+	    
+	    eventTracker.insertDerivedEvent(clean);
+end   
+    
+rule "Keep Cleaning"
+	when
+	    $clean: Cleaning(cleanAnn : annotations) from entry-point "ExtendedCleaningStream"
+	    $water: Water(value > 0, waterAnn : annotations) from entry-point "WaterStream"
+	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $water, this annIncludes $clean) 
+	        from entry-point "ExtendedPersonLocationStream"
+	then
+	    System.out.println("////// Triggering CLEANING rule following events: " + $clean + 
+	        " AND " + $water + " AND " + $loc + "\n");
+	    
+	    AnnotationData ann1 = cleanAnn.applyExtensionOperator(waterAnn);
+	    AnnotationData ann2 = ann1.applyExtensionOperator(locAnn);
+	    Cleaning clean = new Cleaning(ann2);
+	    
+	    eventTracker.insertDerivedEvent(clean);
+end

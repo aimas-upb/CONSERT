@@ -2,12 +2,6 @@ package org.aimas.consert
 
 // Declare Metadata for CASAS events
 import org.aimas.consert.tests.casas.assertions.Motion
-import org.aimas.consert.tests.casas.assertions.Item
-import org.aimas.consert.tests.casas.assertions.Cabinet
-import org.aimas.consert.tests.casas.assertions.Water
-import org.aimas.consert.tests.casas.assertions.Temperature
-import org.aimas.consert.tests.casas.assertions.Burner
-import org.aimas.consert.tests.casas.assertions.Phone
 import org.aimas.consert.tests.casas.assertions.PersonLocation
 
 import org.aimas.consert.model.annotations.AnnotationData
@@ -47,10 +41,8 @@ rule "At Dining Table"
         System.out.println("{}{}{}{} Triggering INIT AT DINING TABLE rule following event: " + $motion + "\n");
         
         // create atomic PersonLocation ContextAssertion
-        DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        
-        DefaultAnnotationData ann = new DefaultAnnotationData(ts, motionAnn.getConfidence());
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation loc = new PersonLocation("DiningTable", ann);
         
         eventTracker.insertAtomicEvent(loc);
@@ -68,10 +60,8 @@ rule "Stay At Dining Table"
     then
         System.out.println("[][][][][][] Triggering STAY AT DINING TABLE RULE following event: " + $motion + "\n");
         // create atomic PersonLocation ContextAssertion
-        DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        
-        DefaultAnnotationData ann = new DefaultAnnotationData(ts, motionAnn.getConfidence());
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation loc = new PersonLocation("DiningTable", ann);
         
         eventTracker.insertAtomicEvent(loc);
@@ -92,10 +82,8 @@ rule "Remain at dining table"
     then
         System.out.println("[][][][][][] Triggering REMAIN AT DINING TABLE RULE following event: " + loc + "\n");
         // create atomic PersonLocation ContextAssertion
-        DefaultAnnotationData locAnn = (DefaultAnnotationData)loc.getAnnotations();
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        
-        DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence());
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation sameLoc = new PersonLocation("DiningTable", ann);
      
         eventTracker.insertAtomicEvent(sameLoc);
@@ -130,10 +118,8 @@ rule "In the kitchen"
         System.out.println("{}{}{}{} Triggering INIT AT KITCHEN rule following event: " + $motion + "\n");
         
         // create atomic PersonLocation ContextAssertion
-        DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        
-        DefaultAnnotationData ann = new DefaultAnnotationData(ts, motionAnn.getConfidence());
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation loc = new PersonLocation("Kitchen", ann);
         
         eventTracker.insertAtomicEvent(loc);
@@ -152,10 +138,9 @@ rule "Stay in kitchen"
         System.out.println("[][][][][][] Triggering STAY IN KITCHEN rule following event: " + $motion + "\n");
         
         // create atomic PersonLocation ContextAssertion
-        DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
+        //DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        
-        DefaultAnnotationData ann = new DefaultAnnotationData(ts, motionAnn.getConfidence());
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation loc = new PersonLocation("Kitchen", ann);
         
         eventTracker.insertAtomicEvent(loc);
@@ -173,10 +158,10 @@ rule "Remain in kitchen"
         System.out.println("[][][][][][] Triggering REMAIN AT KITCHEN rule following event: " + loc + "\n");
         
         // create atomic PersonLocation ContextAssertion
-        DefaultAnnotationData locAnn = (DefaultAnnotationData)loc.getAnnotations();
+        //DefaultAnnotationData locAnn = (DefaultAnnotationData)loc.getAnnotations();
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         
-        DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence());
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation sameLoc = new PersonLocation("Kitchen", ann);
         
         eventTracker.insertAtomicEvent(sameLoc);

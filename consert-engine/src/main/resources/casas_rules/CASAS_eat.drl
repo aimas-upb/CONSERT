@@ -1,0 +1,65 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Temperature
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.Phone
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.engine.EventTracker
+
+global EventTracker eventTracker;
+
+rule "Preparing to eat"
+	when
+	    $loc: PersonLocation(location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
+	    $cook: Cooking(this annBefore[0s, 10s] $loc) from entry-point "ExtendedCookingStream"
+	    $item: Item(sensorId == "I06", status == "ABSENT", this annHappensBefore[0s, 30s] $loc) from "ExtendedItemStream"
+	    $item: Item(sensorId == "I07" || sensorId == "I04", status == "ABSENT") from entry-point "ExtendedItemStream"
+	then
+	    System.out.println("////// Triggering EATING rule following events: " + $loc + " AND " + $heating + "\n");
+	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+	    Eating eating = new Eating(ann);
+	    
+	    eventTracker.insertAtomicEvent(eating);
+end
+    
+
+rule "Continuing to eat 1"
+	when
+	    $eat: Eating() from entry-point "EatingStream" or 
+	    $loc: PersonLocation(location == "DiningTable", this annIncludes $eat) 
+	        from entry-point "ExtendedPersonLocationStream"
+	then
+	    System.out.println("////// Triggering CONTINUE EATING rule following events: " + $loc + " AND " + $eat + "\n");
+	    
+	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+	    Eating eating = new Eating(ann);
+	    
+	    eventTracker.insertAtomicEvent(eating);
+end   
+    
+
+rule "Continuing to eat 2"
+	when
+	    $eat: Eating() from entry-point "ExtendedEatingStream"
+	    $loc: PersonLocation(location == "DiningTable", this annIntersects $eat) 
+	        from entry-point "ExtendedPersonLocationStream"
+	then
+	    System.out.println("////// Triggering CONTINUE EATING rule following events: " + $loc + " AND " + $eat + "\n");
+	    
+	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+	    Eating eating = new Eating(ann);
+	    
+	    eventTracker.insertAtomicEvent(eating);
+end 

@@ -1,0 +1,132 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.engine.EventTracker
+
+global EventTracker eventTracker;
+
+/*
+I01 = oatmeal
+I02 = raisins
+I03 = brown sugar
+I04 = bowl
+I05 = spoon
+
+I06 = medicine
+I07 = pot
+
+I08 = phone book
+D01 = cabinet
+*/
+
+
+
+rule "start handling food"
+	when 
+	    $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+	    $food : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", 
+	                   status == "ABSENT", this annHappensAfter[0s, 10s] $loc) from entry-point "ExtendedItemStream"
+	then 
+	    System.out.println("////// Triggering START HANDLING FOOD rule following events: " + $loc + " AND " + $food + "\n");
+	        
+	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
+	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    Date startTime = locAnn.getStartTime();
+	    Date endTime = new Date(ts);
+	    
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), startTime, endTime);
+	    HandlingFood handlingFood = new HandlingFood(ann);
+	    
+	    eventTracker.insertDerivedEvent(handlingFood);
+end
+
+rule "keep handling food"
+duration(5s) 
+	when 
+	    $item : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", status == "ABSENT") from entry-point "ExtendedItemStream"
+	    $food : HandlingFood() over time:window(10s) from entry-point "ExtendedHandlingFoodStream"
+	then
+	    System.out.println("////// Triggering KEEP HANDLING FOOD rule following events: " + $food + " AND " + $item + "\n");
+	        
+	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+	    HandlingFood handlingFood = new HandlingFood(ann);
+	    
+	    eventTracker.insertAtomicEvent(handlingFood);
+end
+
+/*
+rule "preparing food using tools"
+when
+    $food : HandlingFood() from entry-point "ExtendedHandlingFoodStream"
+    $utensils : Item(sensorId == "I07" || sensorId == "I04", status == "ABSENT") from entry-point "ExtendedItemStream"
+then
+    System.out.println("////// Triggering PREPARING FOOD rule following events: " + $food + " AND" + $utensils + "\n");
+        
+    // create atomic PersonLocation ContextAssertion
+    DefaultAnnotationData foodAnn = (DefaultAnnotationData)$food.getAnnotations();
+    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+    
+    DefaultAnnotationData ann = new DefaultAnnotationData(ts, foodAnn.getConfidence());
+    PreparingFood prepFood = new PreparingFood(ann);
+    
+    eventTracker.insertAtomicEvent(prepFood);
+*/  
+    
+rule "heating food using burner"
+	when
+	    $food : HandlingFood() over time:window(10s) from entry-point "ExtendedHandlingFoodStream"
+	    $burner : Burner(value > 0) from entry-point "BurnerStream"
+	then
+	    System.out.println("////// Triggering HEATING FOOD rule following events: " + $food + " AND " + $burner + "\n");
+	        
+	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+	    HeatingFood heatingFood = new HeatingFood(ann);
+	    
+	    eventTracker.insertAtomicEvent(heatingFood);
+end    
+
+rule "cooking detected"
+	when
+	    $food : HandlingFood() from entry-point "ExtendedHandlingFoodStream"
+	    $heating : HeatingFood(this annIntersects $food, this annOverlappedBy $food) from entry-point "ExtendedHeatingFoodStream"
+	then
+	    System.out.println("////// Triggering COOKING rule following events: " + $food + " AND " + $heating + "\n");
+	        
+	    DefaultAnnotationData foodAnn = (DefaultAnnotationData)$food.getAnnotations();
+	    DefaultAnnotationData heatingAnn = (DefaultAnnotationData)$heating.getAnnotations();
+	    
+	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    double confidence = (foodAnn.getConfidence() + heatingAnn.getConfidence()) / 2;
+	    Date endTime = new Date(ts);
+	    
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, confidence, foodAnn.getStartTime(), endTime);
+	    Cooking cooking = new Cooking(ann);
+	    
+	    eventTracker.insertDerivedEvent(cooking);
+end    
+
+
+rule "cooking continued"
+	when 
+	    $cook : Cooking(cookAnn : annotations#DefaultAnnotationData) from entry-point "ExtendedCookingStream"
+	    $food : HandlingFood(foodAnn : annotations#DefaultAnnotationData this annIncludes $cook) from entry-point "ExtendedHandlingFoodStream"
+	then
+	    System.out.println("////// Triggering COOKING CONTINUED rule following events: " + $cook + " AND " + $food + "\n");
+	    
+	    AnnotationData ann = cookAnn.applyExtensionOperator(foodAnn);
+	    Cooking cooking = new Cooking(ann);
+	    
+	    eventTracker.insertDerivedEvent(cooking);
+end
