@@ -1,6 +1,9 @@
 package org.aimas.consert.tests.casas;
 
 import java.io.File;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -8,7 +11,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion.AcquisitionType;
+import org.aimas.consert.tests.casas.assertions.Cabinet;
+import org.aimas.consert.tests.casas.assertions.Item;
+import org.aimas.consert.tests.casas.assertions.Phone;
 
 public class CASASEventInserter {
 	
@@ -22,6 +30,8 @@ public class CASASEventInserter {
 	
 	private ScheduledExecutorService readerService;
 	private ExecutorService insertionService;
+	
+	private Map<String, ContextAssertion> itemActivationMap = new HashMap<String, ContextAssertion>();
 	
 	public CASASEventInserter(File eventInputFile, EventTracker eventTracker) {
 		this.eventInputFile = eventInputFile;
@@ -104,10 +114,35 @@ public class CASASEventInserter {
 		}
 		
 		public void run() {
-			// filter by event instance type to see on which stream to insert
-			event.setProcessingTimeStamp(System.currentTimeMillis());
-			//eventTracker.insertSimpleEvent(event, false);
-			eventTracker.insertSimpleEvent(event, true);
+			// If the events are of a sensed acquisition type, insert them as simple events and set their timestamp at insertion
+			if (event.getAcquisitionType() == AcquisitionType.SENSED) {
+				event.setProcessingTimeStamp(System.currentTimeMillis());
+				//eventTracker.insertSimpleEvent(event, false);
+				eventTracker.insertSimpleEvent(event, true);
+			}
+			else {
+				// insert the events as PROFILED ones, set their duration and timestamp
+				String key = null;
+				if (event instanceof Item || event instanceof Cabinet)
+					key = ((Item)event).getSensorId();
+				else if (event instanceof Phone)
+					key = "phone";
+				
+				if (itemActivationMap.containsKey(key)) {
+					ContextAssertion prevEvent = itemActivationMap.remove(key);
+					eventTracker.deleteEvent(prevEvent);
+				}
+				
+				itemActivationMap.put(key, event);
+				DefaultAnnotationData ann = (DefaultAnnotationData)event.getAnnotations();
+				
+				long ts = eventTracker.getCurrentTime();
+				ann.setLastUpdated(ts);
+				ann.setStartTime(new Date(ts));
+				ann.setEndTime(null);
+				
+				eventTracker.insertSimpleEvent(event, false);
+			}
         }
 	}
 }
