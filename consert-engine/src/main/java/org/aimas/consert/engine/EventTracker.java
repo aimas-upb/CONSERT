@@ -45,6 +45,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 	 * Insert an EntityDescription (a fact)
 	 * @param fact EntityDescription to be inserted.
 	 */
+	@Override
 	public void insertStaticEvent(EntityDescription fact) {
 		kSession.insert(fact);
 	}
@@ -55,6 +56,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 	 * fact to be deleted in the Working Memory.
 	 * @param fact The EntityDescription to be removed.
 	 */
+	@Override
 	public void deleteStaticEvent(EntityDescription fact) {
 		FactHandle fh = kSession.getFactHandle(fact);
 		
@@ -68,26 +70,41 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 	 * @param event The event to be inserted.
 	 * @param setTimestamp Boolean value controlling whether to set the timestamp of the event based on the kSession clock.
 	 */
+	@Override
 	public void insertSimpleEvent(ContextAssertion event, boolean setTimestamp) {
 		String eventStream = event.getStreamName();
 		
 		if (event.getAnnotations().allowsAnnotationInsertion()) {
 			if (setTimestamp) {
 				DefaultAnnotationData ann = (DefaultAnnotationData)event.getAnnotations();
-				ann.setTimestamp(kSession.getSessionClock().getCurrentTime());
-				ann.setStartTime(new Date(kSession.getSessionClock().getCurrentTime()));
-				ann.setEndTime(new Date(kSession.getSessionClock().getCurrentTime()));
+				ann.setTimestamp(getCurrentTime());
+				ann.setStartTime(new Date(getCurrentTime()));
+				ann.setEndTime(new Date(getCurrentTime()));
 			}
 			
 			kSession.getEntryPoint(eventStream).insert(event);
 		}
 	}
 	
+	/**
+	 * Remove a ContextAssertion. The implementation makes use of the 
+	 * <code>hashCode</code> and <code>equals</code> methods of a ContextAssertion to identify the 
+	 * event to be deleted in the Working Memory.
+	 * @param event The ContextAssertion to be removed.
+	 */
+	@Override
+	public void deleteEvent(ContextAssertion event) {
+		String eventStream = event.getStreamName();
+		FactHandle handle = kSession.getEntryPoint(eventStream).getFactHandle(event);
+		
+		kSession.getEntryPoint(eventStream).delete(handle);
+	}
 
 	/**
 	 * Insert an atomic event. The event will go through the verifications of temporal continuity.
 	 * @param event The atomic event to insert
 	 */
+	@Override
     public void insertAtomicEvent(final ContextAssertion event) {
     	String eventStream = event.getStreamName();
     	
@@ -193,6 +210,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
      * derived, but which have still not been garbage collected.
      * @param event The event to be inserted
      */
+	@Override
     public void insertDerivedEvent(ContextAssertion event) {
     	//kSession.getQueryResults(query, arguments);
     	
@@ -295,7 +313,8 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		
     }
 	
-
+    
+    @Override
 	public void objectDeleted(ObjectDeletedEvent event) {
 		System.out.println("DELETED EVENT object: " + event.getOldObject());
 		System.out.println("	HANDLE: " + event.getFactHandle());
@@ -308,7 +327,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		FactHandle deletedHandle = event.getFactHandle();
 	    ContextAssertion deletedAssertion = (ContextAssertion)event.getOldObject();
 	    
-	    if (trackedAssertionStore.wasUntracked(deletedHandle, deletedAssertion)) {
+	    if (trackedAssertionStore.untrack(deletedHandle, deletedAssertion)) {
 	    	trackedAssertionStore.markExpired(deletedHandle, deletedAssertion);
 	    }
 	    
@@ -316,8 +335,8 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
     }
 	
 	
+    @Override
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
-
 		System.out.println("INSERTED EVENT object: " + insertEvent.getObject());
 		System.out.println("	HANDLE: " + insertEvent.getFactHandle());
 		if (insertEvent.getRule() != null) {
@@ -330,7 +349,8 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 
     }
 
-
+    
+    @Override
 	public void objectUpdated(ObjectUpdatedEvent event) {
 //		System.out.println("UPDATED EVENT with handle: " + event.getFactHandle());
 //		System.out.println("UPDATED EVENT object: " + event.getObject());

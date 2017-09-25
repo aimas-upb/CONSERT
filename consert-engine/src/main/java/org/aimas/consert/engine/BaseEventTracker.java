@@ -1,10 +1,9 @@
 package org.aimas.consert.engine;
 
 import org.aimas.consert.model.content.ContextAssertion;
+import org.aimas.consert.model.content.EntityDescription;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.rule.EntryPoint;
-import org.kie.api.runtime.rule.FactHandle;
 
 public abstract class BaseEventTracker implements RuleRuntimeEventListener {
 	
@@ -15,6 +14,7 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener {
 		kSession.addEventListener(this);
 	}
 	
+	/*
 	protected EntryPoint searchEntryPoint(FactHandle handle, KieSession kSession) {
 		for (EntryPoint entry : kSession.getEntryPoints()) {
 			if (entry.getObject(handle) != null) {
@@ -24,6 +24,21 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener {
 		
 		return null;
 	}
+	*/
+	
+	public long getCurrentTime() {
+		return kSession.getSessionClock().getCurrentTime();
+	}
+	
+	public abstract void insertStaticEvent(EntityDescription entityDescription);
+	
+	public abstract void deleteStaticEvent(EntityDescription entityDescription);
+	
+	public abstract void insertSimpleEvent(ContextAssertion event, boolean setTimestamp);
+	
+	public abstract void deleteEvent(ContextAssertion event);
+	
+	public abstract void insertDerivedEvent(ContextAssertion event);
 	
 	public abstract void insertAtomicEvent(ContextAssertion event);	
 }

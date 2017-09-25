@@ -184,7 +184,7 @@ public class TrackedAssertionStore {
 		}
     }
 
-	public boolean wasUntracked(FactHandle deletedHandle, ContextAssertion deletedAssertion) {
+	public boolean untrack(FactHandle deletedHandle, ContextAssertion deletedAssertion) {
 		synchronized(deleteCache) {
 			return deleteCache.remove(deletedHandle);
 		}
