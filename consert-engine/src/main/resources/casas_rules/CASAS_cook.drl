@@ -11,7 +11,13 @@ import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
+import org.aimas.consert.tests.casas.assertions.Cooking
+import org.aimas.consert.tests.casas.assertions.HandlingFood
+import org.aimas.consert.tests.casas.assertions.HeatingFood
+
 import org.aimas.consert.engine.EventTracker
+
+import java.util.Date;
 
 global EventTracker eventTracker;
 
@@ -121,7 +127,7 @@ end
 rule "cooking continued"
 	when 
 	    $cook : Cooking(cookAnn : annotations#DefaultAnnotationData) from entry-point "ExtendedCookingStream"
-	    $food : HandlingFood(foodAnn : annotations#DefaultAnnotationData this annIncludes $cook) from entry-point "ExtendedHandlingFoodStream"
+	    $food : HandlingFood(foodAnn : annotations#DefaultAnnotationData, this annIncludes $cook) from entry-point "ExtendedHandlingFoodStream"
 	then
 	    System.out.println("////// Triggering COOKING CONTINUED rule following events: " + $cook + " AND " + $food + "\n");
 	    

@@ -14,6 +14,7 @@ import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
 
+/*
 rule "Using Phone Book"
 	when
 	    $loc: PersonLocation(location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
@@ -23,12 +24,13 @@ rule "Using Phone Book"
 	    
 	    UsingPhoneBook phoneBook = new UsingPhoneBook();
 	    eventTracker.insertStaticEvent(phoneBook);
-end    
+end
+*/
 
 rule "Phone Call Start"
 	when
 	    $phone: Phone(value == "START") from entry-point "ExtendedPhoneStream"
-	    $loc: PersonLocation(location == "DiningTable", this annIncludes $phone) from entry-point "ExtendedPersonLocationStream"
+	    $loc: PersonLocation(location == "DiningTable", this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
 	then
 	    System.out.println("////// Triggering PHONE CALL START following events: " + $loc + " AND " + $item + "\n");    
 	    
@@ -43,7 +45,7 @@ end
 rule "Phone Call Ongoing"
 	when
 	    $phone: Phone(value == "START") from entry-point "ExtendedPhoneStream"
-	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations, this annIncludes $phone) from entry-point "ExtendedPersonLocationStream"
+	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations, this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
 	    $call: PhoneCall(callAnn : annotations, this annIntersects $loc) from entry-point "ExtendedPhoneCallStream"
 	    
 	then
