@@ -10,6 +10,10 @@ import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
+import org.aimas.consert.tests.casas.assertions.PhoneCall
+
+import java.util.Date;
+
 import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
@@ -32,7 +36,7 @@ rule "Phone Call Start"
 	    $phone: Phone(value == "START") from entry-point "ExtendedPhoneStream"
 	    $loc: PersonLocation(location == "DiningTable", this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
 	then
-	    System.out.println("////// Triggering PHONE CALL START following events: " + $loc + " AND " + $item + "\n");    
+	    System.out.println("////// Triggering PHONE CALL START following events: " + $loc + " AND " + $phone + "\n");
 	    
 	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
@@ -49,7 +53,7 @@ rule "Phone Call Ongoing"
 	    $call: PhoneCall(callAnn : annotations, this annIntersects $loc) from entry-point "ExtendedPhoneCallStream"
 	    
 	then
-	    System.out.println("////// Triggering PHONE CALL ONGOING following events: " + $loc + " AND " + $call + " AND " + $item + "\n");
+	    System.out.println("////// Triggering PHONE CALL ONGOING following events: " + $loc + " AND " + $call + " AND " + $phone + "\n");
 	    
 	    AnnotationData ann = callAnn.applyCombinationOperator(locAnn);
 	    PhoneCall phoneCall = new PhoneCall(ann);

@@ -35,6 +35,9 @@ I08 = phone book
 D01 = cabinet
 */
 
+declare HandlingFood
+    @role(event)
+end
 
 
 rule "start handling food"

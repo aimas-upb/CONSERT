@@ -229,7 +229,7 @@ df_status = pd.concat([df_status_base, df_status_derived], ignore_index = True)
 colors = {
     'MOTION': 'rgb(211, 211, 211)',
     'ITEM': 'rgb(169, 169, 169)',
-    'BURNER': 'rgb(0, 220, 0)',
+    'BURNER': 'rgb(0, 220, 0)',	
     'WATER': 'rgb(0, 0, 220)',
     'CABINET': 'rgb(220, 0, 0)',
     'TEMPERATURE': 'rgb(220, 0, 220)',

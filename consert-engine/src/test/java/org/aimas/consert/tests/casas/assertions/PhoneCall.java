@@ -4,20 +4,19 @@ import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
-
-public class HeatingFood extends BinaryContextAssertion {
+public class PhoneCall extends BinaryContextAssertion {
 
     String sensorId;
 
     /** can be one of {ON, OFF} */
     String status;
 
-    public HeatingFood() {}
-    public HeatingFood(AnnotationData annotations) {
+    public PhoneCall() {}
+    public PhoneCall(AnnotationData annotations) {
         super(new StringLiteral(new String()),new StringLiteral(new String()),  AcquisitionType.SENSED, annotations);
 
     }
-    public HeatingFood(String sensorId, String status, AnnotationData annotations) {
+    public PhoneCall(String sensorId, String status, AnnotationData annotations) {
         super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
 
         this.sensorId = sensorId;

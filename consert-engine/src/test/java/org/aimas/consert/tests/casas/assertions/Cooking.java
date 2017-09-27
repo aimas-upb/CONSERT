@@ -12,7 +12,10 @@ public class Cooking extends BinaryContextAssertion {
     String status;
 
     public Cooking() {}
+    public Cooking(AnnotationData annotations) {
+        super(new StringLiteral(new String()),new StringLiteral(new String()),  AcquisitionType.SENSED, annotations);
 
+    }
     public Cooking(String sensorId, String status, AnnotationData annotations) {
         super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
 

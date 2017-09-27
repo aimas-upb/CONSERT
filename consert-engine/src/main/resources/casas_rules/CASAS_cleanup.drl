@@ -13,15 +13,21 @@ import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
+import org.aimas.consert.tests.casas.assertions.Eating
+import org.aimas.consert.tests.casas.assertions.Cleaning
+import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
+
 import org.aimas.consert.engine.EventTracker
+
+import java.util.Date;
 
 global EventTracker eventTracker;
 
 rule "Probably Cleaning"
 	when
 	    $loc: PersonLocation(location=="Kitchen") from entry-point "ExtendedPersonLocationStream"
-	    $locPrev: PersonLocation(location=="DiningRoom", this annHappensBefore[0s, 10s] $loc) from entry-point "ExtendedPersonLocationStream")
-	    $eat: Eating(this annBefore[0s, 30s]) from entry-point "ExtendedEatingStream"
+	    $locPrev: PersonLocation(location=="DiningRoom", this annHappensBefore[0s, 10s] $loc) from entry-point "ExtendedPersonLocationStream"
+	    $eat: Eating(this annHappensBefore[0s, 30s] $loc) from entry-point "ExtendedEatingStream"
 	then
 	    System.out.println("////// Triggering PROBABLY CLEANING rule following events: " + $loc + " AND " + 
 	        $locPrev + " AND " + $eat + "\n");
@@ -30,8 +36,8 @@ rule "Probably Cleaning"
 	    
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-	    ProbablyCleaning probClean = new ProbClean(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
-	    
+	   // ProbablyCleaning probClean = new ProbablyCleaning(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+	     ProbablyCleaning probClean = new ProbablyCleaning(ann);
 	    eventTracker.insertDerivedEvent(probClean);
 end    
     
