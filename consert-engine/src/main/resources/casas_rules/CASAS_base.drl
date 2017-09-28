@@ -64,7 +64,7 @@ declare Phone
     @duration(eventDuration)
 end
 
-// =========== BaseEvent insert rules - needed to create the event streams
+// =========== BaseEvent insert rules - needed to crea      te the event streams
 /*
 rule "MotionInsertTest"
     when

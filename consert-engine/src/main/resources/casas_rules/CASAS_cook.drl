@@ -50,7 +50,7 @@ rule "start handling food"
 	        
 	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-	    Date startTime = locAnn.getStartTime();
+            Date startTime = locAnn.getStartTime();
 	    Date endTime = new Date(ts);
 	    
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), startTime, endTime);
