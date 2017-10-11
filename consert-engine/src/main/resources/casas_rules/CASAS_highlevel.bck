@@ -24,8 +24,7 @@ rule "SittingAtTable"
         forall (
                 $motion2 : Motion(id2 : sensorId , status2 : status == "OFF") from entry-point "MotionStream"
                 $motion3 : Motion(id3: sensorId == id2, eval((long) $motion3.getStartTimestamp() <= (long)$motion2.getStartTimestamp())) from entry-point "MotionStream"
-                )
-        then
+            then
                System.out.println("Inserted SittingAtTable event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp() );
         end
 

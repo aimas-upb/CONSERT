@@ -39,14 +39,14 @@ public class CASASTestSingle extends TestSetup {
 		
 		// create a new session
 		KnowledgeBuilderConfiguration builderConf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
-		builderConf.setOption(EvaluatorOption.get("annOverlaps", new AnnOverlapsOperator.AnnOverlapsEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get(	"annOverlaps", new AnnOverlapsOperator.AnnOverlapsEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annOverlappedBy", new AnnOverlappedByOperator.AnnOverlappedByEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annHappensBefore", new AnnBeforeOperator.AnnBeforeEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annHappensAfter", new AnnAfterOperator.AnnAfterEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesOperator.AnnIncludesEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annIntersects", new AnnIntersectsOperator.AnnIntersectsEvaluatorDefinition()));
 
-		KieSession kSession = getKieSessionFromResources( builderConf,"casas_rules/CASAS_base.drl",  "casas_rules/CASAS_cook.drl",  "casas_rules/CASAS_location.drl");
+		KieSession kSession = getKieSessionFromResources( builderConf,"casas_rules/CASAS_base.drl",  "casas_rules/CASAS_wash_hands.drl",  "casas_rules/CASAS_location.drl");
 		
     	// set up engine runner thread and event inserter
     	Thread engineRunner = new Thread(new EngineRunner(kSession));
