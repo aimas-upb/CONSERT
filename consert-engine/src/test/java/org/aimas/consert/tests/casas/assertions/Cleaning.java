@@ -4,7 +4,7 @@ import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
-public class Cleaning extends BinaryContextAssertion {
+public class    Cleaning extends BinaryContextAssertion {
 
     String sensorId;
 
