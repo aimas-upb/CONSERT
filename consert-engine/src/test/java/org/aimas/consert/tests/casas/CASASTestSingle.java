@@ -46,8 +46,8 @@ public class CASASTestSingle extends TestSetup {
 		builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesOperator.AnnIncludesEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annIntersects", new AnnIntersectsOperator.AnnIntersectsEvaluatorDefinition()));
 
-		KieSession kSession = getKieSessionFromResources( builderConf,"casas_rules/CASAS_base.drl",  "casas_rules/CASAS_wash_hands.drl",  "casas_rules/CASAS_location.drl");
-		
+		KieSession kSession = getKieSessionFromResources( builderConf,"casas_rules/CASAS_base.drl",  "casas_rules/CASAS_cook.drl", "casas_rules/CASAS_cleanup.drl",
+				"casas_rules/CASAS_eat.drl","casas_rules/CASAS_location.drl","casas_rules/CASAS_phone_call.drl","casas_rules/CASAS_wash_hands.drl");
     	// set up engine runner thread and event inserter
     	Thread engineRunner = new Thread(new EngineRunner(kSession));
     	

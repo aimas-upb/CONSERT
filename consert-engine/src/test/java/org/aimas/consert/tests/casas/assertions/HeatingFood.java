@@ -14,7 +14,7 @@ public class HeatingFood extends BinaryContextAssertion {
 
     public HeatingFood() {}
     public HeatingFood(AnnotationData annotations) {
-        super(new StringLiteral(new String()),new StringLiteral(new String()),  AcquisitionType.SENSED, annotations);
+        super(new StringLiteral("HeatingFood"),new StringLiteral("HeatingFood"),  AcquisitionType.SENSED, annotations);
 
     }
     public HeatingFood(String sensorId, String status, AnnotationData annotations) {

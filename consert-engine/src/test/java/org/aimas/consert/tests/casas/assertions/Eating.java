@@ -13,7 +13,7 @@ public class Eating extends BinaryContextAssertion {
 
     public Eating() {}
     public Eating(AnnotationData annotations) {
-        super(new StringLiteral(new String()),new StringLiteral(new String()),  AcquisitionType.SENSED, annotations);
+        super(new StringLiteral("Eating"),new StringLiteral("Eating"),  AcquisitionType.SENSED, annotations);
 
     }
     public Eating(String sensorId, String status, AnnotationData annotations) {

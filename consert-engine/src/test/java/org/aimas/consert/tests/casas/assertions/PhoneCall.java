@@ -13,7 +13,7 @@ public class PhoneCall extends BinaryContextAssertion {
 
     public PhoneCall() {}
     public PhoneCall(AnnotationData annotations) {
-        super(new StringLiteral(new String()),new StringLiteral(new String()),  AcquisitionType.SENSED, annotations);
+        super(new StringLiteral("PhoneCall"),new StringLiteral("PhoneCall"),  AcquisitionType.SENSED, annotations);
 
     }
     public PhoneCall(String sensorId, String status, AnnotationData annotations) {

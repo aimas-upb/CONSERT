@@ -18,11 +18,11 @@ public class ProbablyCleaning extends BinaryContextAssertion {
     Date current;
     public ProbablyCleaning() {}
     public ProbablyCleaning(AnnotationData annotations) {
-        super(new StringLiteral(new String()),new StringLiteral(new String()),  AcquisitionType.SENSED, annotations);
+        super(new StringLiteral("ProbablyCleaning"),new StringLiteral("ProbablyCleaning"),  AcquisitionType.SENSED, annotations);
 
     }
     public ProbablyCleaning(long timestamp, double confidence, Date start, Date current) {
-        super(new StringLiteral(new String()),new StringLiteral(new String()),  AcquisitionType.SENSED, null);
+        super(new StringLiteral("ProbablyCleaning"),new StringLiteral("ProbablyCleaning"),  AcquisitionType.SENSED, null);
 
     }
     public ProbablyCleaning(String sensorId, String status, AnnotationData annotations) {

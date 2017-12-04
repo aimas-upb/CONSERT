@@ -79,6 +79,11 @@ rule "ItemInsertTest"
         $item : Item(id : sensorId, status : status) from entry-point "ItemStream" 
     then
         System.out.println("Inserted ITEM event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$item.getStartTimestamp());
+
+            long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+             DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+            Item item = new Item(id, status, ann);
+           // eventTracker.insertAtomicEvent(item);
 end
 
 rule "CabinetInsertTest"
@@ -86,6 +91,11 @@ rule "CabinetInsertTest"
         $cabinet : Cabinet(id : sensorId, status : status) from entry-point "CabinetStream" 
     then
         System.out.println("Inserted CABINET event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$cabinet.getStartTimestamp());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        Cabinet cabinet = new Cabinet(id, status, ann);
+      //  eventTracker.insertAtomicEvent(cabinet);
+
 end
 
 rule "WaterInsertTest"
@@ -93,6 +103,11 @@ rule "WaterInsertTest"
         $water : Water(id : sensorId, val : value) from entry-point "WaterStream" 
     then
         System.out.println("Inserted WATER event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$water.getStartTimestamp());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        Water water = new Water(id, val, ann);
+        eventTracker.insertAtomicEvent(water);
+
 end
 
 rule "TemperatureInsertTest"
@@ -100,6 +115,10 @@ rule "TemperatureInsertTest"
         $temp : Temperature(id : sensorId, val : value) from entry-point "TemperatureStream" 
     then
         System.out.println("Inserted TEMPERATURE event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$temp.getStartTimestamp());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        Temperature temperature = new Temperature(id,val, ann);
+        eventTracker.insertAtomicEvent(temperature);
 end
 
 rule "BurnerInsertTest"
@@ -107,6 +126,11 @@ rule "BurnerInsertTest"
         $burner : Burner(val : value) from entry-point "BurnerStream" 
     then
         System.out.println("Inserted BURNER event with value: " + val + ", timestamp: " + (long)$burner.getStartTimestamp());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        Burner burner = new Burner(val, ann);
+        eventTracker.insertAtomicEvent(burner);
+
 end
 
 
@@ -115,6 +139,11 @@ rule "PhoneInsertTest"
         $phone : Phone(val : value) from entry-point "PhoneStream" 
     then
         System.out.println("Inserted PHONE event with value: " + val + ", timestamp: " + (long)$phone.getStartTimestamp());
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        Phone phone = new Phone(val, ann);
+        eventTracker.insertAtomicEvent(phone);
+
 end
 
 

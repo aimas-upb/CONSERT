@@ -13,7 +13,7 @@ public class WashHands extends BinaryContextAssertion {
 
     public WashHands() {}
     public WashHands(AnnotationData annotations) {
-        super(new StringLiteral(new String()),new StringLiteral(new String()),  AcquisitionType.SENSED, annotations);
+        super(new StringLiteral("WashHands"),new StringLiteral("WashHands"),  AcquisitionType.SENSED, annotations);
 
     }
     public WashHands(String sensorId, String status, AnnotationData annotations) {
