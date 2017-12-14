@@ -19,3 +19,8 @@ repo/
 
 # ignoring CASAS parsed JSON files
 **/files/casas_parsed/
+
+# ignoring experiment output
+casas-event-visualizer/.idea/
+casas-event-visualizer/experiment/
+casas-event-visualizer/outputs/
