@@ -81,8 +81,9 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 				ann.setStartTime(new Date(getCurrentTime()));
 				ann.setEndTime(new Date(getCurrentTime()));
 			}
-			
-			kSession.getEntryPoint(eventStream).insert(event);
+			/* shouldn't be null but it is*/
+			if (kSession.getEntryPoint(eventStream)!=null)
+				kSession.getEntryPoint(eventStream).insert(event);
 		}
 	}
 	

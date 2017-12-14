@@ -1,0 +1,46 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Phone
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.tests.casas.assertions.WashHands
+
+import java.util.Date;
+
+import org.aimas.consert.engine.EventTracker
+
+global EventTracker eventTracker;
+
+rule "StartWashingHands"
+       when
+           $loc: PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+           $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , val : value, this annIntersects $loc) from entry-point "ExtendedWaterStream"
+       then
+             System.out.println("////// Triggering START WASHING HANDS following events: " + $loc + " AND " + $water + "\n");
+             DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
+             long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+             DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+             WashHands washHands = new WashHands(ann);
+             eventTracker.insertAtomicEvent(washHands);
+   end
+
+rule "Washing Hands Ongoing"
+	when
+	    $loc: PersonLocation(location == "Kitchen", locAnn : annotations) from entry-point "ExtendedPersonLocationStream"
+        $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , val : value, this annIntersects $loc) from entry-point "ExtendedWaterStream"
+	    $wash:  WashHands(washAnn : annotations, this annOverlaps $loc) from entry-point "ExtendedWashHandsStream"
+
+	then
+      //  System.out.println("////// Triggering WASHING HANDS ONGOING following events: " + $loc + " AND " + $water + " AND " + $wash + "\n");
+
+	    AnnotationData ann = washAnn.applyCombinationOperator(locAnn);
+	    WashHands washHands = new WashHands(ann);
+        eventTracker.insertAtomicEvent(washHands);
+end

@@ -11,7 +11,13 @@ import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
+import org.aimas.consert.tests.casas.assertions.Cooking
+import org.aimas.consert.tests.casas.assertions.HandlingFood
+import org.aimas.consert.tests.casas.assertions.HeatingFood
+
 import org.aimas.consert.engine.EventTracker
+
+import java.util.Date;
 
 global EventTracker eventTracker;
 
@@ -29,6 +35,9 @@ I08 = phone book
 D01 = cabinet
 */
 
+declare HandlingFood
+    @role(event)
+end
 
 
 rule "start handling food"
@@ -41,7 +50,7 @@ rule "start handling food"
 	        
 	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-	    Date startTime = locAnn.getStartTime();
+            Date startTime = locAnn.getStartTime();
 	    Date endTime = new Date(ts);
 	    
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), startTime, endTime);
@@ -121,7 +130,7 @@ end
 rule "cooking continued"
 	when 
 	    $cook : Cooking(cookAnn : annotations#DefaultAnnotationData) from entry-point "ExtendedCookingStream"
-	    $food : HandlingFood(foodAnn : annotations#DefaultAnnotationData this annIncludes $cook) from entry-point "ExtendedHandlingFoodStream"
+	    $food : HandlingFood(foodAnn : annotations#DefaultAnnotationData, this annIncludes $cook) from entry-point "ExtendedHandlingFoodStream"
 	then
 	    System.out.println("////// Triggering COOKING CONTINUED rule following events: " + $cook + " AND " + $food + "\n");
 	    

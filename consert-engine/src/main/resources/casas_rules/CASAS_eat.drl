@@ -13,6 +13,11 @@ import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
+import org.aimas.consert.tests.casas.assertions.Cooking
+import org.aimas.consert.tests.casas.assertions.Eating
+
+import java.util.Date;
+
 import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
@@ -20,11 +25,11 @@ global EventTracker eventTracker;
 rule "Preparing to eat"
 	when
 	    $loc: PersonLocation(location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
-	    $cook: Cooking(this annBefore[0s, 10s] $loc) from entry-point "ExtendedCookingStream"
-	    $item: Item(sensorId == "I06", status == "ABSENT", this annHappensBefore[0s, 30s] $loc) from "ExtendedItemStream"
-	    $item: Item(sensorId == "I07" || sensorId == "I04", status == "ABSENT") from entry-point "ExtendedItemStream"
+	    $cook: Cooking(this annHappensBefore[0s, 10s] $loc) from entry-point "ExtendedCookingStream"
+	    $item: Item(sensorId == "I06", status == "ABSENT", this annHappensBefore[0s, 30s] $loc) from entry-point "ExtendedItemStream"
+	    $item2: Item(sensorId == "I07" || sensorId == "I04", status == "ABSENT") from entry-point "ExtendedItemStream"
 	then
-	    System.out.println("////// Triggering EATING rule following events: " + $loc + " AND " + $heating + "\n");
+	    System.out.println("////// Triggering EATING rule following events: " + $loc + " AND " + $item + "\n");
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
 	    Eating eating = new Eating(ann);
@@ -35,8 +40,8 @@ end
 
 rule "Continuing to eat 1"
 	when
-	    $eat: Eating() from entry-point "EatingStream" or 
-	    $loc: PersonLocation(location == "DiningTable", this annIncludes $eat) 
+	    $eat: Eating() from entry-point "EatingStream" //or
+	    $loc: PersonLocation(location == "DiningTable", this annIncludes $eat)
 	        from entry-point "ExtendedPersonLocationStream"
 	then
 	    System.out.println("////// Triggering CONTINUE EATING rule following events: " + $loc + " AND " + $eat + "\n");

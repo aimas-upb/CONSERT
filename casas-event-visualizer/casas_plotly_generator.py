@@ -144,33 +144,50 @@ all_numeric_frames = []
 session_data = []
 
 for f in files:
-    with open(f, 'r') as data_file:
-        key = ''
-        if f.lower().find('motion') != -1:
-            key = 'MOTION'
-        elif f.lower().find('item') != -1:
-            key = 'ITEM'
-        elif f.lower().find('burner') != -1:
-            key = 'BURNER'
-        elif f.lower().find('water') != -1:
-            key = 'WATER'
-        elif f.lower().find('temperature') != -1:
-            key = 'TEMPERATURE'
-        elif f.lower().find('cabinet') != -1:
-            key = 'CABINET'
-        elif f.lower().find('phone') != -1:
-            key = 'PHONE'
-        elif f.lower().find('personlocation') != -1:
-            key = 'PersonLocation'
-        else:
+	with open(f, 'r') as data_file:
+		key = ''
+		if f.lower().find('burner') != -1:
+			key = 'BURNER'
+		elif f.lower().find('cabinet') != -1:
+			key = 'CABINET'
+		elif f.lower().find('cleaning') != -1:
+			key = 'CLEANING'
+		elif f.lower().find('cooking') != -1:
+			key = 'COOKING'
+		elif f.lower().find('eating') != -1:
+			key = 'EATING'	
+		elif f.lower().find('handlingfood') != -1:
+			key = 'HandlingFood'	
+		elif f.lower().find('heatingfood') != -1:
+			key = 'HeatingFood'	
+		elif f.lower().find('item') != -1:
+			key = 'ITEM'
+		elif f.lower().find('motion') != -1:
+			key = 'MOTION'
+		elif f.lower().find('personlocation') != -1:
+			key = 'PersonLocation'
+		elif f.lower().find('phone') != -1:
+			key = 'PHONE'
+		elif f.lower().find('phonecall') != -1:
+			key = 'PHONECALL'
+		elif f.lower().find('probablycleaning') != -1:
+			key = 'ProbablyCleaning'
+		elif f.lower().find('temperature') != -1:
+			key = 'TEMPERATURE'
+		elif f.lower().find('washhands') != -1:
+			key = 'WashHands'
+		elif f.lower().find('water') != -1:
+			key = 'WATER'
+
+		else:
             # print 'Skipping JSON file \'' + f + '\''
-            continue
+			continue
 
-        raw_data = json.load(data_file)
-        for d in raw_data:
-            d.update({"Event Type" : key})
+		raw_data = json.load(data_file)
+		for d in raw_data:
+			d.update({"Event Type" : key})
 
-        session_data += raw_data
+		session_data += raw_data
 
 base_session_data = [elem for elem in session_data if elem["Event Type"] in raw_event_types]
 derived_session_data = [elem for elem in session_data if not elem["Event Type"] in raw_event_types]
@@ -227,14 +244,23 @@ df_status = pd.concat([df_status_base, df_status_derived], ignore_index = True)
 
 # Set color map for different event types
 colors = {
-    'MOTION': 'rgb(211, 211, 211)',
-    'ITEM': 'rgb(169, 169, 169)',
-    'BURNER': 'rgb(0, 220, 0)',
-    'WATER': 'rgb(0, 0, 220)',
+ 
+    'BURNER': 'rgb(0, 220, 0)',	
     'CABINET': 'rgb(220, 0, 0)',
-    'TEMPERATURE': 'rgb(220, 0, 220)',
-    'PHONE': 'rgb(0, 220, 220)',
-    'PersonLocation': 'rgb(0, 169, 0)'
+	'CLEANING':  'rgb(0, 169, 0)',
+	'COOKING':  'rgb(0, 169, 0)',
+	'EATING':  'rgb(0, 169, 0)',
+	'HandlingFood':  'rgb(0, 169, 0)',
+	'HeatingFood':  'rgb(0, 169, 0)',
+	'ITEM': 'rgb(169, 169, 169)',
+	'MOTION': 'rgb(211, 211, 211)',
+	'PersonLocation': 'rgb(0, 169, 0)',
+	 'PHONE': 'rgb(0, 220, 220)',
+	'PHONECALL':  'rgb(0, 169, 0)',
+	'ProbablyCleaning':  'rgb(0, 169, 0)',
+	'TEMPERATURE': 'rgb(220, 0, 220)',
+	'WashHands':  'rgb(0, 169, 0)',
+	'WATER': 'rgb(0, 0, 220)',
 }
 
 # Create Gantt figure

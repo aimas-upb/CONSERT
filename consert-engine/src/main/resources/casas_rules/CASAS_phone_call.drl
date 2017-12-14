@@ -10,10 +10,15 @@ import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
+import org.aimas.consert.tests.casas.assertions.PhoneCall
+
+import java.util.Date;
+
 import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
 
+/*
 rule "Using Phone Book"
 	when
 	    $loc: PersonLocation(location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
@@ -23,14 +28,15 @@ rule "Using Phone Book"
 	    
 	    UsingPhoneBook phoneBook = new UsingPhoneBook();
 	    eventTracker.insertStaticEvent(phoneBook);
-end    
+end
+*/
 
 rule "Phone Call Start"
 	when
 	    $phone: Phone(value == "START") from entry-point "ExtendedPhoneStream"
-	    $loc: PersonLocation(location == "DiningTable", this annIncludes $phone) from entry-point "ExtendedPersonLocationStream"
+	    $loc: PersonLocation(location == "DiningTable", this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
 	then
-	    System.out.println("////// Triggering PHONE CALL START following events: " + $loc + " AND " + $item + "\n");    
+	    System.out.println("////// Triggering PHONE CALL START following events: " + $loc + " AND " + $phone + "\n");
 	    
 	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
@@ -43,11 +49,11 @@ end
 rule "Phone Call Ongoing"
 	when
 	    $phone: Phone(value == "START") from entry-point "ExtendedPhoneStream"
-	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations, this annIncludes $phone) from entry-point "ExtendedPersonLocationStream"
+	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations, this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
 	    $call: PhoneCall(callAnn : annotations, this annIntersects $loc) from entry-point "ExtendedPhoneCallStream"
 	    
 	then
-	    System.out.println("////// Triggering PHONE CALL ONGOING following events: " + $loc + " AND " + $call + " AND " + $item + "\n");
+	    System.out.println("////// Triggering PHONE CALL ONGOING following events: " + $loc + " AND " + $call + " AND " + $phone + "\n");
 	    
 	    AnnotationData ann = callAnn.applyCombinationOperator(locAnn);
 	    PhoneCall phoneCall = new PhoneCall(ann);
