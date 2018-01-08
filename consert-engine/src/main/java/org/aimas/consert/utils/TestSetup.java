@@ -9,6 +9,8 @@ import org.kie.api.KieBaseConfiguration;
 import org.kie.api.conf.EventProcessingOption;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.KieSessionConfiguration;
+import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
@@ -16,19 +18,23 @@ import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.builder.conf.RuleEngineOption;
 import org.kie.internal.definition.KnowledgePackage;
-import org.kie.internal.io.ResourceFactory;
+import org.kie.internal.io.ResourceFactory; 
 
 public class TestSetup {
 	public static RuleEngineOption 		PHREAK = RuleEngineOption.PHREAK;
 	public static EventProcessingOption STREAM = EventProcessingOption.STREAM;
 	
 	public static KieSession getKieSessionFromResources( String... classPathResources ) {
-        return getKieSessionFromResources(null, classPathResources);
+        return getKieSessionFromResources(null, null, classPathResources);
     }
     
-	public static KieSession getKieSessionFromResources(KnowledgeBuilderConfiguration kbuilderConf, String... classPathResources ) {
+	public static KieSession getKieSessionFromResources(KnowledgeBuilderConfiguration kbuilderConf, 
+			KieSessionConfiguration kSessionConfig,
+			String... classPathResources ) {
+		
 		KieBase kbase = loadKnowledgeBase( kbuilderConf, null, classPathResources );
-        return kbase.newKieSession();
+		
+        return kbase.newKieSession(kSessionConfig, null);
 	}
 	
 	public static KnowledgeBase loadKnowledgeBase(KnowledgeBuilderConfiguration kbuilderConf, KieBaseConfiguration kbaseConf, String... classPathResources) {
@@ -86,6 +92,7 @@ public class TestSetup {
 	
 	public static File getFileNameFromResources(String fileName) {
         ClassLoader classLoader = TestSetup.class.getClassLoader();
+        //System.out.println("[TEST_SETUP] Getting file: " + fileName);
         return new File(classLoader.getResource(fileName).getFile());
     }
 }

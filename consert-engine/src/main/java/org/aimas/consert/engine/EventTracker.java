@@ -146,16 +146,16 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 			    			// create event clone
 							//System.out.println( updatedEvent.getProcessingTimeStamp());
 		    				//System.out.println("FOUND EXTENSION for existing event: " + updatedEvent + ", new event: " + event);
-			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
-			    					.applyExtensionOperator(event.getAnnotations());
-			    			
-			    			updatedEvent.setAnnotations(updatedAnnotations);
 			    			
 			    			// if the event allows continuity, remove the old instance and insert the new one
 			    			if (existingEventHandle != null)
 			    				existingEventEntry.delete(existingEventHandle);
 			    			
 			    			trackedAssertionStore.removeSensed(existingEventData);
+			    			
+			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
+			    					.applyExtensionOperator(event.getAnnotations());
+			    			updatedEvent.setAnnotations(updatedAnnotations);
 			    			
 			    			String extendedEventStream = updatedEvent.getExtendedStreamName();
 			    			FactHandle handle = kSession.getEntryPoint(extendedEventStream).insert(updatedEvent);
@@ -170,6 +170,8 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		    					// if allowed by confidence allowed, set the new event as the most recently valid one
 		    					trackedAssertionStore.removeSensed(existingEventData);
 		    					trackedAssertionStore.trackSensed(event, newEventHandle, kSession.getEntryPoint(eventStream));
+		    					
+		    					System.out.println("NO ANNOTATION EXTENSION FOUND for existing event: " + updatedEvent + ", new event: " + event);
 		    				}
 			    		}
 		    		}
@@ -179,13 +181,13 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		    				// if the confidence value check allows it to be inserted,
 							// add it to the list of monitored events for this type
 		    				trackedAssertionStore.trackSensed(event, newEventHandle, kSession.getEntryPoint(eventStream));
+		    			
+		    				System.out.println("~~~~~~~~~~~~~~~~~~ NO EXTENSION FOUND for event: " + event);
 		    			}
 		    		}
 					
 				}
 			});
-    		
-    		
     	}
     }
     
@@ -317,7 +319,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
     
     @Override
 	public void objectDeleted(ObjectDeletedEvent event) {
-		System.out.println("DELETED EVENT object: " + event.getOldObject());
+		System.out.println("TRACKER DELETED EVENT object: " + event.getOldObject());
 		System.out.println("	HANDLE: " + event.getFactHandle());
 		
 		if (event.getRule() != null) {
@@ -338,7 +340,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 	
     @Override
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
-		System.out.println("INSERTED EVENT object: " + insertEvent.getObject());
+		System.out.println("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
 		System.out.println("	HANDLE: " + insertEvent.getFactHandle());
 		if (insertEvent.getRule() != null) {
 			System.out.println("	RULE: " + insertEvent.getRule().getName());
