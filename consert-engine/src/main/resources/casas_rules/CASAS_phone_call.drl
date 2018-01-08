@@ -18,6 +18,11 @@ import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
 
+
+declare PhoneCall
+    @role(event)
+end
+
 /*
 rule "Using Phone Book"
 	when
@@ -31,32 +36,34 @@ rule "Using Phone Book"
 end
 */
 
-rule "Phone Call Start"
+rule "Phone Call"
 	when
-	    $phone: Phone(value == "START") from entry-point "ExtendedPhoneStream"
-	    $loc: PersonLocation(location == "DiningTable", this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
+	    $phone: Phone(status == "START", phoneAnn : annotations#DefaultAnnotationData) from entry-point "PhoneStream"
+	    not (Phone(this after $phone) from entry-point "PhoneStream")
+	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData, this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
 	then
-	    System.out.println("////// Triggering PHONE CALL START following events: " + $loc + " AND " + $phone + "\n");
+	    System.out.println("////// Triggering PHONE CALL following events: " + $loc + " AND " + $phone + "\n");
 	    
-	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), phoneAnn.getStartTime(), new Date(ts));
 	    
 	    PhoneCall phoneCall = new PhoneCall(ann);
 	    eventTracker.insertDerivedEvent(phoneCall);
 end
 
+/*
 rule "Phone Call Ongoing"
 	when
-	    $phone: Phone(value == "START") from entry-point "ExtendedPhoneStream"
-	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations, this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
-	    $call: PhoneCall(callAnn : annotations, this annIntersects $loc) from entry-point "ExtendedPhoneCallStream"
-	    
+	    $phone: Phone(value == "START") from entry-point "PhoneStream"
+	    not (Phone(this after $phone) from entry-point "PhoneStream")
+	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations, this annIncludes $phone) from entry-point "ExtendedPersonLocationStream"
+	    exists PhoneCall(callAnn : annotations, this annIntersects $loc) from entry-point "ExtendedPhoneCallStream"
 	then
-	    System.out.println("////// Triggering PHONE CALL ONGOING following events: " + $loc + " AND " + $call + " AND " + $phone + "\n");
+	    System.out.println("////// Triggering PHONE CALL ONGOING following events: " + $loc + " AND " + $phone + "\n");
 	    
 	    AnnotationData ann = callAnn.applyCombinationOperator(locAnn);
 	    PhoneCall phoneCall = new PhoneCall(ann);
 	    
 	    eventTracker.insertDerivedEvent(phoneCall);
 end
+*/

@@ -16,10 +16,12 @@ import org.aimas.consert.tests.casas.assertions.HandlingFood
 import org.aimas.consert.tests.casas.assertions.HeatingFood
 
 import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.utils.AssertionLogger
 
 import java.util.Date;
 
 global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
 
 /*
 I01 = oatmeal
@@ -39,33 +41,43 @@ declare HandlingFood
     @role(event)
 end
 
-
-rule "start handling food"
-	when 
-	    $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
-	    $food : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", 
-	                   status == "ABSENT", this annHappensAfter[0s, 10s] $loc) from entry-point "ExtendedItemStream"
-	then 
-	    System.out.println("////// Triggering START HANDLING FOOD rule following events: " + $loc + " AND " + $food + "\n");
-	        
-	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
-	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-            Date startTime = locAnn.getStartTime();
-	    Date endTime = new Date(ts);
-	    
-	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), startTime, endTime);
-	    HandlingFood handlingFood = new HandlingFood(ann);
-	    
-	    eventTracker.insertDerivedEvent(handlingFood);
+declare HeatingFood
+    @role(event)
 end
 
-rule "keep handling food"
-duration(5s) 
+declare Cooking
+    @role(event)
+end
+
+//rule "start handling food"
+//	when 
+//	    $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+//	    $food : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", 
+//	                   status == "ABSENT", $loc annIncludes this) from entry-point "ItemStream"
+//	    not (Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", 
+//                      status == "ABSENT", this != $food, this after $food) from entry-point "ItemStream" )
+//	then 
+//	    System.out.println("////// Triggering START HANDLING FOOD rule following events: " + $loc + " AND " + $food + "\n");
+//	        
+//	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
+//	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+//           Date startTime = locAnn.getStartTime();
+//	    Date endTime = new Date(ts);
+//	    
+//	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), startTime, endTime);
+//	    HandlingFood handlingFood = new HandlingFood(ann);
+//	    
+//	    eventTracker.insertDerivedEvent(handlingFood);
+//end
+
+rule "handling food" 
 	when 
-	    $item : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", status == "ABSENT") from entry-point "ExtendedItemStream"
-	    $food : HandlingFood() over time:window(10s) from entry-point "ExtendedHandlingFoodStream"
+	    $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+	    $item : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", status == "ABSENT", $loc annIncludes this) from entry-point "ItemStream"
+	    //not ( Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", status == "ABSENT", 
+	    //           this != $item, this after $item) from entry-point "ItemStream" )
 	then
-	    System.out.println("////// Triggering KEEP HANDLING FOOD rule following events: " + $food + " AND " + $item + "\n");
+	    System.out.println("////// Triggering HANDLING FOOD rule following events: " + $loc + " AND " + $item + "\n");
 	        
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
@@ -91,11 +103,13 @@ then
     
     eventTracker.insertAtomicEvent(prepFood);
 */  
-    
+
+ 
 rule "heating food using burner"
 	when
-	    $food : HandlingFood() over time:window(10s) from entry-point "ExtendedHandlingFoodStream"
-	    $burner : Burner(value > 0) from entry-point "BurnerStream"
+	    $food : HandlingFood() from entry-point "ExtendedHandlingFoodStream"
+	    $burner : Burner(value > 0, this annIntersects $food) from entry-point "BurnerStream"
+	    not ( Burner(value > 0, this != $burner, this after $burner) from entry-point "BurnerStream")
 	then
 	    System.out.println("////// Triggering HEATING FOOD rule following events: " + $food + " AND " + $burner + "\n");
 	        
@@ -105,6 +119,7 @@ rule "heating food using burner"
 	    
 	    eventTracker.insertAtomicEvent(heatingFood);
 end    
+
 
 rule "cooking detected"
 	when
@@ -130,6 +145,7 @@ end
 rule "cooking continued"
 	when 
 	    $cook : Cooking(cookAnn : annotations#DefaultAnnotationData) from entry-point "ExtendedCookingStream"
+	    not (Cooking(this != $cook, this after $cook))
 	    $food : HandlingFood(foodAnn : annotations#DefaultAnnotationData, this annIncludes $cook) from entry-point "ExtendedHandlingFoodStream"
 	then
 	    System.out.println("////// Triggering COOKING CONTINUED rule following events: " + $cook + " AND " + $food + "\n");

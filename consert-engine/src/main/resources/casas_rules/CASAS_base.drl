@@ -9,7 +9,9 @@ import org.aimas.consert.tests.casas.assertions.Temperature
 import org.aimas.consert.tests.casas.assertions.Burner
 import org.aimas.consert.tests.casas.assertions.Phone
 import org.aimas.consert.tests.casas.assertions.PersonLocation
-
+import org.aimas.consert.tests.casas.assertions.HandlingFood
+import org.aimas.consert.tests.casas.assertions.HeatingFood
+import org.aimas.consert.tests.casas.assertions.PhoneCall
 
 import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
@@ -29,14 +31,14 @@ end
 declare Item
     @role(event)
     //@timestamp(startTimestamp)
-    @duration(eventDuration)
+    //@duration(eventDuration)
 end
 
 
 declare Cabinet
     @role(event)
     //@timestamp(startTimestamp)
-    @duration(eventDuration)
+    //@duration(eventDuration)
 end
 
 declare Water
@@ -61,8 +63,17 @@ end
 declare Phone
     @role(event)
     //@timestamp(startTimestamp)
-    @duration(eventDuration)
+    //@duration(eventDuration)
 end
+
+declare HandlingFood
+    @role(event)
+end
+
+declare HeatingFood
+    @role(event)
+end
+
 
 // =========== BaseEvent insert rules - needed to crea      te the event streams
 /*
@@ -75,15 +86,15 @@ end
 */
 
 rule "ItemInsertTest"
+    salience(-10)
     when
         $item : Item(id : sensorId, status : status) from entry-point "ItemStream" 
     then
         System.out.println("Inserted ITEM event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$item.getStartTimestamp());
-
-            long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-             DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-            Item item = new Item(id, status, ann);
-           // eventTracker.insertAtomicEvent(item);
+        //long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        //Item item = new Item(id, status, ann);
+        // eventTracker.insertAtomicEvent(item);
 end
 
 rule "CabinetInsertTest"
@@ -91,11 +102,6 @@ rule "CabinetInsertTest"
         $cabinet : Cabinet(id : sensorId, status : status) from entry-point "CabinetStream" 
     then
         System.out.println("Inserted CABINET event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$cabinet.getStartTimestamp());
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-        Cabinet cabinet = new Cabinet(id, status, ann);
-      //  eventTracker.insertAtomicEvent(cabinet);
-
 end
 
 rule "WaterInsertTest"
@@ -103,11 +109,6 @@ rule "WaterInsertTest"
         $water : Water(id : sensorId, val : value) from entry-point "WaterStream" 
     then
         System.out.println("Inserted WATER event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$water.getStartTimestamp());
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-        Water water = new Water(id, val, ann);
-        eventTracker.insertAtomicEvent(water);
-
 end
 
 rule "TemperatureInsertTest"
@@ -115,10 +116,6 @@ rule "TemperatureInsertTest"
         $temp : Temperature(id : sensorId, val : value) from entry-point "TemperatureStream" 
     then
         System.out.println("Inserted TEMPERATURE event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$temp.getStartTimestamp());
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-        Temperature temperature = new Temperature(id,val, ann);
-        eventTracker.insertAtomicEvent(temperature);
 end
 
 rule "BurnerInsertTest"
@@ -126,24 +123,14 @@ rule "BurnerInsertTest"
         $burner : Burner(val : value) from entry-point "BurnerStream" 
     then
         System.out.println("Inserted BURNER event with value: " + val + ", timestamp: " + (long)$burner.getStartTimestamp());
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-        Burner burner = new Burner(val, ann);
-        eventTracker.insertAtomicEvent(burner);
-
 end
 
 
 rule "PhoneInsertTest"
     when
-        $phone : Phone(val : value) from entry-point "PhoneStream" 
+        $phone : Phone(val : status) from entry-point "PhoneStream" 
     then
         System.out.println("Inserted PHONE event with value: " + val + ", timestamp: " + (long)$phone.getStartTimestamp());
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-        Phone phone = new Phone(val, ann);
-        eventTracker.insertAtomicEvent(phone);
-
 end
 
 
@@ -163,4 +150,52 @@ rule "PersonLocationExtended"
     then
         System.out.println("Inserted EXTENDED PersonLocation event with location: " + location + ", timestamp: " + (long)$loc.getStartTimestamp() + 
         " duration: " + (long)$loc.getEventDuration());
+end
+
+
+rule "HandlingFoodTest"
+    salience -10
+    when
+        $food : HandlingFood() from entry-point "HandlingFoodStream" 
+    then
+        System.out.println("Inserted HandlingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
+        " duration: " + (long)$food.getEventDuration());
+end
+
+rule "ExtendedHandlingFood"
+    salience -10
+    when
+        $food : HandlingFood() from entry-point "ExtendedHandlingFoodStream" 
+    then
+        System.out.println("Inserted EXTENDED HandlingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
+        " duration: " + (long)$food.getEventDuration());
+end
+
+
+rule "HeatingFoodTest"
+    salience -10
+    when
+        $food : HeatingFood() from entry-point "HeatingFoodStream" 
+    then
+        System.out.println("Inserted HeatingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
+        " duration: " + (long)$food.getEventDuration());
+end
+
+
+rule "ExtendedHeatingFoodTest"
+    salience -10
+    when
+        $food : HeatingFood() from entry-point "ExtendedHeatingFoodStream" 
+    then
+        System.out.println("Inserted ExtendedHeatingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
+        " duration: " + (long)$food.getEventDuration());
+end
+
+rule "ExtendedPhoneCallTest"
+    salience -10
+    when
+        $phone : PhoneCall() from entry-point "ExtendedPhoneCallStream" 
+    then
+        System.out.println("Inserted ExtendedPhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() + 
+        " duration: " + (long)$phone.getEventDuration());
 end

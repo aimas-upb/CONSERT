@@ -14,11 +14,11 @@ public class HeatingFood extends BinaryContextAssertion {
 
     public HeatingFood() {}
     public HeatingFood(AnnotationData annotations) {
-        super(new StringLiteral("HeatingFood"),new StringLiteral("HeatingFood"),  AcquisitionType.SENSED, annotations);
+        super(new StringLiteral("HeatingFood"),new StringLiteral("HeatingFood"),  AcquisitionType.DERIVED, annotations);
 
     }
     public HeatingFood(String sensorId, String status, AnnotationData annotations) {
-        super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
+        super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.DERIVED, annotations);
 
         this.sensorId = sensorId;
         this.status = status;

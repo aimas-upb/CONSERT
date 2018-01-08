@@ -11,6 +11,8 @@ import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
 import org.aimas.consert.tests.casas.assertions.WashHands
+import org.aimas.consert.tests.casas.assertions.Cleaning
+import org.aimas.consert.tests.casas.assertions.HandlingFood
 
 import java.util.Date;
 
@@ -18,29 +20,46 @@ import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
 
+declare WashHands
+    @role(event)
+end
+
+declare Cleaning
+    @role(event)
+end
+
+declare HandlingFood
+    @role(event)
+end
+
 rule "StartWashingHands"
-       when
-           $loc: PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
-           $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , val : value, this annIntersects $loc) from entry-point "ExtendedWaterStream"
-       then
-             System.out.println("////// Triggering START WASHING HANDS following events: " + $loc + " AND " + $water + "\n");
-             DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
-             long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-             DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
-             WashHands washHands = new WashHands(ann);
-             eventTracker.insertAtomicEvent(washHands);
-   end
+   when
+        $loc: PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+        $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , val : value, this annIntersects $loc) from entry-point "WaterStream"
+        not ( Cleaning(this annIntersects $loc) from entry-point "ExtendedCleaningStream" )
+        not ( HandlingFood(this annIntersects $loc) from entry-point "ExtendedHandlingFoodStream" )
+   then
+        System.out.println("////// Triggering START WASHING HANDS following events: " + $loc + " AND " + $water + "\n");
+        DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+        WashHands washHands = new WashHands(ann);
+        eventTracker.insertDerivedEvent(washHands);
+end
 
 rule "Washing Hands Ongoing"
+    salience(10)
 	when
 	    $loc: PersonLocation(location == "Kitchen", locAnn : annotations) from entry-point "ExtendedPersonLocationStream"
-        $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , val : value, this annIntersects $loc) from entry-point "ExtendedWaterStream"
-	    $wash:  WashHands(washAnn : annotations, this annOverlaps $loc) from entry-point "ExtendedWashHandsStream"
-
+        $wash:  WashHands(washAnn : annotations, this annOverlaps $loc || $loc annIncludes this) from entry-point "ExtendedWashHandsStream"
+        $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , this annIntersects $loc) from entry-point "WaterStream"
+	    not ( Water(sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C", this != $water, this after $water) from entry-point "WaterStream" )
+        not ( Cleaning(this annIntersects $loc) from entry-point "ExtendedCleaningStream" )
+        not ( HandlingFood(this annIntersects $loc) from entry-point "ExtendedHandlingFoodStream" )
+        
 	then
-      //  System.out.println("////// Triggering WASHING HANDS ONGOING following events: " + $loc + " AND " + $water + " AND " + $wash + "\n");
-
+        System.out.println("////// Triggering WASHING HANDS ONGOING following events: " + $loc + " AND " + $water + " AND " + $wash + "\n");
 	    AnnotationData ann = washAnn.applyCombinationOperator(locAnn);
 	    WashHands washHands = new WashHands(ann);
-        eventTracker.insertAtomicEvent(washHands);
+        eventTracker.insertDerivedEvent(washHands);
 end

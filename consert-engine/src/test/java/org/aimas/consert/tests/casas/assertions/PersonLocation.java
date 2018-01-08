@@ -11,7 +11,7 @@ public class PersonLocation extends UnaryContextAssertion {
 	}
 	
 	public PersonLocation(String location, AnnotationData annotations) {
-		super(new StringLiteral(location), AcquisitionType.SENSED, annotations);
+		super(new StringLiteral(location), AcquisitionType.DERIVED, annotations);
 		
 		this.location = location;
 	}

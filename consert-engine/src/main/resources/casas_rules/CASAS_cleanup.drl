@@ -23,11 +23,40 @@ import java.util.Date;
 
 global EventTracker eventTracker;
 
+
+declare ProbablyCleaning
+    @role(event)
+end
+
+declare Cleaning
+    @role(event)
+end
+
+
+declare Eating
+    @role(event)
+end
+
+/*
+I01 = oatmeal
+I02 = raisins
+I03 = brown sugar
+I04 = bowl
+I05 = spoon
+
+I06 = medicine
+I07 = pot
+
+I08 = phone book
+D01 = cabinet
+*/
+
+
 rule "Probably Cleaning"
 	when
 	    $loc: PersonLocation(location=="Kitchen") from entry-point "ExtendedPersonLocationStream"
-	    $locPrev: PersonLocation(location=="DiningRoom", this annHappensBefore[0s, 10s] $loc) from entry-point "ExtendedPersonLocationStream"
-	    $eat: Eating(this annHappensBefore[0s, 30s] $loc) from entry-point "ExtendedEatingStream"
+	    $locPrev: PersonLocation(location=="DiningTable", this annHappensBefore[0s, 10s] $loc) from entry-point "ExtendedPersonLocationStream"
+	    $eat: Eating(this annHappensBefore[0s, 60s] $loc) from entry-point "ExtendedEatingStream"
 	then
 	    System.out.println("////// Triggering PROBABLY CLEANING rule following events: " + $loc + " AND " + 
 	        $locPrev + " AND " + $eat + "\n");
@@ -35,10 +64,13 @@ rule "Probably Cleaning"
 	    DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
 	    
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-	   // ProbablyCleaning probClean = new ProbablyCleaning(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
-	     ProbablyCleaning probClean = new ProbablyCleaning(ann);
+	    ProbablyCleaning probClean = new ProbablyCleaning(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+	    
 	    eventTracker.insertDerivedEvent(probClean);
+	    
+	    //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+	    //ProbablyCleaning probClean = new ProbablyCleaning(ann);
+	    //eventTracker.insertAtomicEvent(probClean);
 end    
     
 rule "Probably Cleaning perpatuated"
@@ -61,9 +93,8 @@ rule "Definitely Cleaning 1"
 	when
 	    $probClean: ProbablyCleaning(probCleanAnn : annotations) from entry-point "ExtendedProbablyCleaningStream"
 	    not ( Cleaning(this annIntersects $probClean) from entry-point "ExtendedCleaningStream")
-	    $item: Item(sensorId == "I01" || sensorId == "I06" || sensorId == "I02" || sensorId == "I03", status == "PRESENT") from entry-point "ExtendedItemStream"
-	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $item) 
-	        from entry-point "ExtendedPersonLocationStream"
+	    $item: Item(sensorId == "I01" || sensorId == "I06" || sensorId == "I02" || sensorId == "I03", status == "PRESENT") from entry-point "ItemStream"
+	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $item) from entry-point "ExtendedPersonLocationStream"
 	then
 	    System.out.println("////// Triggering CLEANING rule following events: " + $probClean + 
 	        " AND " + $item + " AND " + $loc + "\n");
@@ -85,7 +116,7 @@ rule "Definitely Cleaning 2"
 	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $water) 
 	        from entry-point "ExtendedPersonLocationStream"
 	then
-	    System.out.println("////// Triggering CLEANING rule following events: " + $probClean + 
+	    System.out.println("////// Triggering DEFINITELY CLEANING rule following events: " + $probClean + 
 	        " AND " + $water + " AND " + $loc + "\n");
 	    
 	    AnnotationData ann1 = probCleanAnn.applyExtensionOperator(waterAnn);
@@ -102,7 +133,7 @@ rule "Keep Cleaning"
 	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $water, this annIncludes $clean) 
 	        from entry-point "ExtendedPersonLocationStream"
 	then
-	    System.out.println("////// Triggering CLEANING rule following events: " + $clean + 
+	    System.out.println("////// Triggering DEFINITELY   CLEANING CONTINUED rule following events: " + $clean + 
 	        " AND " + $water + " AND " + $loc + "\n");
 	    
 	    AnnotationData ann1 = cleanAnn.applyExtensionOperator(waterAnn);

@@ -1,6 +1,7 @@
 package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
@@ -17,16 +18,20 @@ public class ProbablyCleaning extends BinaryContextAssertion {
     Date start;
     Date current;
     public ProbablyCleaning() {}
+    
     public ProbablyCleaning(AnnotationData annotations) {
-        super(new StringLiteral("ProbablyCleaning"),new StringLiteral("ProbablyCleaning"),  AcquisitionType.SENSED, annotations);
+        super(new StringLiteral("ProbablyCleaning"),new StringLiteral("ProbablyCleaning"),  AcquisitionType.DERIVED, annotations);
 
     }
+    
     public ProbablyCleaning(long timestamp, double confidence, Date start, Date current) {
-        super(new StringLiteral("ProbablyCleaning"),new StringLiteral("ProbablyCleaning"),  AcquisitionType.SENSED, null);
+        super(new StringLiteral("ProbablyCleaning"),new StringLiteral("ProbablyCleaning"),  AcquisitionType.DERIVED, 
+        		new DefaultAnnotationData(timestamp, confidence, start, current));
 
     }
+    
     public ProbablyCleaning(String sensorId, String status, AnnotationData annotations) {
-        super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
+        super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.DERIVED, annotations);
 
         this.sensorId = sensorId;
         this.status = status;
