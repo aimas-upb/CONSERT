@@ -17,6 +17,8 @@ epoch = datetime.datetime.utcfromtimestamp(0)
 epoch = epoch.replace(tzinfo=pytz.UTC)
 
 
+activity_types = ["Phone_Call", "Wash_hands", "Cook", "Eat", "Clean"]
+
 def build_sensors():
     # add motion sensors
     for sensor_id in range(1, 52):
@@ -129,7 +131,7 @@ def unix_time_millis(dt):
 def safe_open(input_file_path):
     try:
         input_file = codecs.open(input_file_path, 'r', 'utf-8')
-        input_file.readline()
+        #input_file.readline()
     except UnicodeDecodeError:
         input_file = codecs.open(input_file_path, 'r', 'utf-16')
     return input_file
@@ -137,7 +139,8 @@ def safe_open(input_file_path):
 
 def to_json(input_file_path, has_class=False):
     event_list = []
-    output_file = open(output_file_path, 'w')
+    activity_intervals = {}
+
     with safe_open(input_file_path) as input_file:
         for line in input_file:
             tokens = line.strip().replace('\t', ' ').split(' ')
@@ -148,6 +151,7 @@ def to_json(input_file_path, has_class=False):
                 print("[ERROR] Date not correctly formatted: " + line + ". Ignoring ...")
                 #sys.exit(-1)
                 continue
+            datetime = datetime.replace(tzinfo=pytz.UTC)
 
             # parse and validate event type
             event_id = tokens[2]
@@ -186,7 +190,19 @@ def to_json(input_file_path, has_class=False):
 
             # parse and validate event class
             if has_class:
-                event_class = tokens[4]
+                if len(tokens) == 6:
+                    event_class = tokens[4]
+                    interval_tick = tokens[5]
+
+                    if event_class in activity_types: 
+                        if not event_class in activity_intervals and interval_tick == "begin":
+                            activity_intervals[event_class] = {
+                                "start" : int(unix_time_millis(datetime))
+                            }
+                        elif event_class in activity_intervals and interval_tick == "end":
+                            activity_intervals[event_class].update({
+                                "end" : int(unix_time_millis(datetime))
+                            })
 
             event = create_json_event(event_id, event_value, datetime)
             # event = {
@@ -203,7 +219,7 @@ def to_json(input_file_path, has_class=False):
             # }
 
             event_list.append(event)
-    return event_list
+    return event_list, activity_intervals
 
 
 def create_json_event(event_id, event_value, dt):
@@ -214,7 +230,8 @@ def create_json_event(event_id, event_value, dt):
                 "event": {
                     "event_type": sensors[event_id]['type'],
                     "event_info": {
-                        "value": event_value,
+                        "sensorId": "phone",
+                        "status": event_value,
                         "annotations": {
                             "confidence": 1,
                             "startTime": dt.isoformat(),
@@ -277,11 +294,26 @@ def create_json_event(event_id, event_value, dt):
 
 
 
-def to_json_file(input_file_path, output_file_path, has_class=False):
-    event_list = to_json(input_file_path, has_class)
+def to_json_file(input_file_path, output_file_path, activity_interval_file_path, has_class=False):
+    event_list, activity_intervals = to_json(input_file_path, has_class)
     if event_list:
         with open(output_file_path, 'w') as outfile:
             json.dump(event_list, outfile)
+
+    if activity_intervals:
+        print (activity_intervals)
+        # process the activity_intervals to add the relative difference from the first timestamp
+        # in the ADL Normal dataset this is always the Phone_call
+        start_ts = activity_intervals["Phone_Call"]["start"]
+
+        for k in activity_intervals.keys():
+            activity_intervals[k].update({
+                "relative_start" : activity_intervals[k]["start"] - start_ts,
+                "relative_end" : activity_intervals[k]["end"] - start_ts
+            })
+
+        with open(activity_interval_file_path, 'w') as outfile:
+            json.dump(activity_intervals, outfile) 
 
 
 if not len(sys.argv) == 2:
@@ -309,9 +341,10 @@ if os.path.isdir(sys.argv[1]):
             continue
         #output_file_path = input_file_path + ".json"
         output_file_path = os.path.join(output_dir, file + ".json")
+        activity_interval_file_path = os.path.join(output_dir, file + "-activity_intervals" + ".json")
 
         # to_etalis_stream_file(input_file_path, output_file_path)
-        to_json_file(input_file_path, output_file_path)
+        to_json_file(input_file_path, output_file_path, activity_interval_file_path, has_class = True)
 
 elif os.path.isfile(sys.argv[1]):
     if sys.argv[1].endswith(".stream"):

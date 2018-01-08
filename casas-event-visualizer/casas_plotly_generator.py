@@ -166,10 +166,10 @@ for f in files:
 			key = 'MOTION'
 		elif f.lower().find('personlocation') != -1:
 			key = 'PersonLocation'
-		elif f.lower().find('phone') != -1:
-			key = 'PHONE'
 		elif f.lower().find('phonecall') != -1:
 			key = 'PHONECALL'
+		elif f.lower().find('phone') != -1:
+			key = 'PHONE'
 		elif f.lower().find('probablycleaning') != -1:
 			key = 'ProbablyCleaning'
 		elif f.lower().find('temperature') != -1:
