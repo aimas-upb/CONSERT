@@ -375,7 +375,7 @@ public class AnnIncludesOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesEvaluatorDefinition()));
         
 		// setup KieSession
-		KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/includesTest.drl" );
+		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/includesTest.drl" );
 		EventTracker eventTracker = new EventTracker(kSession);
 		TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
 		kSession.addEventListener(agendaEvListener);
@@ -422,7 +422,7 @@ public class AnnIncludesOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesEvaluatorDefinition()));
         
 		// setup KieSession
-		KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/includesTest.drl" );
+		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/includesTest.drl" );
 		EventTracker eventTracker = new EventTracker(kSession);
 		TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
 		kSession.addEventListener(agendaEvListener);

@@ -324,7 +324,7 @@ public class AnnBeforeOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annHappensAfter", new AnnAfterEvaluatorDefinition()));
         
 		// setup KieSession
-		KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/happensBeforeTest.drl" );
+		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/happensBeforeTest.drl" );
 		EventTracker eventTracker = new EventTracker(kSession);
 		TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
 		kSession.addEventListener(agendaEvListener);
@@ -371,7 +371,7 @@ public class AnnBeforeOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annHappensAfter", new AnnBeforeEvaluatorDefinition()));
         
 		// setup KieSession
-		KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/happensBeforeTest.drl" );
+		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/happensBeforeTest.drl" );
 		EventTracker eventTracker = new EventTracker(kSession);
 		TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
 		kSession.addEventListener(agendaEvListener);

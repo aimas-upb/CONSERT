@@ -358,7 +358,7 @@ public class AnnOverlapsOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annOverlaps", new AnnOverlapsEvaluatorDefinition()));
         
 		// setup KieSession
-		KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/overlapsTest.drl" );
+		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/overlapsTest.drl" );
 		EventTracker eventTracker = new EventTracker(kSession);
 		TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
 		kSession.addEventListener(agendaEvListener);
@@ -405,7 +405,7 @@ public class AnnOverlapsOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annOverlaps", new AnnOverlapsEvaluatorDefinition()));
         
 		// setup KieSession
-		KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/overlapsTest.drl" );
+		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/overlapsTest.drl" );
 		EventTracker eventTracker = new EventTracker(kSession);
 		TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
 		kSession.addEventListener(agendaEvListener);

@@ -358,7 +358,7 @@ public class AnnIntersectsOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annIntersects", new AnnIntersectsEvaluatorDefinition()));
 
         // setup KieSession
-        KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/intersectsTest.drl" );
+        KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/intersectsTest.drl" );
         EventTracker eventTracker = new EventTracker(kSession);
         TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
         kSession.addEventListener(agendaEvListener);
@@ -405,7 +405,7 @@ public class AnnIntersectsOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annIntersects", new AnnIntersectsEvaluatorDefinition()));
 
         // setup KieSession
-        KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/intersectsTest.drl" );
+        KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/intersectsTest.drl" );
         EventTracker eventTracker = new EventTracker(kSession);
         TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
         kSession.addEventListener(agendaEvListener);

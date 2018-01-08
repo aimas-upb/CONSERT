@@ -358,7 +358,7 @@ public class AnnOverlappedByOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annOverlapedBy", new AnnOverlappedByEvaluatorDefinition()));
 
         // setup KieSession
-        KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/overlappedByTest.drl" );
+        KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/overlappedByTest.drl" );
         EventTracker eventTracker = new EventTracker(kSession);
         TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
         kSession.addEventListener(agendaEvListener);
@@ -405,7 +405,7 @@ public class AnnOverlappedByOperatorTest extends TestSetup {
         builderConf.setOption(EvaluatorOption.get("annOverlappedBy", new AnnOverlappedByEvaluatorDefinition()));
 
         // setup KieSession
-        KieSession kSession = getKieSessionFromResources(builderConf, "operator_test_rules/overlappedByTest.drl" );
+        KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/overlappedByTest.drl" );
         EventTracker eventTracker = new EventTracker(kSession);
         TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
         kSession.addEventListener(agendaEvListener);
