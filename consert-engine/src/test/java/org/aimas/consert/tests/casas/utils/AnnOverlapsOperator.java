@@ -23,6 +23,7 @@ import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.EvaluatorDefinition;
 import org.drools.core.base.evaluators.Operator;
 import org.drools.core.base.evaluators.TimeIntervalParser;
+import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.EventFactHandle;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
@@ -246,7 +247,7 @@ public class AnnOverlapsOperator extends TestSetup {
                 }
             }
 
-            TimestampPair interval1 = getTemporalInterval((EventFactHandle) right);
+            TimestampPair interval1 = getTemporalInterval(right);
             TimestampPair interval2 = getTemporalInterval(cachedAssertion);
 
             long dist = interval1.end - interval2.start;
@@ -269,8 +270,8 @@ public class AnnOverlapsOperator extends TestSetup {
             }
 
             // if both events are non-null, retrieve the TimestampPairs
-            TimestampPair interval1 = getTemporalInterval((EventFactHandle)handle1);
-            TimestampPair interval2 = getTemporalInterval((EventFactHandle)handle2);
+            TimestampPair interval1 = getTemporalInterval(handle1);
+            TimestampPair interval2 = getTemporalInterval(handle2);
 
             long dist = interval1.end - interval2.start;
 
@@ -285,16 +286,29 @@ public class AnnOverlapsOperator extends TestSetup {
             return new TimestampPair(ann.getStartTime().getTime(), ann.getEndTime().getTime());
         }
 
-        private TimestampPair getTemporalInterval(EventFactHandle handle) {
-            if (handle.getObject() instanceof ContextAssertion) {
-                ContextAssertion assertion = (ContextAssertion)handle.getObject();
+        private TimestampPair getTemporalInterval(InternalFactHandle handle) {
+        	if (handle instanceof EventFactHandle) {
+        		EventFactHandle factHandle = (EventFactHandle)handle;
+        		
+        		if (factHandle.getObject() instanceof ContextAssertion) {
+                    ContextAssertion assertion = (ContextAssertion)factHandle.getObject();
+                    DefaultAnnotationData ann = (DefaultAnnotationData)assertion.getAnnotations();
+
+                    return new TimestampPair(ann.getStartTime().getTime(), ann.getEndTime().getTime());
+                }
+                else {
+                    return new TimestampPair(factHandle.getStartTimestamp(), factHandle.getEndTimestamp());
+                }
+        	}
+        	else {
+        		// it should be a DefaultFactHandle and the object should be a ContextAssertion
+        		DefaultFactHandle factHandle = (DefaultFactHandle)handle;
+        		ContextAssertion assertion = (ContextAssertion)factHandle.getObject();
                 DefaultAnnotationData ann = (DefaultAnnotationData)assertion.getAnnotations();
 
                 return new TimestampPair(ann.getStartTime().getTime(), ann.getEndTime().getTime());
-            }
-            else {
-                return new TimestampPair(handle.getStartTimestamp(), handle.getEndTimestamp());
-            }
+        	}
+            
         }
 
 
