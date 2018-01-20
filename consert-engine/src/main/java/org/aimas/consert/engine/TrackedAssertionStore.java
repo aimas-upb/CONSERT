@@ -67,12 +67,13 @@ public class TrackedAssertionStore {
 		deleteCache = new HashSet<FactHandle>();
 	}
 	
-	public static TrackedAssertionStore getInstance() {
-		if (store == null) {
-			store = new TrackedAssertionStore();
-		}
+	public static TrackedAssertionStore getNewInstance() {
+		//if (store == null) {
+		//	store = new TrackedAssertionStore();
+		//}
 		
-		return store;
+		//return store;
+		return new TrackedAssertionStore();
 	}
 	
 	public TrackedEventData searchSensedAssertionByContent(ContextAssertion event) {

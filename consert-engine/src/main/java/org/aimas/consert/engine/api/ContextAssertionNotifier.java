@@ -43,11 +43,12 @@ public class ContextAssertionNotifier {
 		}
 	}
 	
-	public static ContextAssertionNotifier getInstance() {
-		if (instance == null) {
-			instance = new ContextAssertionNotifier();
-		}
+	public static ContextAssertionNotifier getNewInstance() {
+		//if (instance == null) {
+		//	instance = new ContextAssertionNotifier();
+		//}
 		
-		return instance;
+		//return instance;
+		return new ContextAssertionNotifier();
 	}
 }

@@ -22,11 +22,11 @@ import org.kie.api.runtime.rule.FactHandle;
 
 public class EventTracker extends BaseEventTracker implements ContextAssertionListenerRegistrer {
 	
-	private TrackedAssertionStore trackedAssertionStore = TrackedAssertionStore.getInstance();
+	private TrackedAssertionStore trackedAssertionStore = TrackedAssertionStore.getNewInstance();
 	
 	private AnnotationDataFactory annotationFactory = new DefaultAnnotationDataFactory();
 	
-	private ContextAssertionNotifier eventNotifier = ContextAssertionNotifier.getInstance();
+	private ContextAssertionNotifier eventNotifier = ContextAssertionNotifier.getNewInstance();
 	
 	public AnnotationDataFactory getAnnotationFactory() {
 		return annotationFactory;
@@ -81,6 +81,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 				ann.setStartTime(new Date(getCurrentTime()));
 				ann.setEndTime(new Date(getCurrentTime()));
 			}
+			
 			/* shouldn't be null but it is*/
 			if (kSession.getEntryPoint(eventStream)!=null)
 				kSession.getEntryPoint(eventStream).insert(event);
@@ -229,7 +230,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		String derivedStreamName = derivedEvent.getStreamName();
 		EntryPoint derivedEventStream = kSession.getEntryPoint(derivedStreamName);
 		
-		//System.out.println("Derived Event Stream name: " + derivedStreamName);
+		System.out.println("Derived Event Stream name: " + derivedStreamName);
 		
 		
 		for (Object eventObj : derivedEventStream.getObjects()) {
@@ -240,7 +241,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 				if (event.getAnnotations() != null) {
 					// and they have the same validity interval
 					if (event.getAnnotations().hasSameValidity(derivedEvent.getAnnotations())) {
-						System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
+						//System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
 						return true;
 					}
 				}
@@ -291,7 +292,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		    			
 		    			
 		    			if (updatedEvent.isOverlappedBy(eventObject)) {
-			    			System.out.println("!!!!!!!!!![EventTracker] Analyzing garbage collection for DEDUCED event " + updatedEvent);
+			    			//System.out.println("!!!!!!!!!![EventTracker] Analyzing garbage collection for DEDUCED event " + updatedEvent);
 		    				
 			    			if (existingEventHandle != null) 
 			    				existingEventEntry.delete(existingEventHandle);
@@ -319,13 +320,13 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
     
     @Override
 	public void objectDeleted(ObjectDeletedEvent event) {
-		System.out.println("TRACKER DELETED EVENT object: " + event.getOldObject());
-		System.out.println("	HANDLE: " + event.getFactHandle());
+		//System.out.println("TRACKER DELETED EVENT object: " + event.getOldObject());
+		//System.out.println("	HANDLE: " + event.getFactHandle());
 		
-		if (event.getRule() != null) {
-			System.out.println("	RULE: " + event.getRule().getName());
-		}
-		System.out.println();
+		//if (event.getRule() != null) {
+		//	System.out.println("	RULE: " + event.getRule().getName());
+		//}
+		//System.out.println();
 		
 		FactHandle deletedHandle = event.getFactHandle();
 	    ContextAssertion deletedAssertion = (ContextAssertion)event.getOldObject();
@@ -340,12 +341,12 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 	
     @Override
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
-		System.out.println("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
-		System.out.println("	HANDLE: " + insertEvent.getFactHandle());
-		if (insertEvent.getRule() != null) {
-			System.out.println("	RULE: " + insertEvent.getRule().getName());
-		}
-		System.out.println();
+		//System.out.println("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
+		//System.out.println("	HANDLE: " + insertEvent.getFactHandle());
+		//if (insertEvent.getRule() != null) {
+		//	System.out.println("	RULE: " + insertEvent.getRule().getName());
+		//}
+		//System.out.println();
 
 		// notify insertion of new event
 		eventNotifier.notifyEventInserted((ContextAssertion)insertEvent.getObject());

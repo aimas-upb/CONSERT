@@ -75,7 +75,7 @@ public class AnnotationUtils {
 	
 	
 	public static boolean allowsTimestampContinuity(long firstEventEnd, long secondEventStart, long threshold) {
-		return secondEventStart - firstEventEnd < threshold;
+		return secondEventStart >= firstEventEnd && (secondEventStart - firstEventEnd) < threshold;
 	}
 	
 	
