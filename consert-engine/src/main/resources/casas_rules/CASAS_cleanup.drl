@@ -55,7 +55,7 @@ D01 = cabinet
 rule "Probably Cleaning"
 	when
 	    $loc: PersonLocation(location=="Kitchen") from entry-point "ExtendedPersonLocationStream"
-	    $locPrev: PersonLocation(location=="DiningTable", this annHappensBefore[0s, 10s] $loc) from entry-point "ExtendedPersonLocationStream"
+	    $locPrev: PersonLocation(location=="DiningTable", this annHappensBefore[0s, 10s] $loc || this annOverlaps[5s] $loc) from entry-point "ExtendedPersonLocationStream"
 	    $eat: Eating(this annHappensBefore[0s, 60s] $loc) from entry-point "ExtendedEatingStream"
 	then
 	    System.out.println("////// Triggering PROBABLY CLEANING rule following events: " + $loc + " AND " + 
@@ -93,8 +93,9 @@ rule "Definitely Cleaning 1"
 	when
 	    $probClean: ProbablyCleaning(probCleanAnn : annotations) from entry-point "ExtendedProbablyCleaningStream"
 	    not ( Cleaning(this annIntersects $probClean) from entry-point "ExtendedCleaningStream")
-	    $item: Item(sensorId == "I01" || sensorId == "I06" || sensorId == "I02" || sensorId == "I03", status == "PRESENT") from entry-point "ItemStream"
-	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIncludes $item) from entry-point "ExtendedPersonLocationStream"
+	    $item: Item(sensorId == "I01" || sensorId == "I06" || sensorId == "I02" || sensorId == "I03" || sensorId == "I04" || sensorId == "I07", 
+	       status == "PRESENT") from entry-point "ItemStream"
+	    $loc: PersonLocation(location=="Kitchen", locAnn : annotations, this annIntersects $item) from entry-point "ExtendedPersonLocationStream"
 	then
 	    System.out.println("////// Triggering CLEANING rule following events: " + $probClean + 
 	        " AND " + $item + " AND " + $loc + "\n");

@@ -73,7 +73,8 @@ end
 rule "handling food" 
 	when 
 	    $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
-	    $item : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", status == "ABSENT", $loc annIncludes this) from entry-point "ItemStream"
+	    $item : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03" || sensorId == "I04" ||
+	               sensorId == "I07", status == "ABSENT", $loc annIncludes this) from entry-point "ItemStream"
 	    //not ( Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", status == "ABSENT", 
 	    //           this != $item, this after $item) from entry-point "ItemStream" )
 	then

@@ -191,11 +191,11 @@ rule "ExtendedHeatingFoodTest"
         " duration: " + (long)$food.getEventDuration());
 end
 
-rule "ExtendedPhoneCallTest"
+rule "PhoneCallTest"
     salience -10
     when
-        $phone : PhoneCall() from entry-point "ExtendedPhoneCallStream" 
+        $phone : PhoneCall() from entry-point "PhoneCallStream" 
     then
-        System.out.println("Inserted ExtendedPhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() + 
+        System.out.println("Inserted PhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() + 
         " duration: " + (long)$phone.getEventDuration());
 end
