@@ -11,10 +11,12 @@ public class Phone extends BinaryContextAssertion {
 	/** can be one of {START, END} */
 	String status;
 	
-	public Phone() {}
+	public Phone() {
+		setAcquisitionType(AcquisitionType.SENSED);
+	}
 	
 	public Phone(String sensorId, String status, AnnotationData annotations) {
-		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.PROFILED, annotations);
+		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
 		
 		this.status = status;
 	}
