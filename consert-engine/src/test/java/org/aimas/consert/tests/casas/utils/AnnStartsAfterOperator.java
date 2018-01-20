@@ -25,15 +25,15 @@ import org.drools.core.spi.FieldValue;
 import org.drools.core.spi.InternalReadAccessor;
 import org.drools.core.time.Interval;
 
-public class AnnOverlapsOperator extends TestSetup {
+public class AnnStartsAfterOperator extends TestSetup {
 
-    public static class AnnOverlapsEvaluatorDefinition implements EvaluatorDefinition {
+    public static class AnnStartsAfterEvaluatorDefinition implements EvaluatorDefinition {
 
-        public static final String          overlapsOp = "annOverlaps";
+        public static final String          startsAfterOp = "annStartsAfter";
 
-        public static Operator              OVERLAPS;
+        public static Operator              STARTS_AFTER;
 
-        public static Operator              OVERLAPS_NOT;
+        public static Operator              STARTS_AFTER_NOT;
 
         private static String[]             SUPPORTED_IDS;
 
@@ -42,10 +42,10 @@ public class AnnOverlapsOperator extends TestSetup {
         { init(); }
 
         static void init() {
-            if ( Operator.determineOperator( overlapsOp, false ) == null ) {
-                OVERLAPS = Operator.addOperatorToRegistry( overlapsOp, false );
-                OVERLAPS_NOT = Operator.addOperatorToRegistry( overlapsOp, true );
-                SUPPORTED_IDS = new String[] { overlapsOp };
+            if ( Operator.determineOperator( startsAfterOp, false ) == null ) {
+                STARTS_AFTER = Operator.addOperatorToRegistry( startsAfterOp, false );
+                STARTS_AFTER_NOT = Operator.addOperatorToRegistry( startsAfterOp, true );
+                SUPPORTED_IDS = new String[] { startsAfterOp };
             }
         }
 
@@ -118,11 +118,11 @@ public class AnnOverlapsOperator extends TestSetup {
      */
     public static class AnnOveralapsEvaluator extends BaseEvaluator {
 
-        private long              minDev, maxDev;
+    	private long              minDev, maxDev;
         private String            paramText;
 
         {
-            AnnOverlapsEvaluatorDefinition.init();
+            AnnStartsAfterEvaluatorDefinition.init();
         }
 
 
@@ -148,7 +148,7 @@ public class AnnOverlapsOperator extends TestSetup {
         }
 
         public AnnOveralapsEvaluator(final ValueType type, final boolean isNegated, final long[] parameters, final String paramText) {
-            super( type, isNegated ? AnnOverlapsEvaluatorDefinition.OVERLAPS_NOT : AnnOverlapsEvaluatorDefinition.OVERLAPS );
+            super( type, isNegated ? AnnStartsAfterEvaluatorDefinition.STARTS_AFTER_NOT : AnnStartsAfterEvaluatorDefinition.STARTS_AFTER );
             this.paramText = paramText;
             this.setParameters( parameters );
         }
@@ -206,11 +206,10 @@ public class AnnOverlapsOperator extends TestSetup {
             TimestampPair interval1 = getTemporalInterval(cachedAssertion);
             TimestampPair interval2 = getTemporalInterval((EventFactHandle) left);
 
-            long dist = interval1.end - interval2.start;
+            long dist = interval2.start - interval1.start;
 
             return this.getOperator().isNegated() ^
-                    ( interval1.start <= interval2.start && interval1.end < interval2.end
-                            && dist >= this.minDev && dist <= this.maxDev );
+                    ( dist >= this.minDev && dist <= this.maxDev );
         }
 
 
@@ -234,11 +233,10 @@ public class AnnOverlapsOperator extends TestSetup {
             TimestampPair interval1 = getTemporalInterval(right);
             TimestampPair interval2 = getTemporalInterval(cachedAssertion);
 
-            long dist = interval1.end - interval2.start;
+            long dist = interval2.start - interval1.start;
 
             return this.getOperator().isNegated() ^
-                    ( interval1.start <= interval2.start && interval1.end < interval2.end
-                            && dist >= this.minDev && dist <= this.maxDev );
+                    ( dist >= this.minDev && dist <= this.maxDev );
         }
 
 
@@ -257,11 +255,10 @@ public class AnnOverlapsOperator extends TestSetup {
             TimestampPair interval1 = getTemporalInterval(handle1);
             TimestampPair interval2 = getTemporalInterval(handle2);
 
-            long dist = interval1.end - interval2.start;
+            long dist = interval2.start - interval1.start;
 
             return this.getOperator().isNegated() ^
-                    ( interval1.start <= interval2.start && interval1.end < interval2.end
-                            && dist >= this.minDev && dist <= this.maxDev );
+                    ( dist >= this.minDev && dist <= this.maxDev );
         }
 
 
@@ -302,7 +299,7 @@ public class AnnOverlapsOperator extends TestSetup {
 
 
         public String toString() {
-            return "annOverlaps[" + ( ( paramText != null ) ? paramText : "" ) + "]";
+            return "annStartsAfter[" + ( ( paramText != null ) ? paramText : "" ) + "]";
         }
 
         /* (non-Javadoc)

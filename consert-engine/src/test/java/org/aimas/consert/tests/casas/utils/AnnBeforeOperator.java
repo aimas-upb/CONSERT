@@ -239,7 +239,7 @@ public class AnnBeforeOperator extends TestSetup {
             }
 
             DefaultAnnotationData ann = (DefaultAnnotationData)cachedAssertion.getAnnotations();
-            long leftTS = ann.getStartTime().getTime();
+            long leftTS = ann.getStartTime() != null ? ann.getStartTime().getTime() : 0;
 
             //long leftTS = ((VariableRestriction.TimestampedContextEntry)context).timestamp;
             long rightTS = context.getFieldExtractor().isSelfReference() ?
@@ -271,7 +271,7 @@ public class AnnBeforeOperator extends TestSetup {
             }
 
             DefaultAnnotationData ann = (DefaultAnnotationData)cachedAssertion.getAnnotations();
-            long rightTS = ann.getEndTime().getTime();
+            long rightTS = ann.getEndTime() != null ? ann.getEndTime().getTime() : Long.MAX_VALUE;
 
             //long rightTS = ((VariableRestriction.TimestampedContextEntry)context).timestamp;
             long leftTS = context.declaration.getExtractor().isSelfReference() ?
@@ -297,7 +297,7 @@ public class AnnBeforeOperator extends TestSetup {
             // when merging with updated annotation processing, check will have to be made whether temporal annotation exists
             // if not, timestamp annotation will be checked, if not fact handle endTimestamp (i.e. Drools processing) will be returned
             DefaultAnnotationData ann = (DefaultAnnotationData)leftAssertion.getAnnotations();
-            return ann.getStartTime().getTime();
+            return ann.getStartTime() != null ? ann.getStartTime().getTime() : 0;
 
             //return ( (EventFactHandle) handle ).getEndTimestamp();
         }
@@ -310,7 +310,7 @@ public class AnnBeforeOperator extends TestSetup {
             // when merging with updated annotation processing, check will have to be made whether temporal annotation exists
             // if not, timestamp annotation will be checked, if not fact handle startTimestamp (i.e. Drools processing) will be returned
             DefaultAnnotationData ann = (DefaultAnnotationData)rightAssertion.getAnnotations();
-            return ann.getEndTime().getTime();
+            return ann.getEndTime() != null ? ann.getEndTime().getTime() : Long.MAX_VALUE;
             //return ( (EventFactHandle) handle ).getStartTimestamp();
         }
     }

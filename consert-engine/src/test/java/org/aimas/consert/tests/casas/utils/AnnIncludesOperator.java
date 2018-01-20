@@ -3,20 +3,12 @@ package org.aimas.consert.tests.casas.utils;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.aimas.consert.engine.EventTracker;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
-import org.aimas.consert.tests.hla.assertions.Position;
-import org.aimas.consert.tests.hla.assertions.SittingLLA;
-import org.aimas.consert.tests.hla.entities.Area;
-import org.aimas.consert.tests.hla.entities.Person;
 import org.aimas.consert.utils.TestSetup;
 import org.drools.core.base.BaseEvaluator;
 import org.drools.core.base.ValueType;
@@ -31,14 +23,6 @@ import org.drools.core.spi.Evaluator;
 import org.drools.core.spi.FieldValue;
 import org.drools.core.spi.InternalReadAccessor;
 import org.drools.core.time.Interval;
-import org.junit.Assert;
-import org.junit.Test;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.rule.FactHandle;
-import org.kie.api.runtime.rule.Match;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.builder.conf.EvaluatorOption;
 
 public class AnnIncludesOperator extends TestSetup {
 
@@ -285,15 +269,22 @@ public class AnnIncludesOperator extends TestSetup {
 
         private TimestampPair getTemporalInterval(ContextAssertion assertion) {
             DefaultAnnotationData ann = (DefaultAnnotationData)assertion.getAnnotations();
-            return new TimestampPair(ann.getStartTime().getTime(), ann.getEndTime().getTime());
+            long start = 0;
+            long end = Long.MAX_VALUE;
+            
+            if (ann.getStartTime() != null)
+            	start = ann.getStartTime().getTime();
+            
+            if (ann.getEndTime() != null)
+            	end = ann.getEndTime().getTime();
+            
+            return new TimestampPair(start, end);
         }
 
         private TimestampPair getTemporalInterval(EventFactHandle handle) {
             if (handle.getObject() instanceof ContextAssertion) {
                 ContextAssertion assertion = (ContextAssertion)handle.getObject();
-                DefaultAnnotationData ann = (DefaultAnnotationData)assertion.getAnnotations();
-
-                return new TimestampPair(ann.getStartTime().getTime(), ann.getEndTime().getTime());
+                return getTemporalInterval(assertion);
             }
             else {
                 return new TimestampPair(handle.getStartTimestamp(), handle.getEndTimestamp());

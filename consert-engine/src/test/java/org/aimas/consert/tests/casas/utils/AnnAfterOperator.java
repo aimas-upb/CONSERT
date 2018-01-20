@@ -3,20 +3,12 @@ package org.aimas.consert.tests.casas.utils;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.aimas.consert.engine.EventTracker;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
-import org.aimas.consert.tests.hla.assertions.Position;
-import org.aimas.consert.tests.hla.assertions.SittingLLA;
-import org.aimas.consert.tests.hla.entities.Area;
-import org.aimas.consert.tests.hla.entities.Person;
 import org.aimas.consert.utils.TestSetup;
 import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.EvaluatorDefinition;
@@ -28,14 +20,6 @@ import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.rule.VariableRestriction;
 import org.drools.core.spi.Evaluator;
 import org.drools.core.time.Interval;
-import org.junit.Assert;
-import org.junit.Test;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.rule.FactHandle;
-import org.kie.api.runtime.rule.Match;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.builder.conf.EvaluatorOption;
 
 
 public class AnnAfterOperator extends TestSetup {
@@ -236,7 +220,7 @@ public class AnnAfterOperator extends TestSetup {
             }
 
             DefaultAnnotationData ann = (DefaultAnnotationData)cachedAssertion.getAnnotations();
-            long leftTS = ann.getEndTime().getTime();
+            long leftTS = ann.getEndTime() != null ? ann.getEndTime().getTime() : Long.MAX_VALUE;
 
             //long leftTS = ((VariableRestriction.TimestampedContextEntry)context).timestamp;
             long rightTS = context.getFieldExtractor().isSelfReference() ?
@@ -267,7 +251,7 @@ public class AnnAfterOperator extends TestSetup {
             }
 
             DefaultAnnotationData ann = (DefaultAnnotationData)cachedAssertion.getAnnotations();
-            long rightTS = ann.getStartTime().getTime();
+            long rightTS = ann.getStartTime() != null ? ann.getStartTime().getTime() : 0;
 
             //long rightTS = ((VariableRestriction.TimestampedContextEntry)context).timestamp;
             long leftTS = context.declaration.getExtractor().isSelfReference() ?
@@ -293,7 +277,7 @@ public class AnnAfterOperator extends TestSetup {
             // when merging with updated annotation processing, check will have to be made whether temporal annotation exists
             // if not, timestamp annotation will be checked, if not fact handle endTimestamp (i.e. Drools processing) will be returned
             DefaultAnnotationData ann = (DefaultAnnotationData)leftAssertion.getAnnotations();
-            return ann.getEndTime().getTime();
+            return ann.getEndTime() != null ? ann.getEndTime().getTime() : Long.MAX_VALUE;
 
             //return ( (EventFactHandle) handle ).getEndTimestamp();
         }
@@ -306,7 +290,7 @@ public class AnnAfterOperator extends TestSetup {
             // when merging with updated annotation processing, check will have to be made whether temporal annotation exists
             // if not, timestamp annotation will be checked, if not fact handle startTimestamp (i.e. Drools processing) will be returned
             DefaultAnnotationData ann = (DefaultAnnotationData)rightAssertion.getAnnotations();
-            return ann.getStartTime().getTime();
+            return ann.getStartTime() != null ? ann.getStartTime().getTime() : 0;
             //return ( (EventFactHandle) handle ).getStartTimestamp();
         }
     }
