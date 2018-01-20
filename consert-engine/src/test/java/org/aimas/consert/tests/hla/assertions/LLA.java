@@ -7,7 +7,6 @@ import org.aimas.consert.tests.hla.entities.Person;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
-import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
 /*
  * Abstract class for modeling a low level activity.

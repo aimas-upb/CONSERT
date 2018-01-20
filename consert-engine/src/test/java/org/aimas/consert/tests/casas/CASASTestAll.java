@@ -93,7 +93,9 @@ public class CASASTestAll extends TestSetup {
 				"casas_rules/CASAS_cook.drl", "casas_rules/CASAS_cleanup.drl",
 				"casas_rules/CASAS_eat.drl","casas_rules/CASAS_phone_call.drl",
 				"casas_rules/CASAS_wash_hands.drl");
-				
+		
+		//System.out.println("[TESTAL] KSESSION CLOCK at init is: " + kSession.getSessionClock().getCurrentTime());
+		
     	// set up engine runner thread and event inserter
     	Thread engineRunner = new Thread(new EngineRunner(kSession));
     	
@@ -119,12 +121,12 @@ public class CASASTestAll extends TestSetup {
     	}
     	
     	eventInserter.stop();
-    	engineRunner.join(2000);
+    	engineRunner.join(5000);
+    	
     	
 		// Plot the results. Plots are stored per task (i.e. the actions by all people are grouped per task).
     	CASASPlotlyExporter.exportToHTML(person, task, kSession, testStartTs);
-    	eventInserter.stop();
-
+    	
     	kSession.halt();
     	kSession.dispose();
     	kSession.destroy();
