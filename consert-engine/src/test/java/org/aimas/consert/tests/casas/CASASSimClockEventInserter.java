@@ -1,7 +1,6 @@
 package org.aimas.consert.tests.casas;
 
 import java.io.File;
-import java.lang.Character.UnicodeScript;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.aimas.consert.engine.EventTracker;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
@@ -20,7 +20,6 @@ import org.aimas.consert.tests.casas.assertions.Item;
 import org.aimas.consert.tests.casas.assertions.Phone;
 import org.drools.core.time.SessionPseudoClock;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.conf.ClockTypeOption;
 
 public class CASASSimClockEventInserter {
 	
@@ -30,8 +29,7 @@ public class CASASSimClockEventInserter {
 	 */
 	public static int EVENT_DIFF_DEFAULT = 100;
 	
-	private boolean isFinished = false;
-	private Object syncObj = new Object();
+	private AtomicBoolean finished = new AtomicBoolean(false);
 	
 	private File eventInputFile;
 	private KieSession kSession;
@@ -81,15 +79,11 @@ public class CASASSimClockEventInserter {
 	}
 	
 	public boolean isFinished() {
-		synchronized(syncObj) {
-			return isFinished;
-		}
+		return finished.get();
 	}
 	
 	private void setFinished(boolean finished) {
-		synchronized(syncObj) {
-			isFinished = finished;
-		}
+		this.finished.set(finished);
 	}
 	
 	
@@ -184,33 +178,47 @@ public class CASASSimClockEventInserter {
 		}
 		
 		public void run() {
+			event.setProcessingTimeStamp(System.currentTimeMillis());
+			
 			// If the events are of a sensed acquisition type, insert them as simple events and set their timestamp at insertion
 			if (event.getAcquisitionType() == AcquisitionType.SENSED) {
-				event.setProcessingTimeStamp(System.currentTimeMillis());
+				
 				//eventTracker.insertSimpleEvent(event, false);
 				eventTracker.insertSimpleEvent(event, true);
 			}
 			else {
 				// insert the events as PROFILED ones, set their duration and timestamp
 				String key = null;
-				if (event instanceof Item || event instanceof Cabinet)
+				if (event instanceof Item) 
 					key = ((Item)event).getSensorId();
-				else if (event instanceof Phone)
+				else if (event instanceof Cabinet)
+					key = ((Cabinet)event).getSensorId();
+				else if (event instanceof Phone) {
 					key = "phone";
+				}
+				
+				long ts = eventTracker.getCurrentTime();
 				
 				if (itemActivationMap.containsKey(key)) {
 					ContextAssertion prevEvent = itemActivationMap.remove(key);
+					
+					// first delete the old event
 					eventTracker.deleteEvent(prevEvent);
+					
+					// then update its endtime and reinsert it
+					DefaultAnnotationData ann = (DefaultAnnotationData)prevEvent.getAnnotations();
+					ann.setEndTime(new Date(ts));
+					
+					eventTracker.insertSimpleEvent(prevEvent, false);
 				}
 				
 				itemActivationMap.put(key, event);
 				DefaultAnnotationData ann = (DefaultAnnotationData)event.getAnnotations();
-				
-				long ts = eventTracker.getCurrentTime();
 				ann.setLastUpdated(ts);
 				ann.setStartTime(new Date(ts));
-				ann.setEndTime(null);
+				ann.setEndTime(new Date(Integer.MAX_VALUE));
 				
+				//ann.setEndTime(null);
 				eventTracker.insertSimpleEvent(event, false);
 			}
         }
