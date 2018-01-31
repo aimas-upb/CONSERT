@@ -254,8 +254,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		return false;
     }
 
-
-    
+	
     private void doDerivedInsertion(final ContextAssertion eventObject) {
 		//BaseEvent insertedEventObject = (BaseEvent)insertEvent.getObject();
 		
@@ -273,9 +272,6 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
     		kSession.submit(new KieSession.AtomicAction() {
 				@Override
 				public void execute(KieSession kSession) {
-					// The newly derived event has to make it to the KnowledgeBase in any case, so we perform the insert here
-		    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
-		    		
 					// check to see if it matches one of the previous stored events by content
 		    		TrackedEventData existingEventData = trackedAssertionStore.searchDerivedAssertionByContent(eventObject);
 		    		if (existingEventData != null) {
@@ -291,16 +287,25 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 //		    			System.out.println("0000000000000000000000000");
 		    			
 		    			
-		    			if (updatedEvent.isOverlappedBy(eventObject)) {
+		    			if (updatedEvent.intersects(eventObject)) {
 			    			//System.out.println("!!!!!!!!!![EventTracker] Analyzing garbage collection for DEDUCED event " + updatedEvent);
 		    				
 			    			if (existingEventHandle != null) 
 			    				existingEventEntry.delete(existingEventHandle);
-			    			
 			    			trackedAssertionStore.removeDerived(existingEventData);
-		        			trackedAssertionStore.trackDerived(eventObject, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
+			    			
+			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
+			    					.applyExtensionOperator(eventObject.getAnnotations());
+			    			updatedEvent.setAnnotations(updatedAnnotations);
+			    			
+			    			// The updated derived event has to make it to the KnowledgeBase, so we perform the insert here
+			    			FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(updatedEvent);
+			    			trackedAssertionStore.trackDerived(updatedEvent, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
 		    			}
 		    			else {
+		    				// The newly derived event has to make it to the KnowledgeBase, so we perform the insert here
+				    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
+		    				
 		    				// if it is not overlapped, then it means it just has to replace the existing event in the lastValidDeducedMap
 		    				trackedAssertionStore.removeDerived(existingEventData);
 		        			trackedAssertionStore.trackDerived(eventObject, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
@@ -309,6 +314,9 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		    		else {
 		    			// If it DOES NOT match any monitored event by content,
 						// add it to the list of monitored events for this type
+		    			
+		    			// The newly derived event has to make it to the KnowledgeBase, so we perform the insert here
+			    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
 		    			trackedAssertionStore.trackDerived(eventObject, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
 		    		}
 				}
