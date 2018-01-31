@@ -12,6 +12,7 @@ import org.aimas.consert.tests.casas.assertions.PersonLocation
 import org.aimas.consert.tests.casas.assertions.HandlingFood
 import org.aimas.consert.tests.casas.assertions.HeatingFood
 import org.aimas.consert.tests.casas.assertions.PhoneCall
+import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
 
 import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
@@ -23,6 +24,7 @@ global EventTracker eventTracker;
 
 declare Motion
     @role(event)
+    //@expires(1m)
     //@timestamp(startTimestamp)
     //@duration(eventDuration)
 end
@@ -30,6 +32,7 @@ end
 
 declare Item
     @role(event)
+    //@expires(10m)
     //@timestamp(startTimestamp)
     //@duration(eventDuration)
 end
@@ -37,12 +40,14 @@ end
 
 declare Cabinet
     @role(event)
+    //@expires(10m)
     //@timestamp(startTimestamp)
     //@duration(eventDuration)
 end
 
 declare Water
     @role(event)
+    //@expires(10m)
     //@timestamp(startTimestamp)
     //@duration(eventDuration)
 end
@@ -50,18 +55,21 @@ end
 
 declare Temperature
     @role(event)
+    //@expires(10s)
     //@timestamp(startTimestamp)
     //@duration(eventDuration)
 end
 
 declare Burner
     @role(event)
+    //@expires(10m)
     //@timestamp(startTimestamp)
     //@duration(eventDuration)
 end
 
 declare Phone
     @role(event)
+    //@expires(10m)
     //@timestamp(startTimestamp)
     //@duration(eventDuration)
 end
@@ -198,4 +206,14 @@ rule "PhoneCallTest"
     then
         System.out.println("Inserted PhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() + 
         " duration: " + (long)$phone.getEventDuration());
+end
+
+
+rule "ProbablyCleaningTest"
+    salience -10
+    when
+        $probCleaning : ProbablyCleaning() from entry-point "ProbablyCleaningStream" 
+    then
+        System.out.println("Inserted ProbablyCleaning event with: " + $probCleaning + ", timestamp: " + (long)$probCleaning.getStartTimestamp() + 
+        " duration: " + (long)$probCleaning.getEventDuration());
 end

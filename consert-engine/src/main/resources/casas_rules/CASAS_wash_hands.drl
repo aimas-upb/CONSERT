@@ -32,12 +32,17 @@ declare HandlingFood
     @role(event)
 end
 
+
+//this annHappensBefore $water || this annIncludes $water
 rule "StartWashingHands"
+   salience(-1)
    when
         $loc: PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
-        $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , val : value, this annIntersects $loc) from entry-point "WaterStream"
-        not ( Cleaning(this annIntersects $loc) from entry-point "ExtendedCleaningStream" )
-        not ( HandlingFood(this annIntersects $loc) from entry-point "ExtendedHandlingFoodStream" )
+        $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , val : value, $loc annIncludes this) from entry-point "WaterStream"
+        //not ( exists Cleaning(this annIncludes $water && (this annOverlappedBy $loc || $loc annIncludes this)) from entry-point "ExtendedCleaningStream" )
+        //not ( exists HandlingFood(this annIncludes $water && (this annOverlappedBy $loc || $loc annIncludes this)) from entry-point "ExtendedHandlingFoodStream" )
+        not ( exists Cleaning(this annIntersects $loc && (this after[0s, 30s] $loc || this before[0s, 30s] $loc)) from entry-point "ExtendedCleaningStream" )
+        not ( exists HandlingFood(this annIntersects $loc && (this after[0s, 30s] $loc || this before[0s, 30s] $loc)) from entry-point "ExtendedHandlingFoodStream" )
    then
         System.out.println("////// Triggering START WASHING HANDS following events: " + $loc + " AND " + $water + "\n");
         DefaultAnnotationData locAnn = (DefaultAnnotationData)$loc.getAnnotations();
@@ -47,19 +52,25 @@ rule "StartWashingHands"
         eventTracker.insertDerivedEvent(washHands);
 end
 
+
 rule "Washing Hands Ongoing"
-    salience(10)
+    //salience(10)
 	when
 	    $loc: PersonLocation(location == "Kitchen", locAnn : annotations) from entry-point "ExtendedPersonLocationStream"
-        $wash:  WashHands(washAnn : annotations, this annOverlaps $loc || $loc annIncludes this) from entry-point "ExtendedWashHandsStream"
-        $water : Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , this annIntersects $loc) from entry-point "WaterStream"
-	    not ( Water(sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C", this != $water, this after $water) from entry-point "WaterStream" )
-        not ( Cleaning(this annIntersects $loc) from entry-point "ExtendedCleaningStream" )
-        not ( HandlingFood(this annIntersects $loc) from entry-point "ExtendedHandlingFoodStream" )
-        
+        //$wash:  WashHands(washAnn : annotations, this annOverlappedBy $loc || $loc annIncludes this) from entry-point "ExtendedWashHandsStream"
+        $wash:  WashHands(washAnn : annotations, this annIntersects $loc) from entry-point "ExtendedWashHandsStream"
+        //$water: Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C" , $loc annIncludes this) from entry-point "WaterStream"
+        $water: Water(id2 : sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C", waterAnn : annotations, this annHappensAfter[0s, 10s] $wash) from entry-point "WaterStream"
+	    not ( exists Water(sensorId == "AD1-A" ||  sensorId == "AD1-B" || sensorId == "AD1-C", this != $water, this after $water) from entry-point "WaterStream" )
+        //not ( exists Cleaning(this annIncludes $water && (this annOverlappedBy $loc || $loc annIncludes this) ) from entry-point "ExtendedCleaningStream" )
+        //not ( exists HandlingFood((this annOverlappedBy $loc || $loc annIncludes this) ) from entry-point "ExtendedHandlingFoodStream" )
+        not ( exists Cleaning(this annIncludes $water && this annIntersects $loc) from entry-point "ExtendedCleaningStream" )
+        not ( exists HandlingFood(this annIncludes $water && this annIntersects $loc) from entry-point "ExtendedHandlingFoodStream" )
 	then
         System.out.println("////// Triggering WASHING HANDS ONGOING following events: " + $loc + " AND " + $water + " AND " + $wash + "\n");
-	    AnnotationData ann = washAnn.applyCombinationOperator(locAnn);
+	    //AnnotationData ann = washAnn.applyCombinationOperator(locAnn);
+	    AnnotationData ann = locAnn.applyExtensionOperator(waterAnn);
+	    
 	    WashHands washHands = new WashHands(ann);
         eventTracker.insertDerivedEvent(washHands);
 end

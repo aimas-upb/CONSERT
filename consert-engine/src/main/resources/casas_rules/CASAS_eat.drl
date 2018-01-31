@@ -48,11 +48,11 @@ D01 = cabinet
 rule "Preparing to eat"
 	when
 	    $loc: PersonLocation(location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
-	    $cook: Cooking(this annHappensBefore[0s, 60s] $loc || this annOverlaps[30s] $loc) from entry-point "ExtendedCookingStream"
-	    $item: Item(sensorId == "I06", status == "ABSENT", this annHappensBefore[0s, 60s] $loc || this annOverlaps[60s] $loc) from entry-point "ItemStream"
+	    $cook: Cooking(this annHappensBefore[0s, 120s] $loc || this annOverlaps[30s] $loc) from entry-point "ExtendedCookingStream"
+	    //$item: Item(sensorId == "I06", status == "ABSENT", this annHappensBefore[0s, 60s] $loc) from entry-point "ItemStream"
 	    $item2: Item(sensorId == "I07" || sensorId == "I04", status == "ABSENT") from entry-point "ItemStream"
 	then
-	    System.out.println("////// Triggering EATING rule following events: " + $loc + " AND " + $item + "\n");
+	    System.out.println("////// Triggering EATING rule following events: " + $loc + " AND " + $item2 + "\n");
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
 	    Eating eating = new Eating(ann);

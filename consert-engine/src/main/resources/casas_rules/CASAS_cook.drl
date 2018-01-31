@@ -75,6 +75,9 @@ rule "handling food"
 	    $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
 	    $item : Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03" || sensorId == "I04" ||
 	               sensorId == "I07", status == "ABSENT", $loc annIncludes this) from entry-point "ItemStream"
+        not ( exists Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03" || sensorId == "I04" ||
+                   sensorId == "I07", status == "ABSENT", this != $item, this after $item, $loc annIncludes this) from entry-point "ItemStream"
+            )
 	    //not ( Item(sensorId == "I01" || sensorId == "I02" || sensorId == "I03", status == "ABSENT", 
 	    //           this != $item, this after $item) from entry-point "ItemStream" )
 	then
@@ -108,11 +111,11 @@ then
  
 rule "heating food using burner"
 	when
-	    $food : HandlingFood() from entry-point "ExtendedHandlingFoodStream"
-	    $burner : Burner(value > 0, this annIntersects $food) from entry-point "BurnerStream"
-	    not ( Burner(value > 0, this != $burner, this after $burner) from entry-point "BurnerStream")
+	    $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+	    $burner : Burner(value > 0, $loc annIncludes this) from entry-point "BurnerStream"
+	    not ( exists Burner(value > 0, this != $burner, this after $burner) from entry-point "BurnerStream")
 	then
-	    System.out.println("////// Triggering HEATING FOOD rule following events: " + $food + " AND " + $burner + "\n");
+	    System.out.println("////// Triggering HEATING FOOD rule following events: " + $loc + " AND " + $burner + "\n");
 	        
 	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
@@ -124,19 +127,20 @@ end
 
 rule "cooking detected"
 	when
-	    $food : HandlingFood() from entry-point "ExtendedHandlingFoodStream"
-	    $heating : HeatingFood(this annIntersects $food, this annOverlappedBy $food) from entry-point "ExtendedHeatingFoodStream"
+	    $food : HandlingFood(foodAnn : annotations#DefaultAnnotationData) from entry-point "ExtendedHandlingFoodStream"
+	    $heating : HeatingFood(this annIntersects $food, heatingAnn : annotations#DefaultAnnotationData) from entry-point "ExtendedHeatingFoodStream"
 	then
 	    System.out.println("////// Triggering COOKING rule following events: " + $food + " AND " + $heating + "\n");
 	        
-	    DefaultAnnotationData foodAnn = (DefaultAnnotationData)$food.getAnnotations();
-	    DefaultAnnotationData heatingAnn = (DefaultAnnotationData)$heating.getAnnotations();
+	    //DefaultAnnotationData foodAnn = (DefaultAnnotationData)$food.getAnnotations();
+	    //DefaultAnnotationData heatingAnn = (DefaultAnnotationData)$heating.getAnnotations();
 	    
-	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-	    double confidence = (foodAnn.getConfidence() + heatingAnn.getConfidence()) / 2;
-	    Date endTime = new Date(ts);
+	    //long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    //double confidence = (foodAnn.getConfidence() + heatingAnn.getConfidence()) / 2;
+	    //Date endTime = new Date(ts);
 	    
-	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, confidence, foodAnn.getStartTime(), endTime);
+	    //DefaultAnnotationData ann = new DefaultAnnotationData(ts, confidence, foodAnn.getStartTime(), endTime);
+	    AnnotationData ann = foodAnn.applyExtensionOperator(heatingAnn);
 	    Cooking cooking = new Cooking(ann);
 	    
 	    eventTracker.insertDerivedEvent(cooking);

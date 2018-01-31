@@ -40,20 +40,24 @@ rule "Using Phone Book"
         eventTracker.insertDerivedEvent(phoneCall);
 end
 
+
+
+
 rule "Phone Call without using phone book"
 	when
 	    $phone: Phone(status == "START", phoneAnn : annotations#DefaultAnnotationData) from entry-point "PhoneStream"
-	    not (Phone(status == "END", this after $phone) from entry-point "PhoneStream")
 	    
-	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData, this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
-	    not (PhoneCall(this annHappensBefore[0s, 10s] $phone || this annIntersects $phone) from entry-point "ExtendedPhoneCallStream")
+	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData, this annIncludes $phone) from entry-point "ExtendedPersonLocationStream"
+	    
+	    not (exists Phone(status == "END", this after $phone && $loc annIncludes this) from entry-point "PhoneStream")
+	    not (exists PhoneCall(this annHappensBefore[0s, 10s] $phone || this annIntersects $phone) from entry-point "ExtendedPhoneCallStream")
 	then
 	    System.out.println("////// Triggering PHONE CALL WITHOUT PHONE BOOK: " + $loc + " AND " + $phone + "\n");
 	    
-	    long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-	    DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), phoneAnn.getStartTime(), new Date(ts));
+	    //long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+	    //DefaultAnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), phoneAnn.getStartTime(), new Date(ts));
 	    
-	    //AnnotationData ann = locAnn.applyCombinationOperator(phoneAnn);
+	    AnnotationData ann = locAnn.applyExtensionOperator(phoneAnn);
 	    PhoneCall phoneCall = new PhoneCall(ann);
 	    eventTracker.insertDerivedEvent(phoneCall);
 end
@@ -61,10 +65,9 @@ end
 rule "Phone Call after using phone book"
     when
         $phone: Phone(status == "START", phoneAnn : annotations#DefaultAnnotationData) from entry-point "PhoneStream"
-        not (Phone(status == "END", this after $phone) from entry-point "PhoneStream")
-        
-        $loc: PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData, this annIntersects $phone) from entry-point "ExtendedPersonLocationStream"
+        $loc: PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData, this annIncludes $phone) from entry-point "ExtendedPersonLocationStream"
         $phoneCall: PhoneCall($loc annIncludes this, phoneCallAnn : annotations#DefaultAnnotationData) from entry-point "ExtendedPhoneCallStream"
+        not (exists Phone(status == "END", this after $phone && $loc annIncludes this) from entry-point "PhoneStream")
     then
         System.out.println("////// Triggering PHONE CALL AFTER PHONE BOOK following events: " + $loc + " AND " + $phone + "AND" + $phoneCall + "\n");
         
@@ -75,21 +78,3 @@ rule "Phone Call after using phone book"
         PhoneCall phoneCall = new PhoneCall(ann);
         eventTracker.insertDerivedEvent(phoneCall);
 end
-
-
-/*
-rule "Phone Call Ongoing"
-	when
-	    $phone: Phone(value == "START") from entry-point "PhoneStream"
-	    not (Phone(this after $phone) from entry-point "PhoneStream")
-	    $loc: PersonLocation(location == "DiningTable", locAnn : annotations, this annIncludes $phone) from entry-point "ExtendedPersonLocationStream"
-	    exists PhoneCall(callAnn : annotations, this annIntersects $loc) from entry-point "ExtendedPhoneCallStream"
-	then
-	    System.out.println("////// Triggering PHONE CALL ONGOING following events: " + $loc + " AND " + $phone + "\n");
-	    
-	    AnnotationData ann = callAnn.applyCombinationOperator(locAnn);
-	    PhoneCall phoneCall = new PhoneCall(ann);
-	    
-	    eventTracker.insertDerivedEvent(phoneCall);
-end
-*/

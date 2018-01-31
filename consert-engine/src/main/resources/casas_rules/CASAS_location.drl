@@ -33,8 +33,8 @@ rule "At Dining Table"
         //)
         $motion : Motion(sensorId == "M13" || sensorId == "M14") from entry-point "MotionStream"
         not (
-            Motion(id1 : sensorId, id1 not in ("M13", "M14"), this before[0s, 2s] $motion) from entry-point "MotionStream" &&
-            Motion(id2 : sensorId, id2 not in ("M13", "M14"), this after[0s, 2s] $motion) from entry-point "MotionStream"
+            exists Motion(id1 : sensorId, id1 not in ("M13", "M14"), this before[0s, 2s] $motion) from entry-point "MotionStream" &&
+            exists Motion(id2 : sensorId, id2 not in ("M13", "M14"), this after[0s, 2s] $motion) from entry-point "MotionStream"
         )
     then
         System.out.println("{}{}{}{} Triggering INIT AT DINING TABLE rule following event: " + $motion + "\n");
@@ -53,10 +53,8 @@ rule "Stay At Dining Table"
     when
         $motion : Motion(id : sensorId == "M13" || sensorId == "M14" , status == "OFF") from entry-point "MotionStream"
         $motionPrev : Motion(id2: sensorId, id2 in ("M13", "M14"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
-        not( 
-            Motion(id_other : sensorId, id_other != id, id_other not in ("M13", "M14"), this after[0s, 3s] $motion) from entry-point "MotionStream" &&
-            PersonLocation(location != "DiningTable", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
-        )
+        not( exists Motion(id_other : sensorId, id_other != id, id_other not in ("M13", "M14"), this after[0s, 3s] $motion) from entry-point "MotionStream" )
+        not( exists PersonLocation(location != "DiningTable", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream" )
     then
         System.out.println("[][][][][][] Triggering STAY AT DINING TABLE RULE following event: " + $motion + "\n");
         // create atomic PersonLocation ContextAssertion
@@ -75,8 +73,9 @@ rule "Remain at dining table"
     when
         loc : PersonLocation(location1 : location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
         //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annOverlappedBy[0s, 5s] loc) from entry-point "ExtendedPersonLocationStream" )
-        not( PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
-        not( Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annIntersects[5s] loc) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
         
         //loc : Motion(id1 : sensorId, stat: status) from entry-point "MotionStream"
         //loc2: Motion(this != loc, id2 : sensorId == id1, status == stat, this after[8s, 10s] loc) from entry-point "MotionStream"
@@ -109,11 +108,9 @@ rule "In the kitchen"
         //      eval( ((DefaultAnnotationData)annExtended).getStartTime().before(((DefaultAnnotationData)annMotion).getStartTime()) && 
         //      ((DefaultAnnotationData)annMotion).getStartTime().getTime() - ((DefaultAnnotationData)annExtended).getEndTime().getTime() <= 1000 )
         //)
-        $motion : Motion(sensorId == "M16" || sensorId == "M17" || sensorId == "M18") from entry-point "MotionStream"
-        not (
-            Motion(id1 : sensorId, id1 not in ("M16", "M17", "M18"), this before[0s, 2s] $motion) from entry-point "MotionStream" &&
-            Motion(id2 : sensorId, id2 not in ("M16", "M17", "M18"), this after[0s, 2s] $motion) from entry-point "MotionStream"
-        )
+        $motion : Motion(sensorId == "M15" || sensorId == "M16" || sensorId == "M17" || sensorId == "M18") from entry-point "MotionStream"
+        not ( exists Motion(id1 : sensorId, id1 not in ("M15", "M16", "M17", "M18"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
+        not ( exists Motion(id2 : sensorId, id2 not in ("M15", "M16", "M17", "M18"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
     then
         System.out.println("{}{}{}{} Triggering INIT AT KITCHEN rule following event: " + $motion + "\n");
         
@@ -129,11 +126,11 @@ end
 rule "Stay in kitchen"
     salience 10
     when
-        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status == "OFF") from entry-point "MotionStream"
-        $motionPrev : Motion(id2: sensorId, id2 in ("M16", "M17", "M18"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        $motion : Motion(id : sensorId == "M15" || sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 in ("M15", "M16", "M17", "M18"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
         not( 
-            Motion(id_other : sensorId, id_other != id, id_other not in ("M16", "M17", "M18"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
-            PersonLocation(location != "Kitchen", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+            exists Motion(id_other : sensorId, id_other != id, id_other not in ("M15", "M16", "M17", "M18"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            exists PersonLocation(location != "Kitchen", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
         )
     then
         System.out.println("[][][][][][] Triggering STAY IN KITCHEN rule following event: " + $motion + "\n");
@@ -154,8 +151,9 @@ rule "Remain in kitchen"
     when
         loc : PersonLocation(location1 : location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
         //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annOverlappedBy[0s, 5s] loc) from entry-point "ExtendedPersonLocationStream" )
-        not( PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc) from entry-point "ExtendedPersonLocationStream" )
-        not( Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annIntersects[5s] loc) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
     then
         System.out.println("[][][][][][] Triggering REMAIN AT KITCHEN rule following event: " + loc + "\n");
         
