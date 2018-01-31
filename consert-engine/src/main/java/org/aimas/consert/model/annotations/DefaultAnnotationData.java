@@ -231,14 +231,14 @@ public class DefaultAnnotationData implements AnnotationData {
 		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
 		double maxConfidence = AnnotationUtils.maxConfidence(getConfidence(), ann.getConfidence());
 		
-		DatetimeInterval hlaInterval = AnnotationUtils.computeIntersection(
+		DatetimeInterval intersectionInterval = AnnotationUtils.computeIntersection(
                 getStartTime(), getEndTime(),
                 ann.getStartTime(), ann.getEndTime());
 		
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData(
 				maxTimestamp, maxConfidence, 
-				hlaInterval.getStart(),
-				hlaInterval.getEnd()
+				intersectionInterval.getStart(),
+				intersectionInterval.getEnd()
 		);
 		
 		return updatedAnnotations;
@@ -253,10 +253,14 @@ public class DefaultAnnotationData implements AnnotationData {
 		
 		double meanConfidence = AnnotationUtils.meanConfidence(getConfidence(), ann.getConfidence());
 		
+		DatetimeInterval unionInterval = AnnotationUtils.computeUnion(
+                getStartTime(), getEndTime(),
+                ann.getStartTime(), ann.getEndTime());
+		
 		DefaultAnnotationData updatedAnnotations = new DefaultAnnotationData(
 				maxTimestamp, meanConfidence, 
-				getStartTime(),
-				ann.getEndTime()
+				unionInterval.getStart(),
+				unionInterval.getEnd()
 		);
 		
 		return updatedAnnotations;

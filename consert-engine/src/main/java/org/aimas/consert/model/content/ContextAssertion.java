@@ -222,9 +222,14 @@ public abstract class ContextAssertion {
 		return true;
 	}
 	
-	public boolean isOverlappedBy(ContextAssertion event) {
-	    return AnnotationUtils.isValidityOverlap(getAnnotations(), event.getAnnotations());
+	public boolean overlaps(ContextAssertion event) {
+	    return AnnotationUtils.hasValidityOverlap(getAnnotations(), event.getAnnotations());
 	}    
+	
+	
+	public boolean intersects(ContextAssertion event) {
+	    return AnnotationUtils.intersects(getAnnotations(), event.getAnnotations());
+	}
 	
 	@Override
 	public String toString() {

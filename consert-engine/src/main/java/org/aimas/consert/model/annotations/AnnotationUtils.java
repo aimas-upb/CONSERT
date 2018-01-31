@@ -112,6 +112,17 @@ public class AnnotationUtils {
 	}
 	
 	
+	public static DatetimeInterval computeUnion(Date firstStart, Date firstEnd, Date secondStart, Date secondEnd) {
+		Date intersectStart = null;
+		Date intersectEnd = null;
+		
+		intersectStart = firstStart.before(secondStart) ? (Date)firstStart.clone() : (Date)secondStart.clone();		// min start
+		intersectEnd = firstEnd.before(secondEnd) ? (Date)secondEnd.clone() : (Date)firstEnd.clone();				// max end
+		
+		return new DatetimeInterval(intersectStart, intersectEnd);
+	}
+	
+	
 	public static DatetimeInterval computeIntersection(long firstTsStart, long firstTsEnd, long secondTsStart, long secondTsEnd) {
 		Calendar firstStart = Calendar.getInstance();
 		firstStart.setTimeInMillis(firstTsStart);
@@ -144,7 +155,7 @@ public class AnnotationUtils {
 	}
 	
 	
-	public static boolean isValidityOverlap(AnnotationData ann1, AnnotationData ann2) {
+	public static boolean hasValidityOverlap(AnnotationData ann1, AnnotationData ann2) {
 	    
 		if (ann1 == null || !(ann1 instanceof DefaultAnnotationData) )
 	    	return false;
@@ -152,17 +163,17 @@ public class AnnotationUtils {
 		if (ann2 == null || !(ann2 instanceof DefaultAnnotationData) )
 	    	return false;
 	    
-		DefaultAnnotationData my = (DefaultAnnotationData)ann1;
-		DefaultAnnotationData other = (DefaultAnnotationData)ann2;
+		DefaultAnnotationData firstAnn = (DefaultAnnotationData)ann1;
+		DefaultAnnotationData secondAnn = (DefaultAnnotationData)ann2;
 		
-	    if (my.getEndTime() == null)
+	    if (firstAnn.getEndTime() == null)
 	    	return false;
 	    
-	    if (other.getEndTime() == null)
+	    if (secondAnn.getEndTime() == null)
 	    	return false;
 		
-		if (my.getStartTime().equals(other.getStartTime()) && 
-				my.getEndTime().compareTo(other.getEndTime()) <= 0)
+		if (firstAnn.getStartTime().equals(secondAnn.getStartTime()) && 
+				firstAnn.getEndTime().compareTo(secondAnn.getEndTime()) <= 0)
 			return true;
 		else
 			return false;
