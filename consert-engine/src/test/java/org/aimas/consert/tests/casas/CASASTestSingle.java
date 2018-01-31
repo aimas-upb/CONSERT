@@ -23,6 +23,7 @@ import org.aimas.consert.tests.casas.utils.AnnIncludesOperator;
 import org.aimas.consert.tests.casas.utils.AnnIntersectsOperator;
 import org.aimas.consert.tests.casas.utils.AnnOverlappedByOperator;
 import org.aimas.consert.tests.casas.utils.AnnOverlapsOperator;
+import org.aimas.consert.tests.casas.utils.AnnStartsAfterOperator;
 import org.aimas.consert.utils.AssertionLogger;
 import org.aimas.consert.utils.TestSetup;
 import org.apache.log4j.Logger;
@@ -47,7 +48,7 @@ public class CASASTestSingle extends TestSetup {
 //	public static final String TASK = "t4";
 //	public static final String TEST_FILE = "files/casas_adlnormal/" + PERSON + "." + TASK + ".json";
 	
-	public static final String PERSON = "2";
+	public static final String PERSON = "23";
 	public static final String TASK = "data-single";
 	public static final String TEST_FILE = "files/casas_adlnormal_singles/" + TASK + "-" + PERSON + ".json";
 
@@ -131,6 +132,7 @@ public class CASASTestSingle extends TestSetup {
 		builderConf.setOption(EvaluatorOption.get("annHappensAfter", new AnnAfterOperator.AnnAfterEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesOperator.AnnIncludesEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annIntersects", new AnnIntersectsOperator.AnnIntersectsEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annStartsAfter", new AnnStartsAfterOperator.AnnStartsAfterEvaluatorDefinition()));
 		
 		// create a new kie session conf
 		KieSessionConfiguration kSessionConfig = KieServices.Factory.get().newKieSessionConfiguration();

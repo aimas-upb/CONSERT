@@ -83,6 +83,7 @@ public class CASASTestAll extends TestSetup {
 		builderConf.setOption(EvaluatorOption.get("annHappensAfter", new AnnAfterOperator.AnnAfterEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesOperator.AnnIncludesEvaluatorDefinition()));
 		builderConf.setOption(EvaluatorOption.get("annIntersects", new AnnIntersectsOperator.AnnIntersectsEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annStartsAfter", new AnnStartsAfterOperator.AnnStartsAfterEvaluatorDefinition()));
 		
 		// create a new kie session conf
 		KieSessionConfiguration kSessionConfig = KieServices.Factory.get().newKieSessionConfiguration();
@@ -121,7 +122,7 @@ public class CASASTestAll extends TestSetup {
     	}
     	
     	eventInserter.stop();
-    	engineRunner.join(5000);
+    	engineRunner.join(2000);
     	
     	
 		// Plot the results. Plots are stored per task (i.e. the actions by all people are grouped per task).
