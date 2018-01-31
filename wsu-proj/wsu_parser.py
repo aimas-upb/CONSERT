@@ -2,7 +2,7 @@
 
 import dateparser
 import sys
-import os
+import os, ntpath
 import shutil
 import datetime, pytz
 
@@ -316,9 +316,10 @@ def to_json_file(input_file_path, output_file_path, activity_interval_file_path,
             json.dump(activity_intervals, outfile) 
 
 
-if not len(sys.argv) == 2:
+if not (len(sys.argv) == 2 or len(sys.argv) == 3):
     print("[ERROR] Input arguments not correct")
     sys.exit(-1)
+
 build_sensors()
 if os.path.isdir(sys.argv[1]):
     # extract basename (last folder in path)
@@ -350,9 +351,17 @@ elif os.path.isfile(sys.argv[1]):
     if sys.argv[1].endswith(".stream"):
         print("[ERROR] Will not convert .stream file")
         sys.exit(-1)
-    output_file_path = sys.argv[1] + ".json"
+
+    if not os.path.isdir(sys.argv[2]):
+        print("[ERROR] second argument (output folder) is not a folder")
+        sys.exit(-1)
+
+    outputfile_file = ntpath.basename(sys.argv[1])
+
+    output_file_path = sys.argv[2] + outputfile_file + ".json"
+    activity_interval_file_path = sys.argv[2] + outputfile_file + "-" + "activity_intervals" + ".json"
     # to_etalis_stream_file(sys.argv[1], output_file_path)
-    to_json_file(sys.argv[1], output_file_path)
+    to_json_file(sys.argv[1], output_file_path, activity_interval_file_path, has_class = True)
 else:
     print("[ERROR] Argument provided not file or folder")
     sys.exit(-1)
