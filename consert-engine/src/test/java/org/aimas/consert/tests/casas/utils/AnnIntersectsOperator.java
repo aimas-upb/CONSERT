@@ -202,16 +202,12 @@ public class AnnIntersectsOperator extends TestSetup {
                 }
             }
 
-            TimestampPair interval1 = getTemporalInterval(cachedAssertion);
-            TimestampPair interval2 = getTemporalInterval((EventFactHandle) left);
-
-            long distStart = interval1.end - interval2.start;
-            long distEnd = interval2.end - interval1.start;
-
-            return this.getOperator().isNegated() ^ (
-            			(distStart >= this.minDev && distStart <= this.maxDev) ||
-            			(distEnd >= this.minDev && distEnd <= this.maxDev)
-            		);
+            Interval interval1 = getTemporalInterval(cachedAssertion);
+            Interval interval2 = getTemporalInterval((EventFactHandle) left);
+            interval1.intersect(interval2);
+            
+            long intersectLength = interval1.getUpperBound() - interval1.getLowerBound();
+            return this.getOperator().isNegated() ^ (intersectLength >= this.minDev && intersectLength <= this.maxDev);
         }
 
 
@@ -232,14 +228,12 @@ public class AnnIntersectsOperator extends TestSetup {
                 }
             }
 
-            TimestampPair interval1 = getTemporalInterval((EventFactHandle) right);
-            TimestampPair interval2 = getTemporalInterval(cachedAssertion);
-
-            long distStart = interval1.end - interval2.start;
-            long distEnd = interval2.end - interval1.start;
-
-            return this.getOperator().isNegated() ^ (distStart >= this.minDev && distStart <= this.maxDev
-                    && distEnd >= this.minDev && distEnd <= this.maxDev);
+            Interval interval1 = getTemporalInterval((EventFactHandle) right);
+            Interval interval2 = getTemporalInterval(cachedAssertion);
+            interval1.intersect(interval2);
+            
+            long intersectLength = interval1.getUpperBound() - interval1.getLowerBound();
+            return this.getOperator().isNegated() ^ (intersectLength >= this.minDev && intersectLength <= this.maxDev);
         }
 
 
@@ -255,23 +249,29 @@ public class AnnIntersectsOperator extends TestSetup {
             }
 
             // if both events are non-null, retrieve the TimestampPairs
-            TimestampPair interval1 = getTemporalInterval((EventFactHandle)handle1);
-            TimestampPair interval2 = getTemporalInterval((EventFactHandle)handle2);
-
-            long distStart = interval1.end - interval2.start;
-            long distEnd = interval2.end - interval1.start;
+            Interval interval1 = getTemporalInterval((EventFactHandle)handle1);
+            Interval interval2 = getTemporalInterval((EventFactHandle)handle2);
+            interval1.intersect(interval2);
+            
+            //long distStart = interval1.end - interval2.start;
+            //long distEnd = interval2.end - interval1.start;
             
             /*
              * The parameters are used to evaluate the min and max length of the intersection slice.
              * Since the intersection is a combination of both `overlaps` and `overlappedBy`, 
              * either the `startDistance` or the `endDistance` have to be within the `minDev` and `maxDev` distances
              */
-            return this.getOperator().isNegated() ^ (distStart >= this.minDev && distStart <= this.maxDev
-                    && distEnd >= this.minDev && distEnd <= this.maxDev);
+            //return this.getOperator().isNegated() ^ (
+            //		(distStart >= this.minDev && distStart <= this.maxDev) ||
+            //        (distEnd >= this.minDev && distEnd <= this.maxDev)
+            //       );
+            
+            long intersectLength = interval1.getUpperBound() - interval1.getLowerBound();
+            return this.getOperator().isNegated() ^ (intersectLength >= this.minDev && intersectLength <= this.maxDev);
         }
 
 
-        private TimestampPair getTemporalInterval(ContextAssertion assertion) {
+        private Interval getTemporalInterval(ContextAssertion assertion) {
             DefaultAnnotationData ann = (DefaultAnnotationData)assertion.getAnnotations();
             long start = 0;
             long end = Long.MAX_VALUE;
@@ -282,16 +282,16 @@ public class AnnIntersectsOperator extends TestSetup {
             if (ann.getEndTime() != null)
             	end = ann.getEndTime().getTime();
             
-            return new TimestampPair(start, end);
+            return new Interval(start, end);
         }
 
-        private TimestampPair getTemporalInterval(EventFactHandle handle) {
+        private Interval getTemporalInterval(EventFactHandle handle) {
             if (handle.getObject() instanceof ContextAssertion) {
                 ContextAssertion assertion = (ContextAssertion)handle.getObject();
                 return getTemporalInterval(assertion);
             }
             else {
-                return new TimestampPair(handle.getStartTimestamp(), handle.getEndTimestamp());
+                return new Interval(handle.getStartTimestamp(), handle.getEndTimestamp());
             }
         }
 

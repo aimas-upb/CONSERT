@@ -206,7 +206,7 @@ public class AnnStartsAfterOperator extends TestSetup {
             TimestampPair interval1 = getTemporalInterval(cachedAssertion);
             TimestampPair interval2 = getTemporalInterval((EventFactHandle) left);
 
-            long dist = interval2.start - interval1.start;
+            long dist = interval1.start - interval2.start;
 
             return this.getOperator().isNegated() ^
                     ( dist >= this.minDev && dist <= this.maxDev );
@@ -230,10 +230,10 @@ public class AnnStartsAfterOperator extends TestSetup {
                 }
             }
 
-            TimestampPair interval1 = getTemporalInterval(right);
+            TimestampPair interval1 = getTemporalInterval((EventFactHandle) right);
             TimestampPair interval2 = getTemporalInterval(cachedAssertion);
 
-            long dist = interval2.start - interval1.start;
+            long dist = interval1.start - interval2.start;
 
             return this.getOperator().isNegated() ^
                     ( dist >= this.minDev && dist <= this.maxDev );
@@ -255,7 +255,7 @@ public class AnnStartsAfterOperator extends TestSetup {
             TimestampPair interval1 = getTemporalInterval(handle1);
             TimestampPair interval2 = getTemporalInterval(handle2);
 
-            long dist = interval2.start - interval1.start;
+            long dist = interval1.start - interval2.start;
 
             return this.getOperator().isNegated() ^
                     ( dist >= this.minDev && dist <= this.maxDev );
