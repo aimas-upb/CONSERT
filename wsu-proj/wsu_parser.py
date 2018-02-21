@@ -74,13 +74,55 @@ def build_sensors():
     sensors['asterisk'] = {"type": "phone", "id": "phone", "value_type": DISCRETE, "accepted_values": ["START", "END"]}
 
     # add cabinet sensors
-    for sensor_id in range(1, 13):
-        id_key = 'D' + str(sensor_id).zfill(2)
-        sensors[id_key] = {"type": "cabinet",
-                           "id": str(sensor_id).zfill(2),
+    sensors['D01'] = {"type": "cabinet",
+                           "id": "door1",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-
+	sensors['D02'] = {"type": "cabinet",
+                           "id": "door2",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D03'] = {"type": "cabinet",
+                           "id": "door3",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D04'] = {"type": "cabinet",
+                           "id": "door4",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D05'] = {"type": "cabinet",
+                           "id": "door5",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D06'] = {"type": "cabinet",
+                           "id": "door6"
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D07'] = {"type": "cabinet",
+                           "id": "door7",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D08'] = {"type": "cabinet",
+                           "id": "freezer",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D09'] = {"type": "cabinet",
+                           "id": "fridge",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D10'] = {"type": "cabinet",
+                           "id": "microwave",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D11'] = {"type": "cabinet",
+                           "id": "door11",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+	sensors['D12'] = {"type": "cabinet",
+                           "id": "clothes_closet",
+                           "value_type": DISCRETE,
+                           "accepted_values": ["OPEN", "CLOSE"]}
+					   
     # add special sensors
     sensors["AD1-A"] = {"type": "burner",
                         "id": "burner",
