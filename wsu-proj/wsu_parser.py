@@ -30,27 +30,27 @@ def build_sensors():
 
     # add item sensors
     sensors['I01'] = {"type": "item",
-                      "id": "oatmeal",
+                      "id": "soup",
                       "value_type": DISCRETE,
                       "accepted_values": ["ABSENT", "PRESENT"]}
 
     sensors['I02'] = {"type": "item",
-                      "id": "raisins",
+                      "id": "glass",
                       "value_type": DISCRETE,
                       "accepted_values": ["ABSENT", "PRESENT"]}
 
     sensors['I03'] = {"type": "item",
-                      "id": "brown_sugar",
+                      "id": "DVD",
                       "value_type": DISCRETE,
                       "accepted_values": ["ABSENT", "PRESENT"]}
 
     sensors['I04'] = {"type": "item",
-                      "id": "bowl",
+                      "id": "pill_dispenser",
                       "value_type": DISCRETE,
                       "accepted_values": ["ABSENT", "PRESENT"]}
 
     sensors['I05'] = {"type": "item",
-                      "id": "measuring_spoon",
+                      "id": "DVD_Player",
                       "value_type": DISCRETE,
                       "accepted_values": ["ABSENT", "PRESENT"]}
 
@@ -65,11 +65,14 @@ def build_sensors():
                       "accepted_values": ["ABSENT", "PRESENT"]}
 
     sensors['I08'] = {"type": "item",
-                      "id": "phone_book",
+                      "id": "address_book",
                       "value_type": DISCRETE,
                       "accepted_values": ["ABSENT", "PRESENT"]}
 
-    sensors['I09'] = {"type": "item", "id": "unknown", "value_type": DISCRETE, "accepted_values": ["ABSENT", "PRESENT"]}
+    sensors['I09'] = {"type": "item", 
+					  "id": "envelope", 
+					  "value_type": DISCRETE, 
+					  "accepted_values": ["ABSENT", "PRESENT"]}
 
     sensors['asterisk'] = {"type": "phone", "id": "phone", "value_type": DISCRETE, "accepted_values": ["START", "END"]}
 
