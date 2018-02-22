@@ -99,10 +99,10 @@ def build_sensors():
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
 	sensors['D07'] = {"type": "cabinet",
-                           "id": "door7",
+                           "id": "cupboard",
                            "value_type": DISCRETE,
-                           "accepted_values": ["OPEN", "CLOSE"]}
 	sensors['D08'] = {"type": "cabinet",
+                           "accepted_values": ["OPEN", "CLOSE"]}
                            "id": "freezer",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
@@ -115,11 +115,11 @@ def build_sensors():
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
 	sensors['D11'] = {"type": "cabinet",
-                           "id": "door11",
+                           "id": "supplies",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
 	sensors['D12'] = {"type": "cabinet",
-                           "id": "clothes_closet",
+                           "id": "wardrobe",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
 					   
