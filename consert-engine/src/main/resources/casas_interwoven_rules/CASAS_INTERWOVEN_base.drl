@@ -9,4 +9,6 @@
     activity 7 - cleaning - base sensors - D11 for going to the supplies and movement sensors to see where it is
     activity 8 - choose outfit - base sensors - D12 for the wardrobe
 
+    - we can see that every activity has its own sensors, with only one exception - D11 is important for both
+      activity 7 and 3. We must differ those activities by checking the presence/ absence of the AD1 sensors
 */
