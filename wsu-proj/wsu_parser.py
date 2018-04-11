@@ -81,47 +81,47 @@ def build_sensors():
                            "id": "door1",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D02'] = {"type": "cabinet",
+    sensors['D02'] = {"type": "cabinet",
                            "id": "door2",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D03'] = {"type": "cabinet",
+    sensors['D03'] = {"type": "cabinet",
                            "id": "door3",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D04'] = {"type": "cabinet",
+    sensors['D04'] = {"type": "cabinet",
                            "id": "door4",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D05'] = {"type": "cabinet",
+    sensors['D05'] = {"type": "cabinet",
                            "id": "door5",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D06'] = {"type": "cabinet",
-                           "id": "door6"
+    sensors['D06'] = {"type": "cabinet",
+                           "id": "door6",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D07'] = {"type": "cabinet",
+    sensors['D07'] = {"type": "cabinet",
                            "id": "cupboard",
                            "value_type": DISCRETE,
-	sensors['D08'] = {"type": "cabinet",
                            "accepted_values": ["OPEN", "CLOSE"]}
+    sensors['D08'] = {"type": "cabinet",
                            "id": "freezer",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D09'] = {"type": "cabinet",
+    sensors['D09'] = {"type": "cabinet",
                            "id": "fridge",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D10'] = {"type": "cabinet",
+    sensors['D10'] = {"type": "cabinet",
                            "id": "microwave",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D11'] = {"type": "cabinet",
+    sensors['D11'] = {"type": "cabinet",
                            "id": "supplies",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D12'] = {"type": "cabinet",
+    sensors['D12'] = {"type": "cabinet",
                            "id": "wardrobe",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
@@ -229,7 +229,7 @@ def to_json(input_file_path, has_class=False):
                     continue
             else:
                 print("[ERROR] Sensor value_type not correctly formatted: " + line)
-                print tokens
+                print (tokens)
                 #sys.exit(-1)
                 continue
 
@@ -382,8 +382,8 @@ if os.path.isdir(sys.argv[1]):
 
     for file in os.listdir(sys.argv[1]):
         input_file_path = os.path.join(sys.argv[1], file)
-        if file.endswith(".json") or file.endswith(".png") or file == "README":
-            print("[WARN] Skipping .stream, .png or README file: " + file)
+        if file.endswith(".json") or file.endswith(".png") or file.endswith(".stream") or file == "README":
+            print("[WARN] Skipping .stream, .png, .stream or README file: " + file)
             continue
         #output_file_path = input_file_path + ".json"
         output_file_path = os.path.join(output_dir, file + ".json")
