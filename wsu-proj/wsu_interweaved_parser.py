@@ -17,8 +17,6 @@ epoch = datetime.datetime.utcfromtimestamp(0)
 epoch = epoch.replace(tzinfo=pytz.UTC)
 
 
-activity_types = ["Phone_Call", "Wash_hands", "Cook", "Eat", "Clean"]
-
 interweaved_activity_map = {
   1: "fill_dispenser",
   2: "watch_dvd",
@@ -35,7 +33,7 @@ def build_sensors():
     for sensor_id in range(1, 52):
         id_key = 'M' + str(sensor_id).zfill(2)
         sensors[id_key] = {"type": "motion",
-                           "id": str(sensor_id).zfill(2),
+                           "id": id_key,
                            "value_type": DISCRETE,
                            "accepted_values": ["ON", "OFF"]}
 
@@ -92,47 +90,54 @@ def build_sensors():
                            "id": "door1",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D02'] = {"type": "cabinet",
+
+    sensors['D02'] = {"type": "cabinet",
                            "id": "door2",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D03'] = {"type": "cabinet",
+
+    sensors['D03'] = {"type": "cabinet",
                            "id": "door3",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D04'] = {"type": "cabinet",
+    sensors['D04'] = {"type": "cabinet",
                            "id": "door4",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D05'] = {"type": "cabinet",
+    sensors['D05'] = {"type": "cabinet",
                            "id": "door5",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D06'] = {"type": "cabinet",
-                           "id": "door6"
+    sensors['D06'] = {"type": "cabinet",
+                           "id": "door6",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D07'] = {"type": "cabinet",
+    sensors['D07'] = {"type": "cabinet",
                            "id": "cupboard",
                            "value_type": DISCRETE,
-	sensors['D08'] = {"type": "cabinet",
                            "accepted_values": ["OPEN", "CLOSE"]}
+    
+    sensors['D08'] = {"type": "cabinet",
                            "id": "freezer",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D09'] = {"type": "cabinet",
+
+    sensors['D09'] = {"type": "cabinet",
                            "id": "fridge",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D10'] = {"type": "cabinet",
+    
+    sensors['D10'] = {"type": "cabinet",
                            "id": "microwave",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D11'] = {"type": "cabinet",
+    
+    sensors['D11'] = {"type": "cabinet",
                            "id": "supplies",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
-	sensors['D12'] = {"type": "cabinet",
+    
+    sensors['D12'] = {"type": "cabinet",
                            "id": "wardrobe",
                            "value_type": DISCRETE,
                            "accepted_values": ["OPEN", "CLOSE"]}
@@ -163,7 +168,7 @@ def build_sensors():
     for sensor_id in range(1, 4):
         id_key = 'T' + str(sensor_id).zfill(2)
         sensors[id_key] = {"type": "temperature",
-                           "id": str(sensor_id).zfill(2),
+                           "id": id_key,
                            "value_type": NUMERIC,
                            "accepted_values": [-10, 50]}
 
@@ -196,10 +201,15 @@ def safe_open(input_file_path):
 def to_json(input_file_path, has_class=False):
     event_list = []
     activity_intervals = {}
+    first_timestamp = None
+
+    previous_activity_class = None
+    current_activity_start = None
 
     with safe_open(input_file_path) as input_file:
         for line in input_file:
             tokens = line.strip().replace('\t', ' ').split(' ')
+            tokens = [t for t in tokens if t != ' ' and t != '']
 
             # parse date
             datetime = parse_date(tokens)
@@ -245,20 +255,46 @@ def to_json(input_file_path, has_class=False):
                 continue
 
             # parse and validate event class
-            if has_class:
-                if len(tokens) == 6:
-                    event_class = tokens[4]
-                    interval_tick = tokens[5]
+            # if has_class:
+            #     if len(tokens) == 6:
+            #         event_class = tokens[4]
+            #         interval_tick = tokens[5]
 
-                    if event_class in activity_types: 
-                        if not event_class in activity_intervals and interval_tick == "begin":
-                            activity_intervals[event_class] = {
-                                "start" : int(unix_time_millis(datetime))
-                            }
-                        elif event_class in activity_intervals and interval_tick == "end":
-                            activity_intervals[event_class].update({
-                                "end" : int(unix_time_millis(datetime))
-                            })
+            #         if event_class in activity_types: 
+            #             if not event_class in activity_intervals and interval_tick == "begin":
+            #                 activity_intervals[event_class] = {
+            #                     "start" : int(unix_time_millis(datetime))
+            #                 }
+            #             elif event_class in activity_intervals and interval_tick == "end":
+            #                 activity_intervals[event_class].update({
+            #                     "end" : int(unix_time_millis(datetime))
+            #                 })
+            print "event_class = " + tokens[4]
+            event_class = int(tokens[4])
+
+            if not previous_activity_class:
+              current_activity_start = int(unix_time_millis(datetime))
+              previous_activity_class = event_class
+              first_timestamp = int(unix_time_millis(datetime))
+            else:
+              if event_class != previous_activity_class:
+                if previous_activity_class in activity_intervals:
+                  activity_intervals[previous_activity_class].append(
+                    {
+                      "activity_type": interweaved_activity_map[previous_activity_class],
+                      "interval" : {"start" : current_activity_start, "end": int(unix_time_millis(datetime))}
+                    })
+                else:
+                  activity_intervals[previous_activity_class] = \
+                    [{
+                      "activity_type": interweaved_activity_map[previous_activity_class],
+                      "interval" : {"start" : current_activity_start, "end": int(unix_time_millis(datetime))}
+                    }
+                    ]
+
+                previous_activity_class = event_class
+                current_activity_start = int(unix_time_millis(datetime))
+
 
             event = create_json_event(event_id, event_value, datetime)
             # event = {
@@ -275,7 +311,7 @@ def to_json(input_file_path, has_class=False):
             # }
 
             event_list.append(event)
-    return event_list, activity_intervals
+    return event_list, activity_intervals, first_timestamp
 
 
 def create_json_event(event_id, event_value, dt):
@@ -319,7 +355,7 @@ def create_json_event(event_id, event_value, dt):
                 "event": {
                     "event_type": sensors[event_id]['type'],
                     "event_info": {
-                        "sensorId": event_id,
+                        "sensorId": sensors[event_id]['id'],
                         "value": float(event_value),
                         "annotations": {
                             "confidence": 1,
@@ -336,7 +372,7 @@ def create_json_event(event_id, event_value, dt):
                 "event": {
                     "event_type": sensors[event_id]['type'],
                     "event_info": {
-                        "sensorId": event_id,
+                        "sensorId": sensors[event_id]['id'],
                         "status": event_value,
                         "annotations": {
                             "confidence": 1,
@@ -351,22 +387,21 @@ def create_json_event(event_id, event_value, dt):
 
 
 def to_json_file(input_file_path, output_file_path, activity_interval_file_path, has_class=False):
-    event_list, activity_intervals = to_json(input_file_path, has_class)
+    event_list, activity_intervals, start_ts = to_json(input_file_path, has_class)
     if event_list:
         with open(output_file_path, 'w') as outfile:
             json.dump(event_list, outfile)
 
     if activity_intervals:
-        print (activity_intervals)
-        # process the activity_intervals to add the relative difference from the first timestamp
-        # in the ADL Normal dataset this is always the Phone_call
-        start_ts = activity_intervals["Phone_Call"]["start"]
+        # print (activity_intervals)
+        
 
         for k in activity_intervals.keys():
-            activity_intervals[k].update({
-                "relative_start" : activity_intervals[k]["start"] - start_ts,
-                "relative_end" : activity_intervals[k]["end"] - start_ts
-            })
+            for interval in activity_intervals[k]:
+              interval["interval"].update({
+                "relative_start" : interval["interval"]["start"] - start_ts,
+                "relative_end" : interval["interval"]["end"] - start_ts
+              })
 
         with open(activity_interval_file_path, 'w') as outfile:
             json.dump(activity_intervals, outfile) 
@@ -377,6 +412,7 @@ if not (len(sys.argv) == 2 or len(sys.argv) == 3):
     sys.exit(-1)
 
 build_sensors()
+
 if os.path.isdir(sys.argv[1]):
     # extract basename (last folder in path)
     base_folder = os.path.basename(os.path.normpath(sys.argv[1]))
@@ -389,35 +425,38 @@ if os.path.isdir(sys.argv[1]):
     # create output dirs
     os.makedirs(output_dir)
 
-    print("[INFO] Parsing folder: " + sys.argv[1])
+    for person_dir in os.listdir(sys.argv[1]):
+      full_dir = os.path.join(sys.argv[1], person_dir)
+      
+      print("[INFO] Parsing folder: " + full_dir)
 
-    for file in os.listdir(sys.argv[1]):
-        input_file_path = os.path.join(sys.argv[1], file)
-        if file.endswith(".json") or file.endswith(".png") or file == "README":
-            print("[WARN] Skipping .stream, .png or README file: " + file)
-            continue
-        #output_file_path = input_file_path + ".json"
-        output_file_path = os.path.join(output_dir, file + ".json")
-        activity_interval_file_path = os.path.join(output_dir, file + "-activity_intervals" + ".json")
+      if os.path.isdir(full_dir):
+        for file in os.listdir(full_dir):
+          if "interweave" in file or "interwoven" in file:
+            print("[INFO] Parsing file: " + file + " for person: " + person_dir)
 
-        # to_etalis_stream_file(input_file_path, output_file_path)
-        to_json_file(input_file_path, output_file_path, activity_interval_file_path, has_class = True)
+            input_file_path = os.path.join(full_dir, file)
+            output_file_path = os.path.join(output_dir, person_dir + "_interweaved.json")
+            activity_interval_file_path = os.path.join(output_dir, person_dir + "_activity_intervals" + ".json")
 
-elif os.path.isfile(sys.argv[1]):
-    if sys.argv[1].endswith(".stream"):
-        print("[ERROR] Will not convert .stream file")
-        sys.exit(-1)
+            to_json_file(input_file_path, output_file_path, activity_interval_file_path, has_class = True)
+            break
 
-    if not os.path.isdir(sys.argv[2]):
-        print("[ERROR] second argument (output folder) is not a folder")
-        sys.exit(-1)
+# elif os.path.isfile(sys.argv[1]):
+#     if sys.argv[1].endswith(".stream"):
+#         print("[ERROR] Will not convert .stream file")
+#         sys.exit(-1)
 
-    outputfile_file = ntpath.basename(sys.argv[1])
+#     if not os.path.isdir(sys.argv[2]):
+#         print("[ERROR] second argument (output folder) is not a folder")
+#         sys.exit(-1)
 
-    output_file_path = sys.argv[2] + outputfile_file + ".json"
-    activity_interval_file_path = sys.argv[2] + outputfile_file + "-" + "activity_intervals" + ".json"
-    # to_etalis_stream_file(sys.argv[1], output_file_path)
-    to_json_file(sys.argv[1], output_file_path, activity_interval_file_path, has_class = True)
+#     outputfile_file = ntpath.basename(sys.argv[1])
+
+#     output_file_path = sys.argv[2] + outputfile_file + ".json"
+#     activity_interval_file_path = sys.argv[2] + outputfile_file + "-" + "activity_intervals" + ".json"
+#     # to_etalis_stream_file(sys.argv[1], output_file_path)
+#     to_json_file(sys.argv[1], output_file_path, activity_interval_file_path, has_class = True)
 else:
     print("[ERROR] Argument provided not file or folder")
     sys.exit(-1)

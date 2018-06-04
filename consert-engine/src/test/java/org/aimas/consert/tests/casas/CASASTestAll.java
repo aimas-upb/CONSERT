@@ -109,8 +109,10 @@ public class CASASTestAll extends TestSetup {
 		clock.advanceTime(testStartTs, TimeUnit.MILLISECONDS);
     	
 		EventTracker eventTracker = new EventTracker(kSession);
+		EventReader eventReader = new CASASEventReader();
     	//CASASEventInserter eventInserter = new CASASEventInserter(inputFile, eventTracker);
-		CASASSimClockEventInserter eventInserter = new CASASSimClockEventInserter(inputFile, kSession, eventTracker);
+		CASASSimClockEventInserter eventInserter = new CASASSimClockEventInserter(inputFile, eventReader,
+				kSession, eventTracker);
     	kSession.addEventListener(eventTracker);
     	
     	// start the engine thread and the inserter, wait for the inserter to finish then exit

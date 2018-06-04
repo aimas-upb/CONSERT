@@ -16,8 +16,9 @@ public class HandlingFood extends BinaryContextAssertion {
 
     public HandlingFood(AnnotationData annotations) {
         super(new StringLiteral("HandlingFood"),new StringLiteral("HandlingFood"),  AcquisitionType.DERIVED, annotations);
-
     }
+    
+    
     public HandlingFood(String sensorId, String status, AnnotationData annotations) {
         super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.DERIVED, annotations);
 

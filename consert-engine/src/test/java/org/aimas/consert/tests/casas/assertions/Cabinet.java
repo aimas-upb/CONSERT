@@ -2,7 +2,6 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
-import org.aimas.consert.model.content.ContextAssertion.AcquisitionType;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Cabinet extends BinaryContextAssertion {

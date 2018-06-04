@@ -24,6 +24,8 @@ public class CASASEventInserter {
 	private Object syncObj = new Object();
 	
 	private File eventInputFile;
+	private EventReader eventReader;
+	
 	private EventTracker eventTracker;
 	
 	private Queue<Object> events;
@@ -33,14 +35,15 @@ public class CASASEventInserter {
 	
 	private Map<String, ContextAssertion> itemActivationMap = new HashMap<String, ContextAssertion>();
 	
-	public CASASEventInserter(File eventInputFile, EventTracker eventTracker) {
+	public CASASEventInserter(File eventInputFile, EventReader reader, EventTracker eventTracker) {
 		this.eventInputFile = eventInputFile;
+		this.eventReader = reader;
 		this.eventTracker = eventTracker;
 		events = parseEvents();
 	}
 	
 	private Queue<Object> parseEvents() {
-	    return CASASEventReader.parseEvents(eventInputFile);
+	    return eventReader.parseEvents(eventInputFile);
     }
 
 	public void start() {

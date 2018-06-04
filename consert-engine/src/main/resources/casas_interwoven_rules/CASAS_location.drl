@@ -8,6 +8,9 @@ import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+
 import org.aimas.consert.engine.EventTracker
 
 global EventTracker eventTracker;
@@ -26,12 +29,6 @@ end
 
 rule "At Dining Table"
     when 
-        //$motion : Motion(sensorId == "M13" || sensorId == "M14", annMotion : annotations) from entry-point "MotionStream"
-        //not ( //PersonLocation(loc : location != "DiningTable", $annBase : annotations, this before[0s, 5s] $motion) from entry-point "PersonLocationStream" || 
-        //      PersonLocation(loc : location != "DiningTable", annExtended : annotations) from entry-point "ExtendedPersonLocationStream" &&
-        //      eval( ((DefaultAnnotationData)annExtended).getStartTime().before(((DefaultAnnotationData)annMotion).getStartTime()) && 
-        //      ((DefaultAnnotationData)annMotion).getStartTime().getTime() - ((DefaultAnnotationData)annExtended).getEndTime().getTime() <= 1000 )
-        //)
         $motion : Motion(sensorId == "M13" || sensorId == "M14") from entry-point "MotionStream"
         not (
             exists Motion(id1 : sensorId, id1 not in ("M13", "M14"), this before[0s, 2s] $motion) from entry-point "MotionStream" &&
@@ -97,19 +94,36 @@ end
 // ==============================================================================
 // =============================== in the kitchen ===============================
 // ==============================================================================
+rule "Entering the kitchen"
+    when
+        $m1 : Motion(sensorId == "M15", status == "ON") from entry-point "MotionStream"
+        $m2 : Motion(sensorId == "M16", status == "ON", this after[0s, 5s] $m1) from entry-point "MotionStream"
+        not (exists Motion(id : sensorId, id not in ("M15", "M16", "M17", "M18"), status == "ON", this after[0s, 2s] $m2) from entry-point "MotionStream" )
+    then
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        ActivityTriggered inKitchen = new ActivityTriggered("inKitchen", ts);
+        eventTracker.insertStaticEvent(inKitchen);
+        
+        System.out.println("////// ~~~~~ Triggering IN KITCHEN FACT at " + ts);
+end
+
+rule "Leaving the kitchen"
+    when 
+        $act : ActivityTriggered(name == "inKitchen", prevTs : timestamp)
+        $m1 : Motion(mId : sensorId, mId == "M15" || mId == "M16", status == "ON") from entry-point "MotionStream"
+        not (exists Motion(otherId : sensorId, otherId == mId, status == "ON", this after $m1) from entry-point "MotionStream")
+        exists Motion(id : sensorId, id not in ("M15", "M16", "M17", "M18"), status == "ON", this after[2s, 10s] $m1) from entry-point "MotionStream"
+    then
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        System.out.println("////// ~~~~~ Removing IN KITCHEN FACT at " + ts + ", after: " + (ts - prevTs) + " ms");
+        System.out.println("////// ~~~~~ Removing IN KITCHEN FACT based on: " + $m1);
+        eventTracker.deleteStaticEvent($act);
+end
+
+
 rule "In the kitchen"
     when 
-        //$motion : Motion(sensorId == "M16" || sensorId == "M17" || sensorId == "M18") from entry-point "MotionStream"
-        //not ( PersonLocation(loc : location != "Kitchen", this before[0s, 5s] $motion) from entry-point "PersonLocationStream" || 
-        //      PersonLocation(loc : location != "Kitchen", this before[0s, 5s] $motion) from entry-point "ExtendedPersonLocationStream" )
-        //not ( $motionBefore : Motion(id : sensorId, id not in ("M16", "M17", "M18"), this before[0s, 5s] $motion) from entry-point "MotionStream")
-        
-        //$motion : Motion(sensorId == "M16" || sensorId == "M17" || sensorId == "M18", annMotion : annotations) from entry-point "MotionStream"
-        //not (  
-        //      PersonLocation(loc : location != "Kitchen", annExtended : annotations) from entry-point "ExtendedPersonLocationStream" &&
-        //      eval( ((DefaultAnnotationData)annExtended).getStartTime().before(((DefaultAnnotationData)annMotion).getStartTime()) && 
-        //      ((DefaultAnnotationData)annMotion).getStartTime().getTime() - ((DefaultAnnotationData)annExtended).getEndTime().getTime() <= 1000 )
-        //)
         $motion : Motion(sensorId == "M15" || sensorId == "M16" || sensorId == "M17" || sensorId == "M18") from entry-point "MotionStream"
         not ( exists Motion(id1 : sensorId, id1 not in ("M15", "M16", "M17", "M18"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
         not ( exists Motion(id2 : sensorId, id2 not in ("M15", "M16", "M17", "M18"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
@@ -421,7 +435,7 @@ rule "In supplies area"
 end
 
 
-rule "Stay in wardrobe area"
+rule "Stay in supplies area"
     salience 10
     when
         $motion : Motion(id : sensorId == "M51", status == "OFF") from entry-point "MotionStream"
@@ -441,7 +455,7 @@ rule "Stay in wardrobe area"
 end
 
 
-rule "Remain in wardrobe area"
+rule "Remain in supplies area"
     salience 20
     when
         loc : PersonLocation(location1 : location == "Supplies") from entry-point "ExtendedPersonLocationStream"

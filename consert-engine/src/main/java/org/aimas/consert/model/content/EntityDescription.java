@@ -93,5 +93,12 @@ public abstract class EntityDescription {
 	    return true;
     }
 	
-	
+	@Override
+	public String toString() {
+		String str = getClass().getSimpleName() + "(";
+		str += getSubject() + ", " + getObject();
+		str += ")";
+		
+		return str;
+	}
 }

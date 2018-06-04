@@ -6,6 +6,9 @@ import org.aimas.consert.engine.TrackedAssertionStore.TrackedEventData;
 import org.aimas.consert.engine.api.ContextAssertionListener;
 import org.aimas.consert.engine.api.ContextAssertionListenerRegistrer;
 import org.aimas.consert.engine.api.ContextAssertionNotifier;
+import org.aimas.consert.engine.api.EntityDescriptionListener;
+import org.aimas.consert.engine.api.EntityDescriptionListenerRegistrer;
+import org.aimas.consert.engine.api.EntityDescriptionNotifier;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationDataFactory;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
@@ -20,13 +23,14 @@ import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
 
-public class EventTracker extends BaseEventTracker implements ContextAssertionListenerRegistrer {
+public class EventTracker extends BaseEventTracker implements ContextAssertionListenerRegistrer, EntityDescriptionListenerRegistrer {
 	
 	private TrackedAssertionStore trackedAssertionStore = TrackedAssertionStore.getNewInstance();
 	
 	private AnnotationDataFactory annotationFactory = new DefaultAnnotationDataFactory();
 	
 	private ContextAssertionNotifier eventNotifier = ContextAssertionNotifier.getNewInstance();
+	private EntityDescriptionNotifier factNotifier = EntityDescriptionNotifier.getNewInstance();
 	
 	public AnnotationDataFactory getAnnotationFactory() {
 		return annotationFactory;
@@ -337,19 +341,24 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		//System.out.println();
 		
 		FactHandle deletedHandle = event.getFactHandle();
-	    ContextAssertion deletedAssertion = (ContextAssertion)event.getOldObject();
-	    
-	    if (trackedAssertionStore.untrack(deletedHandle, deletedAssertion)) {
-	    	trackedAssertionStore.markExpired(deletedHandle, deletedAssertion);
-	    }
-	    
-	    eventNotifier.notifyEventDeleted(deletedAssertion);
+		if (event.getOldObject() instanceof ContextAssertion) {
+			ContextAssertion deletedAssertion = (ContextAssertion)event.getOldObject();
+		    
+		    if (trackedAssertionStore.untrack(deletedHandle, deletedAssertion)) {
+		    	trackedAssertionStore.markExpired(deletedHandle, deletedAssertion);
+		    }
+		    
+		    eventNotifier.notifyEventDeleted(deletedAssertion);
+		}
+		else if (event.getOldObject() instanceof EntityDescription) {
+			factNotifier.notifyFactDeleted((EntityDescription)event.getOldObject());
+		}
     }
 	
 	
     @Override
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
-		//System.out.println("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
+		
 		//System.out.println("	HANDLE: " + insertEvent.getFactHandle());
 		//if (insertEvent.getRule() != null) {
 		//	System.out.println("	RULE: " + insertEvent.getRule().getName());
@@ -357,8 +366,12 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		//System.out.println();
 
 		// notify insertion of new event
-		eventNotifier.notifyEventInserted((ContextAssertion)insertEvent.getObject());
-
+    	if (insertEvent.getObject() instanceof ContextAssertion) {
+    		eventNotifier.notifyEventInserted((ContextAssertion)insertEvent.getObject());
+    		//System.out.println("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
+    	}
+    	else if (insertEvent.getObject() instanceof EntityDescription)
+    		factNotifier.notifyFactInserted((EntityDescription)insertEvent.getObject());
     }
 
     
@@ -377,6 +390,16 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 	@Override
     public void removeEventListener(ContextAssertionListener eventListener) {
 	    eventNotifier.removeEventListener(eventListener);
+    }
+
+	@Override
+    public void addFactListener(EntityDescriptionListener factListener) {
+	    factNotifier.addfactListener(factListener);
+    }
+
+	@Override
+    public void removeFactListener(EntityDescriptionListener factListener) {
+	    factNotifier.removefactListener(factListener);
     }
 	
 	

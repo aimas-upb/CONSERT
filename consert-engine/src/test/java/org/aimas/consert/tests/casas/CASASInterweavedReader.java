@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Created by alex on 06.04.2017.
  */
-public class CASASEventReader implements EventReader {
+public class CASASInterweavedReader {
 	@SuppressWarnings("serial")
     public static final Map<String, Class<? extends ContextAssertion>> eventClassMapping = new HashMap<String, Class<? extends ContextAssertion>>() {
 		{
@@ -41,7 +41,7 @@ public class CASASEventReader implements EventReader {
 	};
 	
 	
-    public Queue<Object> parseEvents(File inputFile) {
+    public static Queue<Object> parseEvents(File inputFile) {
         Queue<Object> eventList = new LinkedList<Object>();
 
         try {

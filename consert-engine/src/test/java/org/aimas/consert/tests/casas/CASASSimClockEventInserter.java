@@ -32,6 +32,8 @@ public class CASASSimClockEventInserter {
 	private AtomicBoolean finished = new AtomicBoolean(false);
 	
 	private File eventInputFile;
+	private EventReader eventReader;
+	
 	private KieSession kSession;
 	private EventTracker eventTracker;
 	
@@ -45,8 +47,10 @@ public class CASASSimClockEventInserter {
 	
 	private Map<String, ContextAssertion> itemActivationMap = new HashMap<String, ContextAssertion>();
 	
-	public CASASSimClockEventInserter(File eventInputFile, KieSession kSession, EventTracker eventTracker) {
+	public CASASSimClockEventInserter(File eventInputFile, EventReader reader, 
+			KieSession kSession, EventTracker eventTracker) {
 		this.eventInputFile = eventInputFile;
+		this.eventReader = reader;
 		this.kSession = kSession;
 		this.eventTracker = eventTracker;
 		
@@ -54,7 +58,8 @@ public class CASASSimClockEventInserter {
 	}
 	
 	private Queue<Object> parseEvents() {
-	    return CASASEventReader.parseEvents(eventInputFile);
+	    
+		return eventReader.parseEvents(eventInputFile);
     }
 
 	public void start() {

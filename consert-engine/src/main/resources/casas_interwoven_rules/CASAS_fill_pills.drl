@@ -1,0 +1,112 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+import org.aimas.consert.tests.casas.assertions.FillDispenser
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+
+import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.utils.AssertionLogger
+
+import java.util.Date;
+
+global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
+
+
+// TODO: set the event role for the intermediary and final ContextAssertions
+declare FillDispenser
+    @role(event)
+end
+
+
+// TODO: set fact role for ActivityTriggered("fill_medicine", timestamp)
+/*
+rule "Pill dispenser removed" 
+    when 
+        $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+        $cupboard : Cabinet(sensorId == "cupboard", status == "OPEN", $loc annIncludes this) from entry-point "CabinetStream"
+        $medicine: Item(sensorId == "medicine", status == "ABSENT", this after[0s, 10s] $cupboard) from entry-point "ItemStream"
+        $dispenser: Item(sensorId == "pill_dispenser", status == "ABSENT", this after[0s, 10s] $cupboard) from entry-point "ItemStream"
+    then
+        System.out.println("////// Triggering START FILLING MEDICINE rule following events: " + $loc + ", " 
+            + $cupboard + ", " + $medicine + ", " + $dispenser + "\n");
+        
+        //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        //HandlingFood handlingFood = new HandlingFood(ann);
+        
+        //eventTracker.insertAtomicEvent(handlingFood);
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        ActivityTriggered medicineFill = new ActivityTriggered("MedicineFill", ts);
+        eventTracker.insertStaticEvent(medicineFill);
+end
+*/
+
+rule "Pill dispenser removed" 
+    when 
+        $act : ActivityTriggered(name == "inKitchen")
+        $cupboard : Cabinet(sensorId == "cupboard", status == "OPEN") from entry-point "CabinetStream"
+        not (exists Cabinet(sensorId == "cupboard", status == "OPEN", this after $cupboard) from entry-point "CabinetStream")
+        
+        $medicine: Item(sensorId == "medicine", status == "ABSENT", this after $cupboard) from entry-point "ItemStream"
+        not (exists Item(sensorId == "medicine", status == "ABSENT", this after $medicine) from entry-point "ItemStream")
+        
+        $dispenser: Item(sensorId == "pill_dispenser", status == "ABSENT", this after $cupboard) from entry-point "ItemStream"
+        not (exists Item(sensorId == "pill_dispenser", status == "ABSENT", this after $medicine) from entry-point "ItemStream")
+    then
+        System.out.println("////// Triggering START FILLING MEDICINE rule following events: " + $cupboard + ", " + $medicine + ", " + $dispenser + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        ActivityTriggered medicineFill = new ActivityTriggered("MedicineFill", ts);
+        eventTracker.insertStaticEvent(medicineFill);
+end
+
+
+rule "Filling pill dispenser"
+    timer (int: 0s 2s)
+    when 
+        $medicineFill: ActivityTriggered(name == "MedicineFill")
+        $act : ActivityTriggered(name == "inKitchen") 
+        //$loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+    then
+        System.out.println("////// Triggering FILLING PILL DISPENSER rule following events: " + $act + ", " + $medicineFill + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        AnnotationData ann = new DefaultAnnotationData(ts);
+        FillDispenser fillDispenser = new FillDispenser(ann);
+        
+        eventTracker.insertAtomicEvent(fillDispenser);
+end
+
+
+rule "Pill dispenser present" 
+    when 
+        //$loc: PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+        $act : ActivityTriggered(name == "inKitchen")
+        $medicineFill: ActivityTriggered(name == "MedicineFill")
+        
+        $cupboard: Cabinet(sensorId == "cupboard", status == "OPEN") from entry-point "CabinetStream"
+        not (exists Cabinet(sensorId == "cupboard", status == "OPEN", this after $cupboard) from entry-point "CabinetStream")
+        
+        $medicine: Item(sensorId == "pill_dispenser", status == "PRESENT", this after $cupboard) from entry-point "ItemStream"
+        not (exists Item(sensorId == "pill_dispenser", status == "PRESENT", this after $medicine) from entry-point "ItemStream")
+    then
+        System.out.println("////// Triggering STOP FILLING MEDICINE rule following events: " + $act + ", " 
+            + $cupboard + ", " + $medicine + ", " + $medicineFill + "\n");
+        
+        // remove the ActivityTriggered fact       
+        eventTracker.deleteStaticEvent($medicineFill);
+end

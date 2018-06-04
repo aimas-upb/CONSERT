@@ -1,0 +1,50 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+// TODO: import the required intermediary and final ContextAssertions - TakeDVD, PlayDVD, WatchDVD
+
+import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.utils.AssertionLogger
+
+import java.util.Date;
+
+global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
+
+
+// TODO: set the event role for the intermediary and final ContextAssertions
+
+/*
+rule "DVD taken" 
+    when 
+        $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+        $cupboard : Cabinet(sensorId == "cupboard", status == "OPEN", $loc annIncludes this) from entry-point "CabinetStream"
+        $medicine: Item(sensorId == "medicine", status == "ABSENT", this after[0s, 5s] $cupboard) from entry-point "ItemStream"
+        $dispenser: Item(sensorId == "pill_dispenser", status == "ABSENT", this after[0s, 5s] $cupboard) from entry-point "ItemStream"
+    then
+        System.out.println("////// Triggering START FILLING MEDICINE rule following events: " + $loc + ", " 
+            + $cupboard + ", " + $medicine + ", " + $dispenser + "\n");
+        
+        //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        //HandlingFood handlingFood = new HandlingFood(ann);
+        
+        //eventTracker.insertAtomicEvent(handlingFood);
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        ActivityTriggered medicineFill = new ActivityTriggered("MedicineFill", ts);
+        eventTracker.insertStaticEvent(medicineFill);
+end
+*/

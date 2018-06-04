@@ -14,6 +14,8 @@ import org.aimas.consert.tests.casas.assertions.HeatingFood
 import org.aimas.consert.tests.casas.assertions.PhoneCall
 import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
 
+import org.aimas.consert.tests.casas.assertions.FillDispenser
+
 import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
@@ -216,4 +218,23 @@ rule "ProbablyCleaningTest"
     then
         System.out.println("Inserted ProbablyCleaning event with: " + $probCleaning + ", timestamp: " + (long)$probCleaning.getStartTimestamp() + 
         " duration: " + (long)$probCleaning.getEventDuration());
+end
+
+
+rule "FillDispenserTest"
+    salience -10
+    when
+        $fillDispenser : FillDispenser() from entry-point "FillDispenserStream"
+    then
+        System.out.println("Inserted FillDispenser event with: " + $fillDispenser + ", timestamp: " + (long)$fillDispenser.getStartTimestamp() + 
+        " duration: " + (long)$fillDispenser.getEventDuration());
+end
+
+rule "ExtendedFillDispenser"
+    salience -10
+    when
+        $fillDispenser : FillDispenser() from entry-point "ExtendedFillDispenserStream"
+    then
+        System.out.println("Inserted EXTENDED FillDispenser event with: " + $fillDispenser + ", timestamp: " + (long)$fillDispenser.getStartTimestamp() + 
+        " duration: " + (long)$fillDispenser.getEventDuration());
 end
