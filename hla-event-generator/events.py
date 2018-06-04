@@ -622,13 +622,13 @@ class HLA(object):
 
                                     ## if false detection flag enabled
                                     if pos_fd:
-                                        print "POS " + self.active_pos + " is fucked up to ",
+                                        print ("POS " + self.active_pos + " is fucked up to ")
                                         ## generate a falsely detected Position event according to "reasonable false positives" (see ADJACENCY dict for each Position)
                                         false_pos_types = Position.AREA_ADJACENCY.get(self.active_pos)
                                         if false_pos_types:
                                             idx = random.randint(0, len(false_pos_types) - 1)
                                             false_pos_type = false_pos_types[idx]
-                                            print false_pos_type
+                                            print (false_pos_type)
 
                                             cert = AtomicEvent.get_fp_certainty_value(DEFAULT_TP_MU, DEFAULT_TP_SIGMA)
                                             pos = Position(type=false_pos_type, person=self.person, timestamp=ts_pos, certainty=cert)
@@ -658,13 +658,13 @@ class HLA(object):
 
                                     ## if false detection flag enabled
                                     if lla_fd:
-                                        print "LLA " + self.active_lla + " is fucked up to ",
+                                        print ("LLA " + self.active_lla + " is fucked up to ")
                                         ## generate a falsely detected LLA event according to "reasonable false positives" (see ADJACENCY dict for each LLA)
                                         false_llas = LLA.LLA_ADJACENCY.get(self.active_lla)
                                         if false_llas:
                                             idx = random.randint(0, len(false_llas) - 1)
                                             false_lla_type = false_llas[idx]
-                                            print false_lla_type
+                                            print (false_lla_type)
 
                                             cert = AtomicEvent.get_tp_certainty_value(DEFAULT_TP_MU, DEFAULT_TP_SIGMA)
                                             lla = LLA(type=false_lla_type, person=self.person, timestamp=ts_lla, certainty=cert)

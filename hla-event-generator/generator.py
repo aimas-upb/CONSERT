@@ -11,7 +11,7 @@ class Generator(object):
     def generate(self, with_sleep = False):
         for hla in hla_list:
             event_list = hla.generate(with_sleep=with_sleep)
-            print >> self.output_stream, "%% ======== HLA: " + hla.type + " ======== "
+            print (self.output_stream, "%% ======== HLA: " + hla.type + " ======== ")
             for event in event_list:
                 print >> self.output_stream, event.to_etalis()
 
@@ -150,4 +150,4 @@ if __name__ == "__main__":
     with open("ex.json", "w") as outfile:
         gen = Generator(hla_list, outfile)
         gen.generate_json()
-        print "Done. JSON dump of event stream generated!"
+        print ("Done. JSON dump of event stream generated!")

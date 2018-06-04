@@ -216,7 +216,7 @@ public class CASASInterweavedExporter {
             pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             pb.redirectError(ProcessBuilder.Redirect.INHERIT);
             // run the process and wait for it
-            Process p = pb.start();
+                Process p = pb.start();
 
             p.waitFor();
 

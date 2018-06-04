@@ -37,25 +37,27 @@ analysis_data = []
 
 
 for f in files:
-	with open(f, 'r') as data_file:
-		data = json.load(data_file)
+        with open(f, 'r') as data_file:
+                data = json.load(data_file)
         person = data['person']
 
         for activity_data in data['activities']:
-            d = {
+                d = {
                 'person' : person,
                 'activity': activity_data['name'],
                 'detected': activity_data['detected'],
-            }
+                }
 
-            if activity_data['detected']:
-                d['start_diff'] = activity_data['start_diff']
-                d['end_diff'] = activity_data['end_diff']
-            else:
-                d['start_diff'] = None
-                d['end_diff'] = None
+                if activity_data['detected']:
+                        d['start_diff'] = activity_data['start_diff']
+                        d['end_diff'] = activity_data['end_diff']
+                else:
+                        d['start_diff'] = None
+                        d['end_diff'] = None
 
-            analysis_data.append(d)
+                analysis_data.append(d)
+        
+        
 
 df_analysis_base = pd.DataFrame(analysis_data)
 

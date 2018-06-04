@@ -3,7 +3,10 @@
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter, MinuteLocator, SecondLocator
 import numpy as np
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import datetime
 import time
 from pytz import timezone

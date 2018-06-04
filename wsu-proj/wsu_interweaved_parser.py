@@ -250,7 +250,7 @@ def to_json(input_file_path, has_class=False):
                     continue
             else:
                 print("[ERROR] Sensor value_type not correctly formatted: " + line)
-                print tokens
+                print (tokens)
                 #sys.exit(-1)
                 continue
 
@@ -269,7 +269,7 @@ def to_json(input_file_path, has_class=False):
             #                 activity_intervals[event_class].update({
             #                     "end" : int(unix_time_millis(datetime))
             #                 })
-            print "event_class = " + tokens[4]
+            print ("event_class = " + tokens[4])
             event_class = int(tokens[4])
 
             if not previous_activity_class:

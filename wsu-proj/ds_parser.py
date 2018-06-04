@@ -206,7 +206,7 @@ def parse_file(input_file_path, output_file_path, has_class = False):
 					sys.exit(-1)
 			else:
 				print("[ERROR] Sensor value type not correctly formatted: " + line)
-				print tokens
+				print (tokens)
 				sys.exit(-1)
 
 			# parse and validate event class
