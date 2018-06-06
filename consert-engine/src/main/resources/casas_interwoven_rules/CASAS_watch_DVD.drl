@@ -12,10 +12,7 @@ import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
-
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
-
-// TODO: import the required intermediary and final ContextAssertions - TakeDVD, PlayDVD, WatchDVD
 
 import org.aimas.consert.engine.EventTracker
 import org.aimas.consert.utils.AssertionLogger
@@ -25,21 +22,21 @@ import java.util.Date;
 global EventTracker eventTracker;
 global AssertionLogger assertionLogger;
 
-
-// TODO: set the event role for the intermediary and final ContextAssertions
-
+declare WatchDVD
+    @role(event)
+end
 
 rule "DVD taken" 
     when 
          $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
          $DVD: Item(sensorId == "DVD_Player", status == "ABSENT",  this before [0s, 10s] $loc || this after [0s, 10s] $loc) from entry-point "ItemStream"
     then
-        System.out.println("////// Triggering DVD TAKEN rule following events: " + ", "
+        System.out.println("////// Triggering DVD TAKEN rule following events: " + $loc + ", "
             + $DVD  + "\n");
         
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         ActivityTriggered DVDTaken = new ActivityTriggered("DVDTaken", ts);
-        eventTracker.insertStaticEvent(DVDTaken);
+       eventTracker.insertStaticEvent(DVDTaken);
 end
 
 
@@ -47,15 +44,15 @@ rule "Watching DVD"
     timer (int: 0s 2s)
     when
         $DVDTaken: ActivityTriggered(name == "DVDTaken")
-        $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
+   //     $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering WATCHING DVD rule following events: "  + $DVDTaken + "," + $loc +  "\n");
+        System.out.println("////// Triggering WATCHING DVD rule following events: "  + $DVDTaken + "," +  "\n");
 
-        //long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-      //  AnnotationData ann = new DefaultAnnotationData(ts);
-      //  WatchDVD WatchDVD = new WatchDVD(ann);
+       long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+       AnnotationData ann = new DefaultAnnotationData(ts);
+       WatchDVD watch = new WatchDVD(ann);
 
-      //  eventTracker.insertAtomicEvent(WatchDVD);
+       eventTracker.insertAtomicEvent(watch);
 end
 
 
@@ -67,7 +64,7 @@ rule "Stop DVD"
         $DVD: Item(sensorId == "DVD_Player", status == "PRESENT",  this before [0s, 10s] $loc || this after [0s, 10s] $loc) from entry-point "ItemStream"
         not (exists Item(sensorId == "DVD_Player", status == "PRESENT", this after $DVD) from entry-point "ItemStream")
     then
-        System.out.println("////// Triggering STOP DVD rule following events: " + $DVDTaken + ", " + $DVD +  "\n");
+        System.out.println("////// Triggering STOP DVD rule following events: " + $DVDTaken + ", " + $DVD + "," + $loc +  "\n");
 
         // remove the ActivityTriggered fact
         eventTracker.deleteStaticEvent($DVDTaken);

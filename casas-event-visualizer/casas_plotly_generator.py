@@ -178,6 +178,8 @@ for f in files:
 			key = 'WashHands'
 		elif f.lower().find('water') != -1:
 			key = 'WATER'
+		elif f.lower().find('watchdvd') != -1:
+			key = 'WatchDVD'
 		elif f.lower().find('filldispenser') != -1:
 			key = 'FillDispenser'
 		elif f.lower().find('writebirthdaycard') != -1:
@@ -265,6 +267,7 @@ colors = {
 	'TEMPERATURE': 'rgb(220, 0, 220)',
 	'WashHands':  'rgb(0, 169, 0)',
 	'WATER': 'rgb(0, 0, 220)',
+        'WatchDVD': 'rgb(0,169,0)',
     'FillDispenser': 'rgb(0, 0, 220)'
 }
 

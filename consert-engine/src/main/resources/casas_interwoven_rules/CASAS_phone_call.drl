@@ -1,0 +1,72 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+import org.aimas.consert.tests.casas.assertions.WatchDVD
+import org.aimas.consert.tests.casas.assertions.Phone
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.utils.AssertionLogger
+
+import java.util.Date;
+
+global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
+
+declare PhoneCall
+    @role(event)
+end
+
+rule "Phone taken"
+    when
+       //  $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
+         $phone : Phone(status == "START") from entry-point "PhoneStream"
+    then
+        System.out.println("////// Triggering PHONE TAKEN rule following events: " + $phone  + "\n");
+
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        ActivityTriggered PhoneTaken = new ActivityTriggered("PhoneTaken", ts);
+        eventTracker.insertStaticEvent(PhoneTaken);
+end
+
+
+rule "Phone call"
+    timer (int: 0s 2s)
+    when
+        $PhoneTaken: ActivityTriggered(name == "PhoneTaken")
+       // $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
+    then
+        System.out.println("////// Triggering PHONE CALL rule following events: "  + $PhoneTaken +  "\n");
+
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        AnnotationData ann = new DefaultAnnotationData(ts);
+        PhoneCall phoneCall = new PhoneCall(ann);
+
+        eventTracker.insertAtomicEvent(phoneCall);
+end
+
+
+rule "Stop phone"
+    when
+        // $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
+        $PhoneTaken: ActivityTriggered(name == "PhoneTaken")
+
+        $phone : Phone(status == "END") from entry-point "PhoneStream"
+        not (exists Phone(status == "END", this after $phone) from entry-point "PhoneStream")
+    then
+        System.out.println("////// Triggering STOP PHONE rule following events: " + $PhoneTaken + ", " + $phone +  "\n");
+
+        // remove the ActivityTriggered fact
+        eventTracker.deleteStaticEvent($PhoneTaken);
+end

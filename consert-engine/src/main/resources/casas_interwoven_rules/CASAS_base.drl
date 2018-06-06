@@ -12,6 +12,7 @@ import org.aimas.consert.tests.casas.assertions.PersonLocation
 import org.aimas.consert.tests.casas.assertions.HandlingFood
 import org.aimas.consert.tests.casas.assertions.HeatingFood
 import org.aimas.consert.tests.casas.assertions.PhoneCall
+import org.aimas.consert.tests.casas.assertions.WatchDVD
 import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
 
 import org.aimas.consert.tests.casas.assertions.FillDispenser
@@ -85,7 +86,7 @@ declare HeatingFood
 end
 
 
-// =========== BaseEvent insert rules - needed to crea      te the event streams
+// =========== BaseEvent insert rules - needed to create the event streams
 /*
 rule "MotionInsertTest"
     when
@@ -142,7 +143,6 @@ rule "PhoneInsertTest"
     then
         System.out.println("Inserted PHONE event with value: " + val + ", timestamp: " + (long)$phone.getStartTimestamp());
 end
-
 
 rule "PersonLocationTest"
     salience -10
@@ -211,6 +211,16 @@ rule "PhoneCallTest"
 end
 
 
+rule "ExtendedPhoneCall"
+    salience -10
+    when
+        $phone : PhoneCall() from entry-point "ExtendedPhoneCallStream"
+    then
+        System.out.println("Inserted ExtendedPhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() +
+        " duration: " + (long)$phone.getEventDuration());
+end
+
+
 rule "ProbablyCleaningTest"
     salience -10
     when
@@ -220,6 +230,23 @@ rule "ProbablyCleaningTest"
         " duration: " + (long)$probCleaning.getEventDuration());
 end
 
+rule "WatchDVDTest"
+    salience -10
+    when
+        $watchDVD : WatchDVD() from entry-point "WatchDVDStream"
+    then
+        System.out.println("Inserted WATCH DVD event with: " + $watchDVD + ", timestamp: " + (long)$watchDVD.getStartTimestamp() +
+        " duration: " + (long)$watchDVD.getEventDuration());
+end
+
+rule "ExtendedWatchDVD"
+    salience -10
+    when
+        $watchDVD : WatchDVD() from entry-point "ExtendedWatchDVDStream"
+    then
+        System.out.println("Inserted EXTENDED  WATCH DVD event with: " + $watchDVD + ", timestamp: " + (long)$watchDVD.getStartTimestamp() +
+        " duration: " + (long)$watchDVD.getEventDuration());
+end
 
 rule "FillDispenserTest"
     salience -10
@@ -238,3 +265,4 @@ rule "ExtendedFillDispenser"
         System.out.println("Inserted EXTENDED FillDispenser event with: " + $fillDispenser + ", timestamp: " + (long)$fillDispenser.getStartTimestamp() + 
         " duration: " + (long)$fillDispenser.getEventDuration());
 end
+
