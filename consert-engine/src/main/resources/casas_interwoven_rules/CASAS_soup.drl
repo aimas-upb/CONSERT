@@ -1,0 +1,67 @@
+    package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+import org.aimas.consert.tests.casas.assertions.PreparingSoup
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.utils.AssertionLogger
+
+import java.util.Date;
+
+global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
+
+declare PreparingSoup
+    @role(event)
+end
+
+rule "Soup taken"
+    when 
+         $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+         $soup: Item(sensorId == "soup" || sensorId == "glass" , status == "ABSENT",  this before [0s, 10s] $loc || this after [0s, 10s] $loc) from entry-point "ItemStream"
+    then
+        System.out.println("////// Triggering SOUP TAKEN rule following events: " + $loc + ", "
+            + $soup  + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        ActivityTriggered SoupTaken = new ActivityTriggered("SoupTaken", ts);
+        eventTracker.insertStaticEvent(SoupTaken);
+end
+
+
+rule "Preparing Soup"
+    timer (int: 0s 2s)
+    when
+        $SoupTaken: ActivityTriggered(name == "SoupTaken")
+        $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+    then
+        System.out.println("////// Triggering Preparing SOUP rule following events: "  + $SoupTaken + "," +  "\n");
+
+       long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+       AnnotationData ann = new DefaultAnnotationData(ts);
+       PreparingSoup preparingSoup = new PreparingSoup(ann);
+
+       eventTracker.insertAtomicEvent(preparingSoup);
+end
+
+
+rule "Stop preparing soup"
+ timer (int: 0s 2s)
+    when
+           $SoupTaken: ActivityTriggered(name == "SoupTaken")
+           $loc : PersonLocation(location != "Kitchen") from entry-point "ExtendedPersonLocationStream"
+       then
+           System.out.println("////// Triggering STOP PREPARING SOUP rule following events: "  + $SoupTaken + "," +  "\n");
+           eventTracker.deleteStaticEvent($SoupTaken);
+   end

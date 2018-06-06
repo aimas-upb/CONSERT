@@ -13,6 +13,7 @@ import org.aimas.consert.tests.casas.assertions.HandlingFood
 import org.aimas.consert.tests.casas.assertions.HeatingFood
 import org.aimas.consert.tests.casas.assertions.PhoneCall
 import org.aimas.consert.tests.casas.assertions.WatchDVD
+import org.aimas.consert.tests.casas.assertions.PreparingSoup
 import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
 
 import org.aimas.consert.tests.casas.assertions.FillDispenser
@@ -264,5 +265,23 @@ rule "ExtendedFillDispenser"
     then
         System.out.println("Inserted EXTENDED FillDispenser event with: " + $fillDispenser + ", timestamp: " + (long)$fillDispenser.getStartTimestamp() + 
         " duration: " + (long)$fillDispenser.getEventDuration());
+end
+
+rule "PreparingSoupTest"
+    salience -10
+    when
+        $PreparingSoup : PreparingSoup() from entry-point "PreparingSoupStream"
+    then
+        System.out.println("Inserted PreparingSoup event with: " + $PreparingSoup + ", timestamp: " + (long)$PreparingSoup.getStartTimestamp() +
+        " duration: " + (long)$PreparingSoup.getEventDuration());
+end
+
+rule "ExtendedPreparingSoup"
+    salience -10
+    when
+        $PreparingSoup : FillDispenser() from entry-point "ExtendedPreparingSoupStream"
+    then
+        System.out.println("Inserted EXTENDED PreparingSoup event with: " + $PreparingSoup + ", timestamp: " + (long)$PreparingSoup.getStartTimestamp() +
+        " duration: " + (long)$PreparingSoup.getEventDuration());
 end
 
