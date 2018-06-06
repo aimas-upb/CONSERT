@@ -45,7 +45,6 @@ rule "At Dining Table"
         eventTracker.insertAtomicEvent(loc);
 end
 
-
 rule "Stay At Dining Table"
     salience 10
     when
