@@ -1,0 +1,71 @@
+    package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+import org.aimas.consert.tests.casas.assertions.ChoosingOutfit
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.utils.AssertionLogger
+
+import java.util.Date;
+
+global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
+
+declare ChoosingOutfit
+    @role(event)
+end
+
+rule "Wardrobe open"
+    when
+        $loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
+        $Wardrobe: Cabinet(sensorId == "wardrobe", status == "OPEN",  this before [0s, 10s] $loc || this after [0s, 10s] $loc) from entry-point "CabinetStream"
+    then
+        System.out.println("////// Triggering WARDROBE OPEN rule following events: "  + $loc + ", "
+            + $Wardrobe  + "\n");
+
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        ActivityTriggered WardrobeOpen = new ActivityTriggered("WardrobeOpen", ts);
+        eventTracker.insertStaticEvent(WardrobeOpen);
+end
+
+
+rule "Choosing outfit"
+    timer (int: 0s 2s)
+    when
+        $WardrobeOpen: ActivityTriggered(name == "WardrobeOpen")
+        $loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
+    then
+        System.out.println("////// Triggering CHOOSING OUTFIT rule following events: "  + $WardrobeOpen + "," +  "\n");
+
+       long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+       AnnotationData ann = new DefaultAnnotationData(ts);
+       ChoosingOutfit choosingOutfit = new ChoosingOutfit(ann);
+
+       eventTracker.insertAtomicEvent(choosingOutfit);
+end
+
+
+rule "Wardrobe closed"
+    when
+        $loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
+        $WardrobeOpen: ActivityTriggered(name == "WardrobeOpen")
+
+        $Wardrobe: Cabinet(sensorId == "wardrobe", status == "CLOSE",  this before [0s, 10s] $loc || this after [0s, 10s] $loc) from entry-point "CabinetStream"
+        not (exists Cabinet(sensorId == "wardrobe", status == "CLOSE", this after $Wardrobe) from entry-point "CabinetStream")
+    then
+        System.out.println("////// Triggering WARDROBE CLOSED rule following events: " + $WardrobeOpen + ", " + $Wardrobe + "," + $loc +  "\n");
+
+        // remove the ActivityTriggered fact
+        eventTracker.deleteStaticEvent($WardrobeOpen);
+end

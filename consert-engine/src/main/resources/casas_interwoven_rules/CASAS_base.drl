@@ -14,6 +14,7 @@ import org.aimas.consert.tests.casas.assertions.HeatingFood
 import org.aimas.consert.tests.casas.assertions.PhoneCall
 import org.aimas.consert.tests.casas.assertions.WatchDVD
 import org.aimas.consert.tests.casas.assertions.PreparingSoup
+import org.aimas.consert.tests.casas.assertions.ChoosingOutfit
 import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
 
 import org.aimas.consert.tests.casas.assertions.FillDispenser
@@ -279,9 +280,26 @@ end
 rule "ExtendedPreparingSoup"
     salience -10
     when
-        $PreparingSoup : FillDispenser() from entry-point "ExtendedPreparingSoupStream"
+        $PreparingSoup : PreparingSoup() from entry-point "ExtendedPreparingSoupStream"
     then
         System.out.println("Inserted EXTENDED PreparingSoup event with: " + $PreparingSoup + ", timestamp: " + (long)$PreparingSoup.getStartTimestamp() +
         " duration: " + (long)$PreparingSoup.getEventDuration());
 end
 
+rule "ChoosingOutfitTest"
+    salience -10
+    when
+        $ChoosingOutfit : ChoosingOutfit() from entry-point "ChoosingOutfitStream"
+    then
+        System.out.println("Inserted ChoosingOutfit event with: " + $ChoosingOutfit + ", timestamp: " + (long)$ChoosingOutfit.getStartTimestamp() +
+        " duration: " + (long)$ChoosingOutfit.getEventDuration());
+end
+
+rule "ExtendedChoosingOutfit"
+    salience -10
+    when
+        $ChoosingOutfit : ChoosingOutfit() from entry-point "ExtendedChoosingOutfitStream"
+    then
+        System.out.println("Inserted EXTENDED ChoosingOutfit event with: " + $ChoosingOutfit + ", timestamp: " + (long)$ChoosingOutfit.getStartTimestamp() +
+        " duration: " + (long)$ChoosingOutfit.getEventDuration());
+end

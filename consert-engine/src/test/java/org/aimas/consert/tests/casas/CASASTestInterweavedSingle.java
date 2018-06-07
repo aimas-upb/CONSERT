@@ -1,13 +1,21 @@
 package org.aimas.consert.tests.casas;
 
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.aimas.consert.engine.EngineRunner;
 import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.model.annotations.ContextAnnotation;
+import org.aimas.consert.model.annotations.DefaultAnnotationData;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.utils.AnnAfterOperator;
 import org.aimas.consert.tests.casas.utils.AnnBeforeOperator;
 import org.aimas.consert.tests.casas.utils.AnnIncludesOperator;
@@ -24,6 +32,7 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
+import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.builder.conf.EvaluatorOption;
@@ -33,6 +42,7 @@ public class CASASTestInterweavedSingle extends TestSetup {
 	public static final String PERSON = "p13";
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
+	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
 
 	
 	public static void main(String[] args) {
@@ -77,7 +87,8 @@ public class CASASTestInterweavedSingle extends TestSetup {
 				"casas_interwoven_rules/CASAS_watch_DVD.drl",
 				"casas_interwoven_rules/CASAS_phone_call.drl",
 				"casas_interwoven_rules/CASAS_fill_pills.drl",
-				"casas_interwoven_rules/CASAS_soup.drl");
+				"casas_interwoven_rules/CASAS_soup.drl",
+				"casas_interwoven_rules/CASAS_outfit.drl");
 				//"casas_interwoven_rules/CASAS_write_birthdaycard.drl");
 		
 		//kSession.setGlobal("assertionLogger", assertionLogger);
@@ -121,6 +132,92 @@ public class CASASTestInterweavedSingle extends TestSetup {
     	CASASInterweavedExporter.exportToHTML(person, task, kSession, testStartTs);
     	eventInserter.stop();
 
+
+		try {
+			File f =  getFileNameFromResources(VALID_FILE);
+			final InputStream in =new FileInputStream(f);
+			ObjectMapper mapper =  new ObjectMapper();
+
+			final JsonNode eventListNode = mapper.readTree(in);
+
+			String [] activities = {"PhoneCall", "WatchDVD", "PreparingSoup", "FillDispenser", "ChoosingOutfit"};
+			HashMap<String,String> H = new HashMap<String,String>();
+			H.put("FillDispenser","1");
+			H.put("WatchDVD","2");
+			H.put("PhoneCall","4");
+			H.put("PreparingSoup","6");
+			H.put("ChoosingOutfit","8");
+
+			for (String act : activities)
+			{
+
+				String entryPointName = "Extended" + act + "Stream";
+				EntryPoint entryPoint = kSession.getEntryPoint(entryPointName);
+				// there should be only one instance of the final activity,
+				// so we only retrieve the first element in the list
+				if (entryPoint.getObjects() != null && !entryPoint.getObjects().isEmpty())
+				{
+
+					System.out.println("detected intervals " + entryPoint.getObjects().size());
+					System.out.println("real number of intervals " + eventListNode.get(H.get(act)).size());
+					Iterator<?> it = entryPoint.getObjects().iterator();
+					int totalHitForActivity = 0;
+					for (int i = 0; i < entryPoint.getObjects().size(); i++) {
+						ContextAssertion assertion = (ContextAssertion) it.next();
+
+						DefaultAnnotationData ann = (DefaultAnnotationData) assertion.getAnnotations();
+						long relativeAssertionStart = ann.getStartTime().getTime() - testStartTs;
+						long relativeAssertionEnd = relativeAssertionStart + assertion.getEventDuration();
+						System.out.println("detected start " + relativeAssertionStart + " detected end " + relativeAssertionEnd);
+						long hitStart = -1;
+						long hitEnd = - 1;
+						int noHit = 0;
+						for (int j = 0; j< eventListNode.get(H.get(act)).size(); j++)
+						{
+							long relativeAssertionStart2 =  eventListNode.get(H.get(act)).get(j).get("interval").get("relative_start").asLong();
+							long relativeAssertionEnd2 =  eventListNode.get(H.get(act)).get(j).get("interval").get("relative_end").asLong();
+							System.out.println("interval "  + j + " real start " + relativeAssertionStart2 + " real end " + relativeAssertionEnd2);
+							if ( (relativeAssertionStart2 >= relativeAssertionStart && relativeAssertionStart2 <= relativeAssertionEnd)||
+									(relativeAssertionEnd2 <= relativeAssertionEnd && relativeAssertionEnd2 >= relativeAssertionStart)
+									|| (relativeAssertionStart2 <= relativeAssertionStart && relativeAssertionEnd2 >= relativeAssertionStart)) // the 2 intervals overlaps
+							{
+								if (hitStart ==-1)
+									hitStart = relativeAssertionStart2;
+								hitEnd = relativeAssertionEnd2;
+								noHit++;
+							}
+							long EvDuration2 = relativeAssertionEnd2 - relativeAssertionStart2;
+					//		System.out.println(eventListNo	de.get(H.get(act)).get(j));
+					//		System.out.println( eventListNode.get(H.get(act)).get("interval").get("relative_start"));
+					//		System.out.println( eventListNode.get(H.get(act)).get("interval").get("relative_end"));
+
+						}
+						long hitDuration = hitEnd - hitStart;
+						long deltaDurationFromDetectedActivity = Math.abs(hitDuration- assertion.getEventDuration());
+						long deltaStart = Math.abs(hitStart - relativeAssertionStart);
+						long deltaEnd = Math.abs(hitEnd - relativeAssertionEnd);
+						totalHitForActivity += noHit;
+
+						if (hitStart !=-1) {
+							System.out.println("delta duration " + deltaDurationFromDetectedActivity);
+							System.out.println("delta start " + deltaStart);
+							System.out.println("delta end " + deltaEnd);
+						}
+						else
+							System.out.println("no overlapp :( ");
+					}
+					System.out.println("hit intervals for activity " + act + " -> "  + totalHitForActivity + " from " +  eventListNode.get(H.get(act)).size());
+				}
+			}
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     	kSession.halt();
     	kSession.dispose();
     }
