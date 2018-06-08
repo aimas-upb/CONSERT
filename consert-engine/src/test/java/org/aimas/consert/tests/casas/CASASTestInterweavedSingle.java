@@ -74,11 +74,12 @@ public class CASASTestInterweavedSingle extends TestSetup {
 
 		KieSession kSession = getKieSessionFromResources( builderConf, kSessionConfig,
 				"casas_interwoven_rules/CASAS_base.drl", "casas_interwoven_rules/CASAS_location.drl", 
-				"casas_interwoven_rules/CASAS_watch_DVD.drl",
-				"casas_interwoven_rules/CASAS_phone_call.drl",
-				"casas_interwoven_rules/CASAS_fill_pills.drl",
-				"casas_interwoven_rules/CASAS_soup.drl");
-				//"casas_interwoven_rules/CASAS_write_birthdaycard.drl");
+
+//				"casas_interwoven_rules/CASAS_watch_DVD.drl",
+//				"casas_interwoven_rules/CASAS_phone_call.drl",
+//				"casas_interwoven_rules/CASAS_fill_pills.drl",
+//				"casas_interwoven_rules/CASAS_soup.drl");
+				"casas_interwoven_rules/CASAS_write_birthdaycard.drl");
 		
 		//kSession.setGlobal("assertionLogger", assertionLogger);
 		

@@ -17,6 +17,7 @@ import org.aimas.consert.tests.casas.assertions.PreparingSoup
 import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
 
 import org.aimas.consert.tests.casas.assertions.FillDispenser
+import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
 
 import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
@@ -36,46 +37,28 @@ end
 
 declare Item
     @role(event)
-    //@expires(10m)
-    //@timestamp(startTimestamp)
-    //@duration(eventDuration)
 end
 
 
 declare Cabinet
     @role(event)
-    //@expires(10m)
-    //@timestamp(startTimestamp)
-    //@duration(eventDuration)
 end
 
 declare Water
     @role(event)
-    //@expires(10m)
-    //@timestamp(startTimestamp)
-    //@duration(eventDuration)
 end
 
 
 declare Temperature
     @role(event)
-    //@expires(10s)
-    //@timestamp(startTimestamp)
-    //@duration(eventDuration)
 end
 
 declare Burner
     @role(event)
-    //@expires(10m)
-    //@timestamp(startTimestamp)
-    //@duration(eventDuration)
 end
 
 declare Phone
     @role(event)
-    //@expires(10m)
-    //@timestamp(startTimestamp)
-    //@duration(eventDuration)
 end
 
 declare HandlingFood
@@ -103,10 +86,6 @@ rule "ItemInsertTest"
         $item : Item(id : sensorId, status : status) from entry-point "ItemStream" 
     then
         System.out.println("Inserted ITEM event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$item.getStartTimestamp());
-        //long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
-        //Item item = new Item(id, status, ann);
-        // eventTracker.insertAtomicEvent(item);
 end
 
 rule "CabinetInsertTest"
@@ -285,3 +264,22 @@ rule "ExtendedPreparingSoup"
         " duration: " + (long)$PreparingSoup.getEventDuration());
 end
 
+
+rule "WriteBirthdayCard"
+    salience -10
+    when
+        $card : WriteBirthdayCard() from entry-point "WriteBirthdayCardStream"
+    then
+        System.out.println("Inserted WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() + 
+        " duration: " + (long)$card.getEventDuration());
+end
+
+
+rule "ExtendedWriteBirthdayCard"
+    salience -10
+    when
+        $card : WriteBirthdayCard() from entry-point "ExtendedWriteBirthdayCardStream"
+    then
+        System.out.println("Inserted EXTENDED WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() + 
+        " duration: " + (long)$card.getEventDuration());
+end

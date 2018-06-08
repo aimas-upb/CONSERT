@@ -261,14 +261,15 @@ colors = {
 	'ITEM': 'rgb(169, 169, 169)',
 	'MOTION': 'rgb(211, 211, 211)',
 	'PersonLocation': 'rgb(0, 169, 0)',
-	 'PHONE': 'rgb(0, 220, 220)',
+	'PHONE': 'rgb(0, 220, 220)',
 	'PHONECALL':  'rgb(0, 169, 0)',
 	'ProbablyCleaning':  'rgb(0, 169, 0)',
 	'TEMPERATURE': 'rgb(220, 0, 220)',
 	'WashHands':  'rgb(0, 169, 0)',
 	'WATER': 'rgb(0, 0, 220)',
-        'WatchDVD': 'rgb(0,169,0)',
-    'FillDispenser': 'rgb(0, 0, 220)'
+    'WatchDVD': 'rgb(0, 220, 220)',
+    'FillDispenser': 'rgb(0, 0, 220)',
+    'WriteBirthdayCard': 'rgb(30, 127, 100)'
 }
 
 # Create Gantt figure

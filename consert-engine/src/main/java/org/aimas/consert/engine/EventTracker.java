@@ -234,7 +234,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		String derivedStreamName = derivedEvent.getStreamName();
 		EntryPoint derivedEventStream = kSession.getEntryPoint(derivedStreamName);
 		
-		System.out.println("Derived Event Stream name: " + derivedStreamName);
+		//System.out.println("Derived Event Stream name: " + derivedStreamName);
 		
 		
 		for (Object eventObj : derivedEventStream.getObjects()) {
@@ -285,10 +285,10 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 		    			EntryPoint existingEventEntry = existingEventData.getExistingEventEntryPoint();
 		    			
 		    			// if the validity interval of the previous deduced event is included in the interval of the extended one 
-//		    			System.out.println("0000000000000000000000000");
-//		    			System.out.println("Updated Event: " + updatedEvent);
-//		    			System.out.println("New Event (that extends): " + eventObject);
-//		    			System.out.println("0000000000000000000000000");
+		    			System.out.println("0000000000000000000000000");
+		    			System.out.println("Updated Event: " + updatedEvent);
+		    			System.out.println("New Event (that extends): " + eventObject);
+		    			System.out.println("0000000000000000000000000");
 		    			
 		    			
 		    			if (updatedEvent.intersects(eventObject)) {

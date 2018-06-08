@@ -13,8 +13,7 @@ import org.aimas.consert.model.annotations.AnnotationUtils
 
 
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
-
-// TODO: import the required intermediary and final ContextAssertions - WriteBirthdayCard
+import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
 
 import org.aimas.consert.engine.EventTracker
 import org.aimas.consert.utils.AssertionLogger
@@ -25,13 +24,10 @@ global EventTracker eventTracker;
 global AssertionLogger assertionLogger;
 
 
-// TODO: set the event role for the intermediary and final ContextAssertions
 declare WriteBirthdayCard
     @role(event)
 end
 
-
-// TODO: set fact role for ActivityTriggered("fill_medicine", timestamp)
 
 
 /*
@@ -50,62 +46,89 @@ Although the case may be that when staying for a long time at a given place (e.g
 it involves writing the birthday card OR watching the DVD.
 */
 
-rule "Start writing birthday card" 
+query activityNotTriggered ($activityName)
+     not (exists ActivityTriggered(name == $activityName))
+end
+
+rule "Trigger for start writing birthday card" 
+    // When the address book or the envelope are being used, it means the user plans to write a birthday card
     when 
-        $loc : PersonLocation(location == "LivingRoom" || location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
-        $addressBook : Item(sensorId == "address_book", status == "ABSENT", $loc annIncludes this) from entry-point "ItemStream"
-        not ( exists Item(sensorId == "address_book", status == "ABSENT", this before[0s, 120s] $addressBook) from entry-point "ItemStream" )
+        activityNotTriggered("WriteBirthdayCard";)
+        $addressBook : Item(sensorId == "address_book" || sensorId == "envelope", status == "ABSENT") from entry-point "ItemStream"
     then
-        System.out.println("////// Triggering START WRITE BITHDAY CARD rule following events: " + $loc + ", " + $addressBook "\n");
+        System.out.println("////// Triggering START WRITE BITHDAY CARD rule following events: " + $addressBook + "\n");
         
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        ActivityTriggered writeCard = new ActivityTriggered("WriteBirthdayCard", ts);
-        eventTracker.insertStaticEvent(writeCard);
+        DefaultAnnotationData cardAnn = new DefaultAnnotationData(ts);
+        
+        WriteBirthdayCard writeCard = new WriteBirthdayCard(cardAnn);
+        eventTracker.insertAtomicEvent(writeCard);
+        
+        ActivityTriggered triggerStartWritingCard = new ActivityTriggered("WriteBirthdayCard", ts);
+        System.out.println("////// ADDING WRITE BITHDAY CARD TRIGGER: " + triggerStartWritingCard + "\n");
+        eventTracker.insertStaticEvent(triggerStartWritingCard);
 end
 
 
-
-rule "Stop writing birthday card - put back address book after long use" 
-    when 
-        $activity : ActivityTriggered(name == "WriteBirthdayCard", ts: timestamp)
-        $addressBook : Item(sensorId == "address_book", status == "PRESENT", ann : annotations, ann.timestamp - ts >= 60000) from entry-point "ItemStream"
+rule "Trigger for end writing birthday card"
+    // When the address_book or envelope are being placed back AND more than 90s have passed since they were taken out
+    when
+        $trigger : ActivityTriggered(name == "WriteBirthdayCard", triggerTs : timestamp)
+        $addressBook : Item(sensorId == "address_book" || sensorId == "envelope", status == "PRESENT") from entry-point "ItemStream"
+        eval(eventTracker.getCurrentTime() - triggerTs >= 90000)
     then
-        System.out.println("////// Triggering STOP WRITE BITHDAY CARD 1 rule following events: " + $activity + ", " + $addressBook "\n");
-        
-        // remove the ActivityTriggered fact
-        eventTracker.deleteStaticEvent($activity);
+        System.out.println("////// Triggering STOP WRITING BITHDAY CARD rule following events: " + $addressBook + 
+            " and time passage of " + (eventTracker.getCurrentTime() - triggerTs) + " ms \n");
+        eventTracker.deleteStaticEvent($trigger);
 end
 
-
-rule "Stop writing birthday card - switch location after long stay and write birthday card triggered" 
-    when 
-        $activity : ActivityTriggered(name == "WriteBirthdayCard", ts: timestamp)
+/*
+rule "Dummy check timer"
+    timer (int: 0s 2s)
+    when
+        $trigger : ActivityTriggered(name == "WriteBirthdayCard", triggerTs : timestamp, eval(eventTracker.getCurrentTime() - triggerTs < 10000 ))
         
-        $loc : PersonLocation(newLoc : location, newLoc not in ("LivingRoom", "DiningTable")) from entry-point "ExtendedPersonLocationStream"
-        
-        exists( PersonLocation(loc : location, loc in ("LivingRoom", "DiningTable"), 
-            startTs : startTimestamp, ts - startTs >= 0, ts - startTs <= 60000, 
-            this annHappensBefore[0s, 300s] $loc || this annOverlaps[5s] $loc) from entry-point "ExtendedPersonLocationStream"
-        )
     then
-        System.out.println("////// Triggering STOP WRITE BITHDAY CARD 2 rule following events: " + $activity + ", " + $loc "\n");
-        
-        // remove the ActivityTriggered fact
-        eventTracker.deleteStaticEvent($activity);
-end
+        System.out.println("//////~~~~~~~~~~~~~~~~~~ TIME : " + (eventTracker.getCurrentTime()) + " ms \n");
+        System.out.println("//////~~~~~~~~~~~~~~~~~~ TIME : " + triggerTs + " ms \n");
+        System.out.println("//////~~~~~~~~~~~~~~~~~~ CHECK TIME DIFF : " + (eventTracker.getCurrentTime() - triggerTs) + " ms \n");
+end 
+*/
+
+rule "Trigger for end writing birthday card - items not placed back, but time long expired"
+    // When more than 4 mins have passed since the event has been triggered
+    timer (int: 0s 60s)
+    when
+        $trigger : ActivityTriggered(name == "WriteBirthdayCard", triggerTs : timestamp)
+    then
+        if (eventTracker.getCurrentTime() - triggerTs >= 180000) {
+	        System.out.println("////// Triggering STOP WRITING BITHDAY CARD rule following long overdue cancellation of : " + $trigger + 
+	            " and time passage of " + (eventTracker.getCurrentTime() - triggerTs) + " ms \n");
+	        eventTracker.deleteStaticEvent($trigger);
+        }
+end 
+
 
 
 rule "Actually writing birthday card" 
+    // Trigger actually writing the birthday card as long as staying in the LivingRoom or the DiningTable
     when 
         $activity : ActivityTriggered(name == "WriteBirthdayCard", ts : timestamp)
-        $loc : PersonLocation(location == "LivingRoom" || location == "DiningTable", 
-            locAnn : annotations#DefaultAnnotationData) from entry-point "ExtendedPersonLocationStream"
+        $loc : PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData,
+            locAnn.duration >= 20000
+            ) 
+            from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering ACTUALLY WRITE BITHDAY CARD rule following events: " + $loc + ", " + $addressBook "\n");
+        System.out.println("////// Triggering ACTUALLY WRITE BITHDAY CARD rule following events: " + $loc + ", " + $activity + "\n");
         
         long currentTs = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        DefaultAnnotationData cardAnn = new DefaultAnnotationData(currentTs, locAnn.getConfidence(), ts, new Date(currentTs));
+        DefaultAnnotationData cardAnn = new DefaultAnnotationData(currentTs, locAnn.getConfidence(), locAnn.getStartTime(), new Date(currentTs));
         
         WriteBirthdayCard writeCard = new WriteBirthdayCard(cardAnn);
         eventTracker.insertDerivedEvent(writeCard);
 end
+
+// ===============================================================================================================
+
+
+

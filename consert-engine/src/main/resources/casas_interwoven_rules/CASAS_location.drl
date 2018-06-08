@@ -69,9 +69,7 @@ rule "Remain at dining table"
     //duration(10s)
     when
         loc : PersonLocation(location1 : location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
-        //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annOverlappedBy[0s, 5s] loc) from entry-point "ExtendedPersonLocationStream" )
         not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
-        //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annIntersects[5s] loc) from entry-point "ExtendedPersonLocationStream" )
         not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
         
         //loc : Motion(id1 : sensorId, stat: status) from entry-point "MotionStream"
@@ -162,7 +160,6 @@ end
 
 rule "Remain in kitchen"
     salience 20
-    //timer(int: 0s 5s)
     when
         loc : PersonLocation(location1 : location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
         //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annOverlappedBy[0s, 5s] loc) from entry-point "ExtendedPersonLocationStream" )
