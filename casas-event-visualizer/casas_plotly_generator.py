@@ -180,6 +180,10 @@ for f in files:
 			key = 'WATER'
 		elif f.lower().find('watchdvd') != -1:
 			key = 'WatchDVD'
+		elif f.lower().find('preparingsoup') != -1:
+			key = 'PreparingSoup'
+		elif f.lower().find('choosingoutfit') != -1:
+			key = 'ChoosingOutfit'
 		elif f.lower().find('filldispenser') != -1:
 			key = 'FillDispenser'
 		elif f.lower().find('writebirthdaycard') != -1:
@@ -270,6 +274,8 @@ colors = {
     'WatchDVD': 'rgb(0, 220, 220)',
     'FillDispenser': 'rgb(0, 0, 220)',
     'WriteBirthdayCard': 'rgb(30, 127, 100)'
+    'PreparingSoup': 'rgb(0,0,220)',
+    'ChoosingOutfit': 'rgb(0,220,220)'
 }
 
 # Create Gantt figure
