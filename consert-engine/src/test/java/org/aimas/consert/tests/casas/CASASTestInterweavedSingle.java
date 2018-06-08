@@ -183,8 +183,7 @@ public class CASASTestInterweavedSingle extends TestSetup {
 				if (entryPoint.getObjects() != null && !entryPoint.getObjects().isEmpty())
 				{
 
-					System.out.println("detected intervals " + entryPoint.getObjects().size());
-					System.out.println("real number of intervals " + eventListNode.get(H.get(act)).size());
+
 
 					actObject.put("detected intervals",  entryPoint.getObjects().size());
 					actObject.put("real number of intervals",  eventListNode.get(H.get(act)).size());
@@ -199,7 +198,6 @@ public class CASASTestInterweavedSingle extends TestSetup {
 						DefaultAnnotationData ann = (DefaultAnnotationData) assertion.getAnnotations();
 						long relativeAssertionStart = ann.getStartTime().getTime() - testStartTs;
 						long relativeAssertionEnd = relativeAssertionStart + assertion.getEventDuration();
-						System.out.println("detected start " + relativeAssertionStart + " detected end " + relativeAssertionEnd);
 
 
 						long hitStart = -1;
@@ -211,7 +209,7 @@ public class CASASTestInterweavedSingle extends TestSetup {
 						{
 							long relativeAssertionStart2 =  eventListNode.get(H.get(act)).get(j).get("interval").get("relative_start").asLong();
 							long relativeAssertionEnd2 =  eventListNode.get(H.get(act)).get(j).get("interval").get("relative_end").asLong();
-							System.out.println("interval "  + j + " real start " + relativeAssertionStart2 + " real end " + relativeAssertionEnd2);
+
 							if ( (relativeAssertionStart2 >= relativeAssertionStart && relativeAssertionStart2 <= relativeAssertionEnd)||
 									(relativeAssertionEnd2 <= relativeAssertionEnd && relativeAssertionEnd2 >= relativeAssertionStart)
 									|| (relativeAssertionStart2 <= relativeAssertionStart && relativeAssertionEnd2 >= relativeAssertionStart)) // the 2 intervals overlaps
@@ -222,15 +220,12 @@ public class CASASTestInterweavedSingle extends TestSetup {
 								noHit++;
 								if (noHit>1)
 								{
-									System.out.println("gap " + (relativeAssertionStart2 - ( eventListNode.get(H.get(act)).get(j-1).get("interval").get("relative_end").asLong())));
+
 									gap =  (relativeAssertionStart2 - ( eventListNode.get(H.get(act)).get(j-1).get("interval").get("relative_end").asLong()));
 									actArrayaux.add(gap);
 								}
 							}
 							long EvDuration2 = relativeAssertionEnd2 - relativeAssertionStart2;
-					//		System.out.println(eventListNo	de.get(H.get(act)).get(j));
-					//		System.out.println( eventListNode.get(H.get(act)).get("interval").get("relative_start"));
-					//		System.out.println( eventListNode.get(H.get(act)).get("interval").get("relative_end"));
 
 						}
 						long hitDuration = hitEnd - hitStart;
@@ -238,19 +233,22 @@ public class CASASTestInterweavedSingle extends TestSetup {
 						long deltaStart = Math.abs(hitStart - relativeAssertionStart);
 						long deltaEnd = Math.abs(hitEnd - relativeAssertionEnd);
 
-						aux.put("delta start", deltaStart);
-						aux.put("delta end", deltaEnd);
-						aux.put("delta duration", deltaDurationFromDetectedActivity);
-						aux.put("gaps", actArrayaux);
+
 						totalHitForActivity += noHit;
 
 						if (hitStart !=-1) {
-							System.out.println("delta duration " + deltaDurationFromDetectedActivity);
-							System.out.println("delta start " + deltaStart);
-							System.out.println("delta end " + deltaEnd);
+							aux.put("delta start", deltaStart);
+							aux.put("delta end", deltaEnd);
+							aux.put("delta duration", deltaDurationFromDetectedActivity);
+							aux.put("gaps", actArrayaux);
 						}
 						else
-							System.out.println("no overlapp :( ");
+						{
+							aux.put("delta start", "N/A");
+							aux.put("delta end", "N/A");
+							aux.put("delta duration", "N/A");
+							aux.put("gaps", "N/A");
+						}
 
 						actArray.add(aux);
 					}
@@ -258,8 +256,6 @@ public class CASASTestInterweavedSingle extends TestSetup {
 					actObject.put("intervals", actArray);
 					jsonActivities[Integer.parseInt(H.get(act))-1].put(PERSON,actObject);
 
-
-					System.out.println("hit intervals for activity " + act + " -> "  + totalHitForActivity + " from " +  eventListNode.get(H.get(act)).size());
 				}
 			}
 		} catch(FileNotFoundException e) {
