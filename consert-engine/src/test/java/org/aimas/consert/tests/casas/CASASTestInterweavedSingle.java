@@ -37,22 +37,44 @@ import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.builder.conf.EvaluatorOption;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 public class CASASTestInterweavedSingle extends TestSetup {
-    
-	public static final String PERSON = "p13";
+
+	public static ObjectMapper mapper;
+	public static ObjectNode jsonActivities[];
+	public static String PERSON = "p13";
+	public static final String[] Persons = {"p04","p13","p14","p15","p17","p18","p19", "p20", "p22","p23","p24","p25","p26","p27","p28","p29","p30","p31","p32","p33","p34"};
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
 	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
+	public static final String [] activities = {"PhoneCall", "WatchDVD", "PreparingSoup", "FillDispenser", "ChoosingOutfit"};
 
-	
+
 	public static void main(String[] args) {
-    	
-    	try {
-	    	runEvents(TEST_FILE, PERSON, TASK);
-    	}
-    	catch(Exception ex) {
-    		ex.printStackTrace();
-    	}
+
+		mapper = new ObjectMapper();
+
+		ObjectNode activities =  mapper.createObjectNode();
+
+		jsonActivities = new ObjectNode[8];
+		for (int i = 0; i<8; i++)
+			jsonActivities[i] = mapper.createObjectNode();
+		for (int i =0; i<Persons.length; i++) {
+			PERSON = Persons[i];
+			try {
+				runEvents(TEST_FILE, PERSON, TASK);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		for (int i=1; i<=8; i++)
+		{
+			activities.put(Integer.toString(i), jsonActivities[i-1]);
+		}
+		System.out.println(activities);
     }
 	
 	
@@ -140,7 +162,7 @@ public class CASASTestInterweavedSingle extends TestSetup {
 
 			final JsonNode eventListNode = mapper.readTree(in);
 
-			String [] activities = {"PhoneCall", "WatchDVD", "PreparingSoup", "FillDispenser", "ChoosingOutfit"};
+
 			HashMap<String,String> H = new HashMap<String,String>();
 			H.put("FillDispenser","1");
 			H.put("WatchDVD","2");
@@ -151,6 +173,9 @@ public class CASASTestInterweavedSingle extends TestSetup {
 			for (String act : activities)
 			{
 
+				ObjectNode actObject = mapper.createObjectNode();
+				ArrayNode actArray = mapper.createArrayNode();
+
 				String entryPointName = "Extended" + act + "Stream";
 				EntryPoint entryPoint = kSession.getEntryPoint(entryPointName);
 				// there should be only one instance of the final activity,
@@ -160,18 +185,28 @@ public class CASASTestInterweavedSingle extends TestSetup {
 
 					System.out.println("detected intervals " + entryPoint.getObjects().size());
 					System.out.println("real number of intervals " + eventListNode.get(H.get(act)).size());
+
+					actObject.put("detected intervals",  entryPoint.getObjects().size());
+					actObject.put("real number of intervals",  eventListNode.get(H.get(act)).size());
+
 					Iterator<?> it = entryPoint.getObjects().iterator();
 					int totalHitForActivity = 0;
-					for (int i = 0; i < entryPoint.getObjects().size(); i++) {
+					for (int i = 0; i < entryPoint.getObjects().size(); i++)
+					{
+						ObjectNode aux = mapper.createObjectNode();
 						ContextAssertion assertion = (ContextAssertion) it.next();
 
 						DefaultAnnotationData ann = (DefaultAnnotationData) assertion.getAnnotations();
 						long relativeAssertionStart = ann.getStartTime().getTime() - testStartTs;
 						long relativeAssertionEnd = relativeAssertionStart + assertion.getEventDuration();
 						System.out.println("detected start " + relativeAssertionStart + " detected end " + relativeAssertionEnd);
+
+
 						long hitStart = -1;
 						long hitEnd = - 1;
 						int noHit = 0;
+						long gap;
+						ArrayNode actArrayaux = mapper.createArrayNode();
 						for (int j = 0; j< eventListNode.get(H.get(act)).size(); j++)
 						{
 							long relativeAssertionStart2 =  eventListNode.get(H.get(act)).get(j).get("interval").get("relative_start").asLong();
@@ -185,6 +220,12 @@ public class CASASTestInterweavedSingle extends TestSetup {
 									hitStart = relativeAssertionStart2;
 								hitEnd = relativeAssertionEnd2;
 								noHit++;
+								if (noHit>1)
+								{
+									System.out.println("gap " + (relativeAssertionStart2 - ( eventListNode.get(H.get(act)).get(j-1).get("interval").get("relative_end").asLong())));
+									gap =  (relativeAssertionStart2 - ( eventListNode.get(H.get(act)).get(j-1).get("interval").get("relative_end").asLong()));
+									actArrayaux.add(gap);
+								}
 							}
 							long EvDuration2 = relativeAssertionEnd2 - relativeAssertionStart2;
 					//		System.out.println(eventListNo	de.get(H.get(act)).get(j));
@@ -196,6 +237,11 @@ public class CASASTestInterweavedSingle extends TestSetup {
 						long deltaDurationFromDetectedActivity = Math.abs(hitDuration- assertion.getEventDuration());
 						long deltaStart = Math.abs(hitStart - relativeAssertionStart);
 						long deltaEnd = Math.abs(hitEnd - relativeAssertionEnd);
+
+						aux.put("delta start", deltaStart);
+						aux.put("delta end", deltaEnd);
+						aux.put("delta duration", deltaDurationFromDetectedActivity);
+						aux.put("gaps", actArrayaux);
 						totalHitForActivity += noHit;
 
 						if (hitStart !=-1) {
@@ -205,7 +251,14 @@ public class CASASTestInterweavedSingle extends TestSetup {
 						}
 						else
 							System.out.println("no overlapp :( ");
+
+						actArray.add(aux);
 					}
+					actObject.put("hit intervals",  totalHitForActivity);
+					actObject.put("intervals", actArray);
+					jsonActivities[Integer.parseInt(H.get(act))-1].put(PERSON,actObject);
+
+
 					System.out.println("hit intervals for activity " + act + " -> "  + totalHitForActivity + " from " +  eventListNode.get(H.get(act)).size());
 				}
 			}
