@@ -273,7 +273,7 @@ colors = {
 	'WATER': 'rgb(0, 0, 220)',
     'WatchDVD': 'rgb(0, 220, 220)',
     'FillDispenser': 'rgb(0, 0, 220)',
-    'WriteBirthdayCard': 'rgb(30, 127, 100)'
+    'WriteBirthdayCard': 'rgb(30, 127, 100)',
     'PreparingSoup': 'rgb(0,0,220)',
     'ChoosingOutfit': 'rgb(255,0,0)'
 }

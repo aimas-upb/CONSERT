@@ -50,14 +50,14 @@ public class CASASTestInterweavedSingle extends TestSetup {
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
 	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
-	public static final String [] activities = {"PhoneCall", "WatchDVD", "PreparingSoup", "FillDispenser", "ChoosingOutfit"};
+	public static final String [] activities = {"PhoneCall", "WatchDVD", "PreparingSoup", "WriteBirthdayCard", "FillDispenser", "ChoosingOutfit"};
 
 
 	public static void main(String[] args) {
 
 		mapper = new ObjectMapper();
 
-		ObjectNode activities =  mapper.createObjectNode();
+		ObjectNode activitiesJSON =  mapper.createObjectNode();
 
 		jsonActivities = new ObjectNode[8];
 		for (int i = 0; i<8; i++)
@@ -72,9 +72,9 @@ public class CASASTestInterweavedSingle extends TestSetup {
 		}
 		for (int i=1; i<=8; i++)
 		{
-			activities.put(Integer.toString(i), jsonActivities[i-1]);
+			activitiesJSON.put(Integer.toString(i), jsonActivities[i-1]);
 		}
-		System.out.println(activities);
+		System.out.println(activitiesJSON);
     }
 	
 	
@@ -107,16 +107,16 @@ public class CASASTestInterweavedSingle extends TestSetup {
 		KieSession kSession = getKieSessionFromResources( builderConf, kSessionConfig,
 				"casas_interwoven_rules/CASAS_base.drl", "casas_interwoven_rules/CASAS_location.drl", 
 
-//				"casas_interwoven_rules/CASAS_watch_DVD.drl",
-//				"casas_interwoven_rules/CASAS_phone_call.drl",
-//				"casas_interwoven_rules/CASAS_fill_pills.drl",
-//				"casas_interwoven_rules/CASAS_soup.drl");
+				"casas_interwoven_rules/CASAS_watch_DVD.drl",
+				"casas_interwoven_rules/CASAS_phone_call.drl",
+				"casas_interwoven_rules/CASAS_fill_pills.drl",
+				"casas_interwoven_rules/CASAS_soup.drl",
 
-//				"casas_interwoven_rules/CASAS_watch_DVD.drl",
-//				"casas_interwoven_rules/CASAS_phone_call.drl",
-//				"casas_interwoven_rules/CASAS_fill_pills.drl",
-//				"casas_interwoven_rules/CASAS_soup.drl",
-//				"casas_interwoven_rules/CASAS_outfit.drl");
+				"casas_interwoven_rules/CASAS_watch_DVD.drl",
+				"casas_interwoven_rules/CASAS_phone_call.drl",
+				"casas_interwoven_rules/CASAS_fill_pills.drl",
+				"casas_interwoven_rules/CASAS_soup.drl",
+				"casas_interwoven_rules/CASAS_outfit.drl",
 				"casas_interwoven_rules/CASAS_write_birthdaycard.drl");
 
 		
@@ -174,6 +174,7 @@ public class CASASTestInterweavedSingle extends TestSetup {
 			H.put("FillDispenser","1");
 			H.put("WatchDVD","2");
 			H.put("PhoneCall","4");
+			H.put("WriteBirthdayCard","5");
 			H.put("PreparingSoup","6");
 			H.put("ChoosingOutfit","8");
 
