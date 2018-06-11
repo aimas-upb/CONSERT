@@ -47,7 +47,7 @@ public class CASASTestInterweavedAll extends TestSetup {
 	public static ObjectMapper mapper;
 	public static ObjectNode jsonActivities[];
 	public static String PERSON = "p13";
-	public static final String[] Persons = {"p04"};//,"p13","p14","p15","p17","p18","p19", "p20", "p22","p23","p24","p25","p26","p27","p28","p29","p30","p31","p32","p33","p34";
+	public static final String[] Persons = {"p04","p13","p14","p15","p17","p18","p19", "p20", "p22","p23","p24","p25","p26","p27","p28","p29","p30","p31","p32","p33","p34"};
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
 	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
@@ -79,7 +79,7 @@ public class CASASTestInterweavedAll extends TestSetup {
 		
 		
 		private static void runEvents(String filepath, String person, String task) throws Exception {
-			System.out.println("RUNNING EVENTS FOR file: " + filepath);
+			System.out.println("RUNNING EVENTS FOR file: " + "files/casas_adlinterweaved/" + person + "_interweaved" + ".json");
 			
 			// set up logging
 			Properties props = new Properties();
