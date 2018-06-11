@@ -21,8 +21,8 @@ __maintainer__ = "Mihai Trascau"
 __date__ = "23/05/2017"
 __version__ = "1.0.0"
 
-raw_event_types = ["MOTION", "ITEM", "CABINET", "PHONE", "WATER", "BURNER", "TEMPERATURE"]
-status_streams = ["MotionStream", "ItemStream", "CabinetStream", "PhoneStream"]
+raw_event_types = ["MOTION", "ITEM", "CABINET", "PHONE", "WATER", "BURNER", "TEMPERATURE", "SuppliesRetrieved"]
+status_streams = ["MotionStream", "ItemStream", "CabinetStream", "PhoneStream", "SuppliesRetrievedStream"]
 numeric_streams = ["WaterStream", "BurnerStream", "TemperatureStream"]
 
 status_mapping = {
@@ -42,7 +42,10 @@ status_mapping = {
         "start": "START",
         "stop" : "END"
     },
-
+    "SuppliesRetrievedStream" : {
+        "start": "YES",
+        "stop" : "NO"
+    },
 }
 
 def process_casas_raw_output(raw_data):
@@ -188,6 +191,10 @@ for f in files:
 			key = 'FillDispenser'
 		elif f.lower().find('writebirthdaycard') != -1:
 			key = 'WriteBirthdayCard'
+		elif f.lower().find('suppliesretrieved') != -1:
+			key = 'SuppliesRetrieved'
+		elif f.lower().find('waterplants') != -1:
+			key = 'WaterPlants'
 
 		else:
             # print 'Skipping JSON file \'' + f + '\''
@@ -273,9 +280,11 @@ colors = {
 	'WATER': 'rgb(0, 0, 220)',
     'WatchDVD': 'rgb(0, 220, 220)',
     'FillDispenser': 'rgb(0, 0, 220)',
-    'WriteBirthdayCard': 'rgb(30, 127, 100)'
+    'WriteBirthdayCard': 'rgb(30, 127, 100)',
     'PreparingSoup': 'rgb(0,0,220)',
-    'ChoosingOutfit': 'rgb(0,220,220)'
+    'ChoosingOutfit': 'rgb(0,220,220)',
+    'WaterPlants': 'rgb(245,12,32)',
+    'SuppliesRetrieved' : 'rgb(100,203,32)'
 }
 
 # Create Gantt figure

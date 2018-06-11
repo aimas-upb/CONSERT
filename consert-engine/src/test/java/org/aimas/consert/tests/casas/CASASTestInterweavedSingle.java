@@ -1,21 +1,13 @@
 package org.aimas.consert.tests.casas;
 
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.aimas.consert.engine.EngineRunner;
 import org.aimas.consert.engine.EventTracker;
-import org.aimas.consert.model.annotations.ContextAnnotation;
-import org.aimas.consert.model.annotations.DefaultAnnotationData;
-import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.utils.AnnAfterOperator;
 import org.aimas.consert.tests.casas.utils.AnnBeforeOperator;
 import org.aimas.consert.tests.casas.utils.AnnIncludesOperator;
@@ -32,49 +24,25 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
-import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.builder.conf.EvaluatorOption;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 public class CASASTestInterweavedSingle extends TestSetup {
-
-	public static ObjectMapper mapper;
-	public static ObjectNode jsonActivities[];
-	public static String PERSON = "p13";
-	public static final String[] Persons = {"p04","p13","p14","p15","p17","p18","p19", "p20", "p22","p23","p24","p25","p26","p27","p28","p29","p30","p31","p32","p33","p34"};
+    
+	public static final String PERSON = "p13";
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
-	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
-	public static final String [] activities = {"PhoneCall", "WatchDVD", "PreparingSoup", "FillDispenser", "ChoosingOutfit"};
 
-
+	
 	public static void main(String[] args) {
-
-		mapper = new ObjectMapper();
-
-		ObjectNode activities =  mapper.createObjectNode();
-
-		jsonActivities = new ObjectNode[8];
-		for (int i = 0; i<8; i++)
-			jsonActivities[i] = mapper.createObjectNode();
-		for (int i =0; i<Persons.length; i++) {
-			PERSON = Persons[i];
-			try {
-				runEvents(TEST_FILE, PERSON, TASK);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-		for (int i=1; i<=8; i++)
-		{
-			activities.put(Integer.toString(i), jsonActivities[i-1]);
-		}
-		System.out.println(activities);
+    	
+    	try {
+	    	runEvents(TEST_FILE, PERSON, TASK);
+    	}
+    	catch(Exception ex) {
+    		ex.printStackTrace();
+    	}
     }
 	
 	
@@ -106,19 +74,11 @@ public class CASASTestInterweavedSingle extends TestSetup {
 
 		KieSession kSession = getKieSessionFromResources( builderConf, kSessionConfig,
 				"casas_interwoven_rules/CASAS_base.drl", "casas_interwoven_rules/CASAS_location.drl", 
-
-//				"casas_interwoven_rules/CASAS_watch_DVD.drl",
-//				"casas_interwoven_rules/CASAS_phone_call.drl",
-//				"casas_interwoven_rules/CASAS_fill_pills.drl",
-//				"casas_interwoven_rules/CASAS_soup.drl");
-
-//				"casas_interwoven_rules/CASAS_watch_DVD.drl",
-//				"casas_interwoven_rules/CASAS_phone_call.drl",
-//				"casas_interwoven_rules/CASAS_fill_pills.drl",
-//				"casas_interwoven_rules/CASAS_soup.drl",
-//				"casas_interwoven_rules/CASAS_outfit.drl");
-				"casas_interwoven_rules/CASAS_write_birthdaycard.drl");
-
+				//"casas_interwoven_rules/CASAS_watch_DVD.drl",
+				//"casas_interwoven_rules/CASAS_phone_call.drl",
+				//"casas_interwoven_rules/CASAS_fill_pills.drl");
+				//"casas_interwoven_rules/CASAS_write_birthdaycard.drl");
+				"casas_interwoven_rules/CASAS_water_plants.drl");
 		
 		//kSession.setGlobal("assertionLogger", assertionLogger);
 		
@@ -161,123 +121,6 @@ public class CASASTestInterweavedSingle extends TestSetup {
     	CASASInterweavedExporter.exportToHTML(person, task, kSession, testStartTs);
     	eventInserter.stop();
 
-
-		try {
-			File f =  getFileNameFromResources(VALID_FILE);
-			final InputStream in =new FileInputStream(f);
-			ObjectMapper mapper =  new ObjectMapper();
-
-			final JsonNode eventListNode = mapper.readTree(in);
-
-
-			HashMap<String,String> H = new HashMap<String,String>();
-			H.put("FillDispenser","1");
-			H.put("WatchDVD","2");
-			H.put("PhoneCall","4");
-			H.put("PreparingSoup","6");
-			H.put("ChoosingOutfit","8");
-
-			for (String act : activities)
-			{
-
-				ObjectNode actObject = mapper.createObjectNode();
-				ArrayNode actArray = mapper.createArrayNode();
-
-				String entryPointName = "Extended" + act + "Stream";
-				EntryPoint entryPoint = kSession.getEntryPoint(entryPointName);
-				// there should be only one instance of the final activity,
-				// so we only retrieve the first element in the list
-				if (entryPoint.getObjects() != null && !entryPoint.getObjects().isEmpty())
-				{
-
-					System.out.println("detected intervals " + entryPoint.getObjects().size());
-					System.out.println("real number of intervals " + eventListNode.get(H.get(act)).size());
-
-					actObject.put("detected intervals",  entryPoint.getObjects().size());
-					actObject.put("real number of intervals",  eventListNode.get(H.get(act)).size());
-
-					Iterator<?> it = entryPoint.getObjects().iterator();
-					int totalHitForActivity = 0;
-					for (int i = 0; i < entryPoint.getObjects().size(); i++)
-					{
-						ObjectNode aux = mapper.createObjectNode();
-						ContextAssertion assertion = (ContextAssertion) it.next();
-
-						DefaultAnnotationData ann = (DefaultAnnotationData) assertion.getAnnotations();
-						long relativeAssertionStart = ann.getStartTime().getTime() - testStartTs;
-						long relativeAssertionEnd = relativeAssertionStart + assertion.getEventDuration();
-						System.out.println("detected start " + relativeAssertionStart + " detected end " + relativeAssertionEnd);
-
-
-						long hitStart = -1;
-						long hitEnd = - 1;
-						int noHit = 0;
-						long gap;
-						ArrayNode actArrayaux = mapper.createArrayNode();
-						for (int j = 0; j< eventListNode.get(H.get(act)).size(); j++)
-						{
-							long relativeAssertionStart2 =  eventListNode.get(H.get(act)).get(j).get("interval").get("relative_start").asLong();
-							long relativeAssertionEnd2 =  eventListNode.get(H.get(act)).get(j).get("interval").get("relative_end").asLong();
-							System.out.println("interval "  + j + " real start " + relativeAssertionStart2 + " real end " + relativeAssertionEnd2);
-							if ( (relativeAssertionStart2 >= relativeAssertionStart && relativeAssertionStart2 <= relativeAssertionEnd)||
-									(relativeAssertionEnd2 <= relativeAssertionEnd && relativeAssertionEnd2 >= relativeAssertionStart)
-									|| (relativeAssertionStart2 <= relativeAssertionStart && relativeAssertionEnd2 >= relativeAssertionStart)) // the 2 intervals overlaps
-							{
-								if (hitStart ==-1)
-									hitStart = relativeAssertionStart2;
-								hitEnd = relativeAssertionEnd2;
-								noHit++;
-								if (noHit>1)
-								{
-									System.out.println("gap " + (relativeAssertionStart2 - ( eventListNode.get(H.get(act)).get(j-1).get("interval").get("relative_end").asLong())));
-									gap =  (relativeAssertionStart2 - ( eventListNode.get(H.get(act)).get(j-1).get("interval").get("relative_end").asLong()));
-									actArrayaux.add(gap);
-								}
-							}
-							long EvDuration2 = relativeAssertionEnd2 - relativeAssertionStart2;
-					//		System.out.println(eventListNo	de.get(H.get(act)).get(j));
-					//		System.out.println( eventListNode.get(H.get(act)).get("interval").get("relative_start"));
-					//		System.out.println( eventListNode.get(H.get(act)).get("interval").get("relative_end"));
-
-						}
-						long hitDuration = hitEnd - hitStart;
-						long deltaDurationFromDetectedActivity = Math.abs(hitDuration- assertion.getEventDuration());
-						long deltaStart = Math.abs(hitStart - relativeAssertionStart);
-						long deltaEnd = Math.abs(hitEnd - relativeAssertionEnd);
-
-						aux.put("delta start", deltaStart);
-						aux.put("delta end", deltaEnd);
-						aux.put("delta duration", deltaDurationFromDetectedActivity);
-						aux.put("gaps", actArrayaux);
-						totalHitForActivity += noHit;
-
-						if (hitStart !=-1) {
-							System.out.println("delta duration " + deltaDurationFromDetectedActivity);
-							System.out.println("delta start " + deltaStart);
-							System.out.println("delta end " + deltaEnd);
-						}
-						else
-							System.out.println("no overlapp :( ");
-
-						actArray.add(aux);
-					}
-					actObject.put("hit intervals",  totalHitForActivity);
-					actObject.put("intervals", actArray);
-					jsonActivities[Integer.parseInt(H.get(act))-1].put(PERSON,actObject);
-
-
-					System.out.println("hit intervals for activity " + act + " -> "  + totalHitForActivity + " from " +  eventListNode.get(H.get(act)).size());
-				}
-			}
-		} catch(FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (JsonParseException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
     	kSession.halt();
     	kSession.dispose();
     }
