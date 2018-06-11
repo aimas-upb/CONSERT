@@ -282,9 +282,9 @@ colors = {
     'FillDispenser': 'rgb(0, 0, 220)',
     'WriteBirthdayCard': 'rgb(30, 127, 100)',
     'PreparingSoup': 'rgb(0,0,220)',
-    'ChoosingOutfit': 'rgb(0,220,220)',
     'WaterPlants': 'rgb(245,12,32)',
     'SuppliesRetrieved' : 'rgb(100,203,32)'
+    'ChoosingOutfit': 'rgb(255,0,0)'
 }
 
 # Create Gantt figure

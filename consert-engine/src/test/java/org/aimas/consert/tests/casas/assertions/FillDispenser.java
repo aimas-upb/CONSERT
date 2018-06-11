@@ -8,12 +8,12 @@ import org.aimas.consert.tests.casas.entities.StringLiteral;
 public class FillDispenser extends UnaryContextAssertion {
 	
 	public FillDispenser() {
-		setInvolvedEntity(new StringLiteral("person"));
+		setInvolvedEntity(new StringLiteral("FillDispenser"));
 		setAcquisitionType(AcquisitionType.DERIVED);
 	}
 	
 	public FillDispenser(AnnotationData annotations) {
-		super(new StringLiteral("person"), AcquisitionType.DERIVED, annotations);
+		super(new StringLiteral("FillDispenser"), AcquisitionType.DERIVED, annotations);
 	}
 	
 	public FillDispenser(ContextEntity involvedEntity,

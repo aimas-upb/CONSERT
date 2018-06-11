@@ -281,9 +281,13 @@ rule "ExtendedWriteBirthdayCard"
     when
         $card : WriteBirthdayCard() from entry-point "ExtendedWriteBirthdayCardStream"
     then
-        System.out.println("Inserted EXTENDED WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() + 
+        System.out.println("Inserted EXTENDED WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() +
         " duration: " + (long)$card.getEventDuration());
+<<<<<<< HEAD
 end      
+=======
+ end
+>>>>>>> 103839db5d851aaad3e82c0b905f6be20c369698
         
 rule "ChoosingOutfitTest"
     salience -10
