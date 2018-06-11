@@ -16,6 +16,7 @@ import org.aimas.consert.tests.casas.assertions.WatchDVD
 import org.aimas.consert.tests.casas.assertions.PreparingSoup
 import org.aimas.consert.tests.casas.assertions.ChoosingOutfit
 import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
+import org.aimas.consert.tests.casas.assertions.Cleaning
 
 import org.aimas.consert.tests.casas.assertions.FillDispenser
 import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
@@ -300,4 +301,22 @@ rule "ExtendedChoosingOutfit"
     then
         System.out.println("Inserted EXTENDED ChoosingOutfit event with: " + $ChoosingOutfit + ", timestamp: " + (long)$ChoosingOutfit.getStartTimestamp() +
         " duration: " + (long)$ChoosingOutfit.getEventDuration());
+end
+
+rule "CleaningTest"
+    salience -10
+    when
+        $Cleaning : ChoosingOutfit() from entry-point "CleaningStream"
+    then
+        System.out.println("Inserted Cleaning event with: " + $Cleaning + ", timestamp: " + (long)$Cleaning.getStartTimestamp() +
+        " duration: " + (long)$Cleaning.getEventDuration());
+end
+
+rule "ExtendedCleaningOutfit"
+    salience -10
+    when
+        $Cleaning : Cleaning() from entry-point "ExtendedCleaningStream"
+    then
+        System.out.println("Inserted EXTENDED Cleaning event with: " + $Cleaning + ", timestamp: " + (long)$Cleaning.getStartTimestamp() +
+        " duration: " + (long)$Cleaning.getEventDuration());
 end

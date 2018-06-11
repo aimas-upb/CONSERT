@@ -50,7 +50,7 @@ public class CASASTestInterweavedSingle extends TestSetup {
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
 	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
-	public static final String [] activities = {"PhoneCall", "WatchDVD", "PreparingSoup", "WriteBirthdayCard", "FillDispenser", "ChoosingOutfit"};
+	public static final String [] activities = {"PhoneCall", "WatchDVD", "PreparingSoup", "WriteBirthdayCard", "FillDispenser", "Cleaning", "ChoosingOutfit"};
 
 
 	public static void main(String[] args) {
@@ -117,6 +117,7 @@ public class CASASTestInterweavedSingle extends TestSetup {
 				"casas_interwoven_rules/CASAS_fill_pills.drl",
 				"casas_interwoven_rules/CASAS_soup.drl",
 				"casas_interwoven_rules/CASAS_outfit.drl",
+				"casas_interwoven_rules/CASAS_cleaning.drl",
 				"casas_interwoven_rules/CASAS_write_birthdaycard.drl");
 
 		
@@ -176,6 +177,7 @@ public class CASASTestInterweavedSingle extends TestSetup {
 			H.put("PhoneCall","4");
 			H.put("WriteBirthdayCard","5");
 			H.put("PreparingSoup","6");
+			H.put("Cleaning","7");
 			H.put("ChoosingOutfit","8");
 
 			for (String act : activities)
