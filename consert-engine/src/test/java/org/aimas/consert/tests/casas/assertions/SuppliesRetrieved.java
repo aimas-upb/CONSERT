@@ -5,20 +5,20 @@ import org.aimas.consert.model.content.BinaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 
-public class SupplyCloset extends BinaryContextAssertion {
+public class SuppliesRetrieved extends BinaryContextAssertion {
 
     String sensorId;
 
-    /** can be one of {ON, OFF} */
+    /** can be one of {YES, NO} */
     String status;
 
-    public SupplyCloset() {}
+    public SuppliesRetrieved() {}
 
-    public SupplyCloset(AnnotationData annotations) {
-        super(new StringLiteral("SupplyCloset"),new StringLiteral("SupplyCloset"),  AcquisitionType.DERIVED, annotations);
+    public SuppliesRetrieved(AnnotationData annotations) {
+        super(new StringLiteral("SuppliesRetrieved"),new StringLiteral("NO"),  AcquisitionType.DERIVED, annotations);
 
     }
-    public SupplyCloset(String sensorId, String status, AnnotationData annotations) {
+    public SuppliesRetrieved(String sensorId, String status, AnnotationData annotations) {
         super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.DERIVED, annotations);
 
         this.sensorId = sensorId;

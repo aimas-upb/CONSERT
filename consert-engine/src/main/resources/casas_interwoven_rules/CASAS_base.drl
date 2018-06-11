@@ -20,6 +20,7 @@ import org.aimas.consert.tests.casas.assertions.Cleaning
 
 import org.aimas.consert.tests.casas.assertions.FillDispenser
 import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
+import org.aimas.consert.tests.casas.assertions.WaterPlants
 
 import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
@@ -275,7 +276,6 @@ rule "WriteBirthdayCard"
         " duration: " + (long)$card.getEventDuration());
 end
 
-
 rule "ExtendedWriteBirthdayCard"
     salience -10
     when
@@ -283,8 +283,8 @@ rule "ExtendedWriteBirthdayCard"
     then
         System.out.println("Inserted EXTENDED WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() +
         " duration: " + (long)$card.getEventDuration());
- end
-        
+end
+
 rule "ChoosingOutfitTest"
     salience -10
     when
@@ -319,4 +319,24 @@ rule "ExtendedCleaningOutfit"
     then
         System.out.println("Inserted EXTENDED Cleaning event with: " + $Cleaning + ", timestamp: " + (long)$Cleaning.getStartTimestamp() +
         " duration: " + (long)$Cleaning.getEventDuration());
+end
+
+rule "WaterPlants"
+    salience -10
+    when
+        $plants : WaterPlants() from entry-point "WaterPlantsStream"
+    then
+        System.out.println("Inserted WaterPlants event with: " + $plants + ", timestamp: " + (long)$plants.getStartTimestamp() + 
+        " duration: " + (long)$plants.getEventDuration());
+end
+
+
+
+rule "ExtendedWaterPlants"
+    salience -10
+    when
+        $plants : WaterPlants() from entry-point "ExtendedWaterPlantsStream"
+    then
+        System.out.println("Inserted EXTENDED WaterPlants event with: " + $plants + ", timestamp: " + (long)$plants.getStartTimestamp() + 
+        " duration: " + (long)$plants.getEventDuration());
 end

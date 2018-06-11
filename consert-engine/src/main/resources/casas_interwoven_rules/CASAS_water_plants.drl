@@ -1,0 +1,82 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
+import org.aimas.consert.tests.casas.assertions.WaterPlants
+import org.aimas.consert.tests.casas.assertions.SuppliesRetrieved
+
+import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.utils.AssertionLogger
+
+import java.util.Date;
+
+global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
+
+
+declare WaterPlants
+    @role(event)
+end
+
+declare SuppliesRetrieved
+    @role(event)
+end
+
+
+rule "Retrieve supplies" 
+    // When triggering the motion sensor from the supply closet or opening the door to the supplies closet
+    when 
+        (
+            //$trigger : Motion(sensorId == "M51", status == "ON") from entry-point "MotionStream" or
+            $trigger : Item(sensorId == "supplies", status == "OPEN") from entry-point "ItemStream"
+        ) 
+        and
+        (   
+            not (exists SuppliesRetrieved(status == "YES") from entry-point "SuppliesRetrievedStream") or
+            (   
+                $sup : SuppliesRetrieved( status == "NO", this before $trigger) from entry-point "SuppliesRetrievedStream" and
+                not (exists SuppliesRetrieved( status == "NO", this after $sup) from entry-point "SuppliesRetrievedStream")
+            )
+        )
+    then
+        System.out.println("////// Triggering SUPPLIES RETRIEVED rule following event: " + $trigger + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData suppAnn = new DefaultAnnotationData(ts);
+        
+        SuppliesRetrieved supplies = new SuppliesRetrieved("SuppliesRetrieved", "YES", suppAnn);
+        eventTracker.insertSimpleEvent(supplies, false);
+end
+
+
+rule "Bring back supplies"
+    // same as in the previous case but now the supplies are retrieved
+    when 
+        (
+            //$trigger : Motion(sensorId == "M51", status == "ON") from entry-point "MotionStream" or
+            $trigger : Item(sensorId == "supplies", status == "OPEN" || status == "CLOSE") from entry-point "ItemStream"
+        ) 
+        exists SuppliesRetrieved(status == "YES", this before[1m] $trigger) from entry-point "SuppliesRetrievedStream" 
+    then
+        System.out.println("////// Triggering SUPPLIES BROUGHT BACK rule following event: " + $trigger + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData suppAnn = new DefaultAnnotationData(ts);
+        
+        SuppliesRetrieved supplies = new SuppliesRetrieved("SuppliesRetrieved", "NO", suppAnn);
+        eventTracker.insertSimpleEvent(supplies, false);
+end
+
+
