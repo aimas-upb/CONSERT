@@ -1,11 +1,7 @@
 package org.aimas.consert.tests.casas;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
@@ -46,15 +42,16 @@ public class CASASTestInterweavedAll extends TestSetup {
 
 	public static ObjectMapper mapper;
 	public static ObjectNode jsonActivities[];
-	public static String PERSON = "p13";
-	public static final String[] Persons = {"p04","p13","p14","p15","p17","p18","p19", "p20", "p22","p23","p24","p25","p26","p27","p28","p29","p30","p31","p32","p33","p34"};
+	public static String PERSON = "p17";
+	public static final String[] Persons = {"p17"};
 	public static final String TASK = "interweaved";
-	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
-	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
+	public static String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
+	public static String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
 	public static final String [] activities = {"PhoneCall", "WatchDVD", "FillDispenser", "ChoosingOutfit", "Cleaning","WaterPlants","PreparingSoup", "WriteBirthdayCard"};
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 			mapper = new ObjectMapper();
 
 			ObjectNode activitiesJSON =  mapper.createObjectNode();
@@ -62,20 +59,35 @@ public class CASASTestInterweavedAll extends TestSetup {
 			jsonActivities = new ObjectNode[8];
 			for (int i = 0; i<8; i++)
 				jsonActivities[i] = mapper.createObjectNode();
-			for (int i =0; i<Persons.length; i++) {
-				PERSON = Persons[i];
-				try {
-					runEvents(TEST_FILE, PERSON, TASK);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
+		String datasetFolderPath = "files/" + "casas_adlinterweaved";
+
+		File casasFolder = getFileNameFromResources(datasetFolderPath);
+		File[] datasetFiles = casasFolder.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return (pathname.getName().startsWith("p") && !pathname.getName().contains("activity_intervals"));
 			}
-			for (int i=1; i<=8; i++)
-			{
-				activitiesJSON.put(Integer.toString(i), jsonActivities[i-1]);
+		});
+
+		for (File f : datasetFiles)
+		{
+			String filename = f.getName();
+			PERSON = filename.split("\\.")[0].split("_")[0];
+			TEST_FILE = "files/casas_adlinterweaved/" +  PERSON + "_interweaved" + ".json";
+			VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
+			try {
+				runEvents(TEST_FILE, PERSON, TASK);
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
-			System.out.println(activitiesJSON);
-	    }
+		}
+
+		for (int i=1; i<=8; i++)
+		{
+			activitiesJSON.put(Integer.toString(i), jsonActivities[i-1]);
+		}
+		System.out.println(activitiesJSON);
+	}
 		
 		
 		private static void runEvents(String filepath, String person, String task) throws Exception {
@@ -191,7 +203,11 @@ public class CASASTestInterweavedAll extends TestSetup {
 
 
 						actObject.put("detected intervals",  entryPoint.getObjects().size());
-						actObject.put("real number of intervals",  eventListNode.get(H.get(act)).size());
+						if (eventListNode.get(H.get(act)) != null){
+							actObject.put("real number of intervals",  eventListNode.get(H.get(act)).size());
+						}
+						else
+							actObject.put("real number of intervals",  0);
 
 						Iterator<?> it = entryPoint.getObjects().iterator();
 						int totalHitForActivity = 0;
@@ -210,6 +226,8 @@ public class CASASTestInterweavedAll extends TestSetup {
 							int noHit = 0;
 							long gap;
 							ArrayNode actArrayaux = mapper.createArrayNode();
+							if (eventListNode.get(H.get(act)) == null)
+								break;
 							for (int j = 0; j< eventListNode.get(H.get(act)).size(); j++)
 							{
 								long relativeAssertionStart2 =  eventListNode.get(H.get(act)).get(j).get("interval").get("relative_start").asLong();
