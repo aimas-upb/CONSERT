@@ -325,7 +325,7 @@ public class CASASTestInterweavedAll extends TestSetup {
 										long relativeAssertionStart = ann.getStartTime().getTime() - testStartTs;
 										long relativeAssertionEnd = relativeAssertionStart + assertion.getEventDuration();
 
-										System.out.println(act + " "  + relativeAssertionStart + " " + relativeAssertionEnd);
+									//	System.out.println(act + " "  + relativeAssertionStart + " " + relativeAssertionEnd);
 										if (i>0)
 											if (relativeAssertionStart == laststart )
 												relativeAssertionStart = lastend;
@@ -340,9 +340,9 @@ public class CASASTestInterweavedAll extends TestSetup {
 											long maxst = Long.max(relativeAssertionStart, relativeAssertionStart2);
 											long minend = Long.min(relativeAssertionEnd, relativeAssertionEnd2);
 											tpint2 += minend - maxst;
-											System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + " " + maxst + " " + minend +  " " + relativeAssertionEnd + " " + relativeAssertionStart + ":|" );
-											if (tpint2 > relativeAssertionEnd2 - relativeAssertionStart2)
-												System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + " " + maxst + " " + minend +  "!!!!!!!!!!" );
+										//	System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + " " + maxst + " " + minend +  " " + relativeAssertionEnd + " " + relativeAssertionStart + ":|" );
+										//	if (tpint2 > relativeAssertionEnd2 - relativeAssertionStart2)
+											//	System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + " " + maxst + " " + minend +  "!!!!!!!!!!" );
 										}
 										laststart = relativeAssertionStart;
 										lastend  = relativeAssertionEnd;
@@ -350,8 +350,8 @@ public class CASASTestInterweavedAll extends TestSetup {
 								}
 
 								fn += (relativeAssertionEnd2 - relativeAssertionStart2 - tpint2);
-								if (fn<0)
-									System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + "!!!!!");
+							//	if (fn<0)
+								//	System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + "!!!!!");
 							}
 						}
 
