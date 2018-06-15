@@ -75,6 +75,7 @@ public class CASASTestInterweavedAll extends TestSetup {
 			PERSON = filename.split("\\.")[0].split("_")[0];
 			TEST_FILE = "files/casas_adlinterweaved/" +  PERSON + "_interweaved" + ".json";
 			VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
+			//if (PERSON.startsWith("p25"))
 			try {
 				runEvents(TEST_FILE, PERSON, TASK);
 			} catch (Exception ex) {
@@ -211,7 +212,7 @@ public class CASASTestInterweavedAll extends TestSetup {
 							actObject.put("real number of intervals",  0);
 
 						Iterator<?> it = entryPoint.getObjects().iterator();
-
+						long laststart = -1, lastend = -1;
 						for (int i = 0; i < entryPoint.getObjects().size(); i++)
 						{
 							ObjectNode aux = mapper.createObjectNode();
@@ -224,7 +225,8 @@ public class CASASTestInterweavedAll extends TestSetup {
 								fstime = relativeAssertionStart;
 							if (relativeAssertionEnd > lstime)
 								lstime = relativeAssertionEnd;
-
+							if (relativeAssertionStart == laststart)
+								relativeAssertionStart = lastend;
 							long hitStart = -1;
 							long hitEnd = - 1;
 							int noHit = 0;
@@ -290,6 +292,9 @@ public class CASASTestInterweavedAll extends TestSetup {
 							}
 
 							actArray.add(aux);
+
+							lastend = relativeAssertionEnd;
+							laststart = relativeAssertionStart;
 						}
 					}
 
@@ -300,12 +305,12 @@ public class CASASTestInterweavedAll extends TestSetup {
 							if (entryPoint.getObjects() == null || entryPoint.getObjects().isEmpty())
 								actObject.put("real number of intervals",  0);
 							actObject.put("detected intervals",  eventListNode.get(H.get(act)).size());
-
+							Long intervall[] = new Long[100];
+							Long intervalr[] = new Long[100];
 							for (int j = 0; j < eventListNode.get(H.get(act)).size(); j++) {
 								long tpint2 = 0;
 								long relativeAssertionStart2 = eventListNode.get(H.get(act)).get(j).get("interval").get("relative_start").asLong();
 								long relativeAssertionEnd2 = eventListNode.get(H.get(act)).get(j).get("interval").get("relative_end").asLong();
-
 
 								if (relativeAssertionStart2 < fstime)
 									fstime = relativeAssertionStart2;
@@ -313,12 +318,17 @@ public class CASASTestInterweavedAll extends TestSetup {
 									lstime = relativeAssertionEnd2;
 								if (entryPoint.getObjects() != null && !entryPoint.getObjects().isEmpty()) {
 									Iterator<?> it = entryPoint.getObjects().iterator();
-
+									long laststart = -1, lastend = -1;
 									for (int i = 0; i < entryPoint.getObjects().size(); i++) {
 										ContextAssertion assertion = (ContextAssertion) it.next();
 										DefaultAnnotationData ann = (DefaultAnnotationData) assertion.getAnnotations();
 										long relativeAssertionStart = ann.getStartTime().getTime() - testStartTs;
 										long relativeAssertionEnd = relativeAssertionStart + assertion.getEventDuration();
+
+										System.out.println(act + " "  + relativeAssertionStart + " " + relativeAssertionEnd);
+										if (i>0)
+											if (relativeAssertionStart == laststart )
+												relativeAssertionStart = lastend;
 										if (relativeAssertionEnd > lstime)
 											lstime = relativeAssertionEnd;
 										if (relativeAssertionEnd2 > lstime)
@@ -330,10 +340,18 @@ public class CASASTestInterweavedAll extends TestSetup {
 											long maxst = Long.max(relativeAssertionStart, relativeAssertionStart2);
 											long minend = Long.min(relativeAssertionEnd, relativeAssertionEnd2);
 											tpint2 += minend - maxst;
+											System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + " " + maxst + " " + minend +  " " + relativeAssertionEnd + " " + relativeAssertionStart + ":|" );
+											if (tpint2 > relativeAssertionEnd2 - relativeAssertionStart2)
+												System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + " " + maxst + " " + minend +  "!!!!!!!!!!" );
 										}
+										laststart = relativeAssertionStart;
+										lastend  = relativeAssertionEnd;
 									}
 								}
+
 								fn += (relativeAssertionEnd2 - relativeAssertionStart2 - tpint2);
+								if (fn<0)
+									System.out.println(tpint2+ " "+ relativeAssertionEnd2 + " " + relativeAssertionStart2 + "!!!!!");
 							}
 						}
 
@@ -346,7 +364,7 @@ public class CASASTestInterweavedAll extends TestSetup {
 						tduration = lstime - fstime;
 						tn = tduration - tp -fp - fn;
 
-					//System.out.println(tduration +" " + tn + " " + tp +" " + fp + " " + fn + "!!");
+					//	System.out.println(tduration +" " + tn + " " + tp +" " + fp + " " + fn + "!!");
 						actObject.put("hit intervals",  totalHitForActivity);
 						actObject.put("intervals", actArray);
 						actObject.put("total time", tduration);
