@@ -3,13 +3,13 @@ package org.aimas.consert
 // Declare Metadata for CASAS events
 import org.aimas.consert.tests.casas.assertions.Motion
 import org.aimas.consert.tests.casas.assertions.PersonLocation
+import org.aimas.consert.tests.casas.assertions.PersonMoving
 
 import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
-
 
 import org.aimas.consert.engine.EventTracker
 
@@ -21,6 +21,41 @@ declare PersonLocation
     @role(event)
     //@timestamp(startTimestamp)
     //@duration(eventDuration)
+end
+
+
+declare PersonMoving
+    @role(event)
+end
+
+// ===============================================================================
+// ================================ person moving ================================
+// ===============================================================================
+rule "Person Moving in between places"
+    when
+        $motion : Motion(id1 : sensorId, status == "ON") from entry-point "MotionStream"
+        exists Motion(id2 : sensorId, id2 != id1, status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream" 
+    then
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        
+        PersonMoving moving = new PersonMoving(ann);
+        eventTracker.insertAtomicEvent(moving);
+end
+
+
+rule "Person Moving in same place"
+    when
+        $m1 : Motion(id1 : sensorId, status == "ON") from entry-point "MotionStream"
+        $m2 : Motion(sensorId == id1, status == "ON", this before[1, 6s] $m1) from entry-point "MotionStream"
+        $m3 : Motion(sensorId == id1, status == "OFF", this before $m1, this after $m2) from entry-point "MotionStream"
+        not (exists Motion(sensorId != id1, status == "ON", this before $m1, this after $m2) from entry-point "MotionStream") 
+    then
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        
+        PersonMoving moving = new PersonMoving(ann);
+        eventTracker.insertAtomicEvent(moving);
 end
 
 // ===============================================================================

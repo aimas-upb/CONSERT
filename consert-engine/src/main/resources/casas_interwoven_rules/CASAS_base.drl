@@ -17,10 +17,13 @@ import org.aimas.consert.tests.casas.assertions.PreparingSoup
 import org.aimas.consert.tests.casas.assertions.ChoosingOutfit
 import org.aimas.consert.tests.casas.assertions.ProbablyCleaning
 import org.aimas.consert.tests.casas.assertions.Cleaning
+import org.aimas.consert.tests.casas.assertions.PersonMoving
 
 import org.aimas.consert.tests.casas.assertions.FillDispenser
 import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
 import org.aimas.consert.tests.casas.assertions.WaterPlants
+import org.aimas.consert.tests.casas.assertions.SuppliesRetrieved
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 
 import org.aimas.consert.model.annotations.AnnotationData
 import org.aimas.consert.model.annotations.DefaultAnnotationData
@@ -82,6 +85,11 @@ rule "MotionInsertTest"
         System.out.println("Inserted MOTION event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
 end
 */
+
+
+query activityNotTriggered ($activityName)
+     not (exists ActivityTriggered(name == $activityName))
+end
 
 rule "ItemInsertTest"
     salience(-10)
@@ -339,4 +347,54 @@ rule "ExtendedWaterPlants"
     then
         System.out.println("Inserted EXTENDED WaterPlants event with: " + $plants + ", timestamp: " + (long)$plants.getStartTimestamp() + 
         " duration: " + (long)$plants.getEventDuration());
+end
+
+
+rule "SuppliesRetrieved"
+    salience -10
+    when 
+        $supplies : SuppliesRetrieved() from entry-point "SuppliesRetrievedStream"
+    then
+        System.out.println("Inserted SuppliesRetrieved event with: " + $supplies + ", timestamp: " + (long)$supplies.getStartTimestamp() + 
+        " duration: " + (long)$supplies.getEventDuration());
+end
+
+
+rule "PersonMovingTest"
+    salience -10
+    when 
+        $moving : PersonMoving() from entry-point "PersonMovingStream"
+    then
+        System.out.println("Inserted PersonMoving event with: " + $moving + ", timestamp: " + (long)$moving.getStartTimestamp() + 
+        " duration: " + (long)$moving.getEventDuration());
+end
+
+rule "ExtendedPersonMovingTest"
+    salience -10
+    when 
+        $moving : PersonMoving() from entry-point "ExtendedPersonMovingStream"
+    then
+        System.out.println("Inserted EXTENDED PersonMoving event with: " + $moving + ", timestamp: " + (long)$moving.getStartTimestamp() + 
+        " duration: " + (long)$moving.getEventDuration());
+end
+
+
+rule "Cleaning"
+    salience -10
+    when
+        $clean : Cleaning() from entry-point "CleaningStream"
+    then
+        System.out.println("Inserted Cleaning event with: " + $clean + ", timestamp: " + (long)$clean.getStartTimestamp() + 
+        " duration: " + (long)$clean.getEventDuration());
+end
+
+
+
+rule "ExtendedCleaning"
+    salience -10
+    when
+        $clean : Cleaning() from entry-point "ExtendedCleaningStream"
+    then
+        System.out.println("Inserted EXTENDED Cleaning event with: " + $clean + ", timestamp: " + (long)$clean.getStartTimestamp() + 
+        " duration: " + (long)$clean.getEventDuration());
 end
