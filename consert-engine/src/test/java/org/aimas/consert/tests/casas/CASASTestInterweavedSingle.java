@@ -30,7 +30,7 @@ import org.kie.internal.builder.conf.EvaluatorOption;
 
 public class CASASTestInterweavedSingle extends TestSetup {
 
-	public static final String PERSON = "p13";
+	public static final String PERSON = "p15";
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
 	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
@@ -77,18 +77,18 @@ public class CASASTestInterweavedSingle extends TestSetup {
 
 		KieSession kSession = getKieSessionFromResources( builderConf, kSessionConfig,
 				"casas_interwoven_rules/CASAS_base.drl", "casas_interwoven_rules/CASAS_location.drl",
+//				"casas_interwoven_rules/CASAS_watch_DVD.drl",
+//				"casas_interwoven_rules/CASAS_phone_call.drl",
+//				"casas_interwoven_rules/CASAS_fill_pills.drl",
+//				"casas_interwoven_rules/CASAS_soup.drl",
+//
 				"casas_interwoven_rules/CASAS_watch_DVD.drl",
-				"casas_interwoven_rules/CASAS_phone_call.drl",
+//				"casas_interwoven_rules/CASAS_phone_call.drl",
 				"casas_interwoven_rules/CASAS_fill_pills.drl",
-				"casas_interwoven_rules/CASAS_soup.drl",
-
-				"casas_interwoven_rules/CASAS_watch_DVD.drl",
-				"casas_interwoven_rules/CASAS_phone_call.drl",
-				"casas_interwoven_rules/CASAS_fill_pills.drl",
-				"casas_interwoven_rules/CASAS_soup.drl",
-				"casas_interwoven_rules/CASAS_outfit.drl",
-				"casas_interwoven_rules/CASAS_cleaning.drl",
-				"casas_interwoven_rules/CASAS_write_birthdaycard.drl",
+//				"casas_interwoven_rules/CASAS_soup.drl",
+//				"casas_interwoven_rules/CASAS_outfit.drl",
+//				"casas_interwoven_rules/CASAS_cleaning.drl",
+//				"casas_interwoven_rules/CASAS_write_birthdaycard.drl",
 				"casas_interwoven_rules/CASAS_water_plants.drl");
 
 

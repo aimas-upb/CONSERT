@@ -179,6 +179,8 @@ for f in files:
 			key = 'TEMPERATURE'
 		elif f.lower().find('washhands') != -1:
 			key = 'WashHands'
+		elif f.lower().find('waterplants') != -1:
+			key = 'WaterPlants'
 		elif f.lower().find('water') != -1:
 			key = 'WATER'
 		elif f.lower().find('watchdvd') != -1:
@@ -193,8 +195,8 @@ for f in files:
 			key = 'WriteBirthdayCard'
 		elif f.lower().find('suppliesretrieved') != -1:
 			key = 'SuppliesRetrieved'
-		elif f.lower().find('waterplants') != -1:
-			key = 'WaterPlants'
+		elif f.lower().find('personmoving') != -1:
+			key = 'PersonMoving'
 
 		else:
             # print 'Skipping JSON file \'' + f + '\''
@@ -264,7 +266,7 @@ colors = {
  
     'BURNER': 'rgb(0, 220, 0)',	
     'CABINET': 'rgb(220, 0, 0)',
-	'CLEANING':  'rgb(0, 169, 0)',
+	'CLEANING':  'rgb(46, 45, 3)',
 	'COOKING':  'rgb(0, 169, 0)',
 	'EATING':  'rgb(0, 169, 0)',
 	'HandlingFood':  'rgb(0, 169, 0)',
@@ -282,9 +284,10 @@ colors = {
     'FillDispenser': 'rgb(0, 0, 220)',
     'WriteBirthdayCard': 'rgb(30, 127, 100)',
     'PreparingSoup': 'rgb(0,0,220)',
-    'WaterPlants': 'rgb(245,12,32)',
+    'WaterPlants': 'rgb(100,12,32)',
     'SuppliesRetrieved' : 'rgb(100,203,32)',
-    'ChoosingOutfit': 'rgb(255,0,0)'
+    'ChoosingOutfit': 'rgb(255,0,0)',
+    'PersonMoving' : 'rgb(221, 97, 10)'
 }
 
 # Create Gantt figure
