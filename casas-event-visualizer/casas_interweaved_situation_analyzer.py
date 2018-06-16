@@ -16,7 +16,7 @@ __maintainer__ = "David Iancu"
 __date__ = "11/06/2018"
 __version__ = "1.0.0"
 
-situations =  {"1":"PhoneCall", "2":"WatchDVD", "4":"PreparingSoup", "6":"FillDispenser", "8":"ChoosingOutfit"};
+situations =  {"1":"FillDispenser", "2":"WatchDVD", "4":"PhoneCall", "5":"WriteBirthdatCard","6":"PreparingSoup", "7":"Cleaning","8":"ChoosingOutfit"};
 
 
 # Parse arguments (input folder and output file)
@@ -44,26 +44,32 @@ for f in files:
 
             nameaux = i
             print (nameaux)
-            if nameaux == "3" or nameaux == "5" or nameaux == "7":
+            if nameaux == "3":
                 continue
             activity = situations[i]
-                                
 
             for person in data[i].keys():
                     activity_data = data[i][person]
                     d = {
                     'person' : person,
                     'activity': activity ,
-                    'detected_intervals': activity_data['detected intervals'],
+                    'detected intervals': activity_data['detected intervals'],
                     'real intervals': activity_data['real number of intervals'],
-                    'hit intervals': activity_data['hit intervals']
+                    'hit intervals': activity_data['hit intervals'],
+                    'precision': activity_data['precision'],
+                    'recall': activity_data['recall'],
+                    'accuracy': activity_data['accuracy'],
+                    'tp': activity_data['true positive time'],
+                    'tn': activity_data['true negative time'],
+                    'fp': activity_data['false positive time'],
+                    'fn': activity_data['false negative time']
                     }
                     no = 0
                     for interv in activity_data['intervals']:
                         no = no +1
-                        string1 = "delta start " + str(no);
-                        string2 = "delta end " + str(no);
-                        string3 = "delta duration " + str(no);
+                        string1 = "delta start ";
+                        string2 = "delta end " ;
+                        string3 = "delta duration ";
                         if interv['delta start']!='N/A':
                             
                             d[string1] = interv['delta start']
@@ -82,10 +88,12 @@ df_analysis_base = pd.DataFrame(analysis_data)
 
 print(df_analysis_base.describe())
 
-df_detected = df_analysis_base[df_analysis_base['detected_intervals'] > 0 ].groupby('activity')
+df_detected = df_analysis_base[df_analysis_base['hit intervals'] > 0 ].groupby('activity')
 
 writer = pd.ExcelWriter('casas_interweaved_situation_detection_analysis.xlsx')
 df_detected.describe().to_excel(writer, "Summary")
-df_analysis_base.sort(['activity','detected_intervals',  'hit intervals'], ascending=[1, 1, 1]).to_excel(writer, "Detailed")
+df_analysis_base.sort_values (['activity','detected intervals',  'hit intervals'], ascending=[1, 1, 1]).to_excel(writer, "Detailed")
 
 writer.save()
+
+
