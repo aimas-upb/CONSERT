@@ -26,6 +26,7 @@ declare WatchDVD
     @role(event)
 end
 
+/*
 rule "DVD taken" 
     when 
          $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
@@ -46,7 +47,7 @@ rule "Watching DVD"
         $DVDTaken: ActivityTriggered(name == "DVDTaken")
    //     $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering WATCHING DVD rule following events: "  + $DVDTaken + "," +  "\n");
+       System.out.println("////// Triggering WATCHING DVD rule following events: "  + $DVDTaken + "," +  "\n");
 
        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
        AnnotationData ann = new DefaultAnnotationData(ts);
@@ -68,4 +69,22 @@ rule "Stop DVD"
 
         // remove the ActivityTriggered fact
         eventTracker.deleteStaticEvent($DVDTaken);
+end
+*/
+
+rule "Watching DVD simple"
+    when
+        $loc : PersonLocation(location == "TV", eventDuration >= 30000,
+            locAnn : annotations#DefaultAnnotationData) 
+            from entry-point "ExtendedPersonLocationStream"
+        exists Item(sensorId == "DVD_Player" || sensorId == "DVD", $loc annIncludes this) from entry-point "ItemStream"
+    then
+       System.out.println("////// Triggering WATCHING DVD rule following events: "  + $loc + "," +  "\n");
+
+       long ts = eventTracker.getCurrentTime();
+       
+       AnnotationData ann = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+       WatchDVD watch = new WatchDVD(ann);
+
+       eventTracker.insertDerivedEvent(watch);
 end

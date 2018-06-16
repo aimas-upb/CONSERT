@@ -54,24 +54,34 @@ end
 
 rule "Pill dispenser removed" 
     when 
-        $act : ActivityTriggered(name == "inKitchen")
-        $cupboard : Cabinet(sensorId == "cupboard", status == "OPEN") from entry-point "CabinetStream"
-        not (exists Cabinet(sensorId == "cupboard", status == "OPEN", this after $cupboard) from entry-point "CabinetStream")
+        //$act : ActivityTriggered(name == "inKitchen")
+        //$cupboard : Cabinet(sensorId == "cupboard", status == "OPEN") from entry-point "CabinetStream"
+        //not (exists Cabinet(sensorId == "cupboard", status == "OPEN", this after $cupboard) from entry-point "CabinetStream")
         
-        $medicine: Item(sensorId == "medicine", status == "ABSENT", this after $cupboard) from entry-point "ItemStream"
+        $medicine: Item(sensorId == "medicine", status == "ABSENT") from entry-point "ItemStream"
         not (exists Item(sensorId == "medicine", status == "ABSENT", this after $medicine) from entry-point "ItemStream")
         
-        $dispenser: Item(sensorId == "pill_dispenser", status == "ABSENT", this after $cupboard) from entry-point "ItemStream"
-        not (exists Item(sensorId == "pill_dispenser", status == "ABSENT", this after $medicine) from entry-point "ItemStream")
-    then
-        System.out.println("////// Triggering START FILLING MEDICINE rule following events: " + $cupboard + ", " + $medicine + ", " + $dispenser + "\n");
         
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        //$dispenser: Item(sensorId == "pill_dispenser", status == "ABSENT" 
+        //    , this after[0s, 20s] $medicine || this before[0s, 20s] $medicine
+        //    ) from entry-point "ItemStream"
+        //not (exists Item(sensorId == "pill_dispenser", status == "ABSENT", this after $dispenser) from entry-point "ItemStream")
+        
+        
+        exists PersonLocation(location == "Kitchen", this annIncludes $medicine, 
+            locAnn : annotations#DefaultAnnotationData)
+            from entry-point "ExtendedPersonLocationStream"
+    then
+        System.out.println("////// Triggering START FILLING MEDICINE rule following events: " + $medicine 
+            //+ " AND " + $dispenser 
+            + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
         ActivityTriggered medicineFill = new ActivityTriggered("MedicineFill", ts);
         eventTracker.insertStaticEvent(medicineFill);
 end
 
-
+/*
 rule "Filling pill dispenser"
     timer (int: 0s 2s)
     when 
@@ -87,22 +97,37 @@ rule "Filling pill dispenser"
         
         eventTracker.insertAtomicEvent(fillDispenser);
 end
+*/
+
+rule "Filling pill dispenser"
+    when 
+        $medicineFill: ActivityTriggered(name == "MedicineFill")
+        $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+    then
+        System.out.println("////// Triggering FILLING PILL DISPENSER rule following events: " + $loc + " AND " + $medicineFill + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        AnnotationData ann = new DefaultAnnotationData(ts);
+        FillDispenser fillDispenser = new FillDispenser(ann);
+        
+        eventTracker.insertAtomicEvent(fillDispenser);
+end
 
 
 rule "Pill dispenser present" 
     when 
-        //$loc: PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
-        $act : ActivityTriggered(name == "inKitchen")
         $medicineFill: ActivityTriggered(name == "MedicineFill")
         
-        $cupboard: Cabinet(sensorId == "cupboard", status == "OPEN") from entry-point "CabinetStream"
-        not (exists Cabinet(sensorId == "cupboard", status == "OPEN", this after $cupboard) from entry-point "CabinetStream")
+        //$cupboard: Cabinet(sensorId == "cupboard", status == "OPEN") from entry-point "CabinetStream"
+        //not (exists Cabinet(sensorId == "cupboard", status == "OPEN", this after $cupboard) from entry-point "CabinetStream")
         
-        $medicine: Item(sensorId == "pill_dispenser", status == "PRESENT", this after $cupboard) from entry-point "ItemStream"
-        not (exists Item(sensorId == "pill_dispenser", status == "PRESENT", this after $medicine) from entry-point "ItemStream")
+        $item: Item(itemId : sensorId, itemId == "pill_dispenser" || itemId == "medicine", status == "PRESENT") from entry-point "ItemStream"
+        not (exists Item(sensorId == itemId, status == "PRESENT", this after $item) from entry-point "ItemStream")
+        
+        exists PersonLocation(location == "Kitchen", this annIncludes $item) from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering STOP FILLING MEDICINE rule following events: " + $act + ", " 
-            + $cupboard + ", " + $medicine + ", " + $medicineFill + "\n");
+        System.out.println("////// Triggering STOP FILLING MEDICINE rule following events: " 
+            + $item + " AND " + $medicineFill + "\n");
         
         // remove the ActivityTriggered fact       
         eventTracker.deleteStaticEvent($medicineFill);
