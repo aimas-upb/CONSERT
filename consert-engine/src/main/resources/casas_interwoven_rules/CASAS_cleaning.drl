@@ -31,8 +31,7 @@ rule "Supplies open"
      //   $loc : PersonLocation(location == "supplies" || location == "kitchen") from entry-point "ExtendedPersonLocationStream"
         $Supplies: Cabinet(sensorId == "supplies", status == "OPEN") from entry-point "CabinetStream"
     then
-        System.out.println("////// Triggering SUPPLIES OPEN rule following events: "
-            + $Supplies  + "\n");
+        System.out.println("////// Triggering SUPPLIES OPEN rule following events: " + $Supplies  + "\n");
 
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         ActivityTriggered SuppliesOpen = new ActivityTriggered("SuppliesOpen", ts);

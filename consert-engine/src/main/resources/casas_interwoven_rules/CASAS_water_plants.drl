@@ -16,10 +16,13 @@ import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
 import org.aimas.consert.tests.casas.assertions.WaterPlants
 import org.aimas.consert.tests.casas.assertions.SuppliesRetrieved
+import org.aimas.consert.tests.casas.assertions.AccessingSupplies
+import org.aimas.consert.tests.casas.assertions.Cleaning
 
 import org.aimas.consert.engine.EventTracker
 import org.aimas.consert.utils.AssertionLogger
 
+import java.lang.Math;
 import java.util.Date;
 
 global EventTracker eventTracker;
@@ -34,49 +37,338 @@ declare SuppliesRetrieved
     @role(event)
 end
 
+declare AccessingSupplies
+    @role(event)
+end
 
-rule "Retrieve supplies" 
-    // When triggering the motion sensor from the supply closet or opening the door to the supplies closet
-    when 
-        (
-            //$trigger : Motion(sensorId == "M51", status == "ON") from entry-point "MotionStream" or
-            $trigger : Item(sensorId == "supplies", status == "OPEN") from entry-point "ItemStream"
+declare Cleaning
+    @role(event)
+end
+
+
+rule "Accessing supplies"
+    when
+        $trigger : Cabinet(sensorId == "supplies", status == "OPEN" || status == "CLOSE") from entry-point "CabinetStream"
+        exists (
+            Motion(sensorId == "M51" || sensorId == "M18", status == "ON", 
+                this before[0s, 10s] $trigger || this after[0s, 10s] $trigger) from entry-point "MotionStream"
+        )
+        not (
+            exists Cabinet(sensorId == "supplies", this before[1ms, 20s] $trigger) from entry-point "CabinetStream"
         ) 
-        and
-        (   
-            not (exists SuppliesRetrieved(status == "YES") from entry-point "SuppliesRetrievedStream") or
-            (   
-                $sup : SuppliesRetrieved( status == "NO", this before $trigger) from entry-point "SuppliesRetrievedStream" and
-                not (exists SuppliesRetrieved( status == "NO", this after $sup) from entry-point "SuppliesRetrievedStream")
-            )
+    then
+        System.out.println("////// Triggering ACCESSING SUPPLIES rule following event: " + $trigger + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData suppAnn = new DefaultAnnotationData(ts);
+        
+        AccessingSupplies supplies = new AccessingSupplies(suppAnn);
+        eventTracker.insertSimpleEvent(supplies, false);
+end
+
+
+rule "Leaving with supplies - for first time"
+    when
+        // if supply closet is accessed
+        $supplies : AccessingSupplies() from entry-point "AccessingSuppliesStream"
+        not (exists AccessingSupplies(this before[1ms, 30s] $supplies) from entry-point "AccessingSuppliesStream")
+        not (exists SuppliesRetrieved(this before $supplies) from entry-point "SuppliesRetrievedStream") 
+    then
+        System.out.println("/////////////// Triggering LEAVE with supplies FOR FIRST TIME after event: " + $supplies + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData suppAnn = new DefaultAnnotationData(ts);
+        
+        SuppliesRetrieved sup = new SuppliesRetrieved("SuppliesRetrieved", "YES", suppAnn);
+        eventTracker.insertSimpleEvent(sup, false);
+end
+
+rule "Leaving with supplies - some other time"
+    when
+        // if supply closet is accessed
+        $supplies : AccessingSupplies() from entry-point "AccessingSuppliesStream"
+        not (exists AccessingSupplies(this before[1ms, 20s] $supplies) from entry-point "AccessingSuppliesStream")
+        
+        $suppRet : SuppliesRetrieved(status == "NO", this before $supplies) from entry-point "SuppliesRetrievedStream"
+        not (exists SuppliesRetrieved(this after $suppRet, this before $supplies) from entry-point "SuppliesRetrievedStream")
+        
+        exists ( 
+            $loc : PersonLocation(location == "Kitchen", this annIncludes $supplies || 
+                this annHappensBefore[0s, 5s] $supplies || this annHappensAfter[0s, 5s] $supplies) from entry-point "ExtendedPersonLocationStream"
+            and
+            PersonLocation(location != "Kitchen" && location != "Supplies", 
+                this annHappensAfter $suppRet, this annHappensBefore $loc) from entry-point "ExtendedPersonLocationStream"
         )
     then
-        System.out.println("////// Triggering SUPPLIES RETRIEVED rule following event: " + $trigger + "\n");
+        System.out.println("/////////////// Triggering LEAVE with supplies SOME OTHER TIME after event: " 
+            + $supplies + " AND " + $suppRet + "\n");
         
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        long ts = eventTracker.getCurrentTime();
         DefaultAnnotationData suppAnn = new DefaultAnnotationData(ts);
         
-        SuppliesRetrieved supplies = new SuppliesRetrieved("SuppliesRetrieved", "YES", suppAnn);
-        eventTracker.insertSimpleEvent(supplies, false);
+        SuppliesRetrieved sup = new SuppliesRetrieved("SuppliesRetrieved", "YES", suppAnn);
+        eventTracker.insertSimpleEvent(sup, false);
 end
 
 
-rule "Bring back supplies"
-    // same as in the previous case but now the supplies are retrieved
-    when 
-        (
-            //$trigger : Motion(sensorId == "M51", status == "ON") from entry-point "MotionStream" or
-            $trigger : Item(sensorId == "supplies", status == "OPEN" || status == "CLOSE") from entry-point "ItemStream"
-        ) 
-        exists SuppliesRetrieved(status == "YES", this before[1m] $trigger) from entry-point "SuppliesRetrievedStream" 
+
+rule "Returning with supplies"
+    salience 10
+    
+    when
+        $supplies : AccessingSupplies(supAnn : annotations) from entry-point "AccessingSuppliesStream"
+        not (exists AccessingSupplies(this before[1ms, 20s] $supplies) from entry-point "AccessingSuppliesStream")
+        
+        $supRet : SuppliesRetrieved(status == "YES", this before $supplies) from entry-point "SuppliesRetrievedStream"
+        not (exists SuppliesRetrieved(this after $supRet, this before $supplies) from entry-point "SuppliesRetrievedStream")
+        
+        exists (
+            $loc : PersonLocation(location != "Kitchen" && location != "Supplies", this annHappensAfter $supRet, this annHappensBefore $supplies) 
+                from entry-point "ExtendedPersonLocationStream"
+        )
     then
-        System.out.println("////// Triggering SUPPLIES BROUGHT BACK rule following event: " + $trigger + "\n");
+        System.out.println("/////////////// Triggering RETURNING WITH SUPPLIES after events: " 
+            + $supplies + " AND " + $supRet + "\n");
         
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        DefaultAnnotationData suppAnn = new DefaultAnnotationData(ts);
-        
-        SuppliesRetrieved supplies = new SuppliesRetrieved("SuppliesRetrieved", "NO", suppAnn);
-        eventTracker.insertSimpleEvent(supplies, false);
+        DefaultAnnotationData supRetAnn = new DefaultAnnotationData(supAnn.getTimestamp());
+        SuppliesRetrieved sup = new SuppliesRetrieved("SuppliesRetrieved", "NO", supRetAnn);
+        eventTracker.insertSimpleEvent(sup, false);
 end
 
+rule "Returning with supplies - never leave Kitchen"
+    salience 10
+    
+    when
+        $supplies : AccessingSupplies(supAnn : annotations#DefaultAnnotationData) 
+            from entry-point "AccessingSuppliesStream"
+        not (exists AccessingSupplies(this before[1ms, 20s] $supplies) from entry-point "AccessingSuppliesStream")
+        
+        $supRet : SuppliesRetrieved(status == "YES", this before $supplies, retAnn : annotations#DefaultAnnotationData) 
+            from entry-point "SuppliesRetrievedStream"
+        not (exists SuppliesRetrieved(this after $supRet, this before $supplies) from entry-point "SuppliesRetrievedStream")
+        
+        exists (
+            PersonLocation(location == "Kitchen", locAnn : annotations#DefaultAnnotationData, 
+                locAnn.getEndTime() > retAnn.getStartTime(), eventDuration >= 45000) 
+                from entry-point "ExtendedPersonLocationStream"
+        )
+        not (
+            exists PersonLocation(location != "Kitchen" && location != "Supplies", this annHappensAfter $supRet, $supplies annHappensAfter this)
+                from entry-point "ExtendedPersonLocationStream"
+        )
+    then
+        System.out.println("/////////////// Triggering RETURNING WITH SUPPLIES while never leaving Kitchen events: " 
+            + $supplies + " AND " + $supRet + "\n");
+        
+        DefaultAnnotationData supRetAnn = new DefaultAnnotationData(supAnn.getTimestamp());
+        SuppliesRetrieved sup = new SuppliesRetrieved("SuppliesRetrieved", "NO", supRetAnn);
+        eventTracker.insertSimpleEvent(sup, false);
+end
+
+
+// ==============================================================================================================
+// Watering Plants: start and end triggers - version 1
+rule "Watering Plants Possible"
+    when
+        ?activityNotTriggered("WateringPlantsPossible";)
+        
+        $supplies : AccessingSupplies() from entry-point "AccessingSuppliesStream"
+        not (exists AccessingSupplies(this before[1ms, 20s] $supplies) from entry-point "AccessingSuppliesStream")
+        
+        exists Water(this before[0s, 20s] $supplies || this after[0s, 20s] $supplies) from entry-point "WaterStream"
+    then
+        System.out.println("++++++++++++++++ Triggering BEGIN Watering plants following event: " + $supplies + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        ActivityTriggered wateringPlantsPossible = new ActivityTriggered("WateringPlantsPossible", ts);
+        eventTracker.insertStaticEvent(wateringPlantsPossible);
+end
+
+
+rule "Watering Plants Finished - returning to supply closet after being out of the kitchen"
+    when
+        $trigger : ActivityTriggered(name == "WateringPlantsPossible", triggerTs : timestamp)
+        $suppRet : SuppliesRetrieved(status == "NO", ann : annotations, 
+            ann.getTimestamp() > triggerTs) from entry-point "SuppliesRetrievedStream"
+    then
+        System.out.println("++++++++++++++++ Triggering STOP Watering Plants rule following : " + $trigger + " AND " + $suppRet + "\n");
+        eventTracker.deleteStaticEvent($trigger);
+end
+
+// ==============================================================================================================
+// Watering Plants: start and end triggers - version 2
+/*
+rule "Watering Plants Possible"
+    when
+        ?activityNotTriggered("WateringPlantsPossible";)
+        $supplies : AccessingSupplies() from entry-point "AccessingSuppliesStream"
+        exists Water(this before[0s, 20s] $supplies || this after[0s, 20s] $supplies) from entry-point "WaterStream"
+    then
+        System.out.println("++++++++++++++++ Triggering BEGIN Watering plants following event: " + $supplies + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        ActivityTriggered wateringPlantsPossible = new ActivityTriggered("WateringPlantsPossible", ts);
+        eventTracker.insertStaticEvent(wateringPlantsPossible);
+end
+
+
+rule "Watering Plants Finished - returning to supply closet after being out of the kitchen"
+    when
+        $trigger : ActivityTriggered(name == "WateringPlantsPossible", triggerTs : timestamp)
+        $supplies : AccessingSupplies() from entry-point "AccessingSuppliesStream"
+        exists AccessingSupplies(this before[40s, 10m] $supplies) from entry-point "AccessingSuppliesStream"
+        
+        $currentLoc : PersonLocation(location == "Kitchen", this annIncludes $supplies) from entry-point "ExtendedPersonLocationStream"
+        $prevKitchen : PersonLocation(location == "Kitchen", this before[30s] $currentLoc) from entry-point "ExtendedPersonLocationStream"
+    
+        exists PersonLocation(location != "Kitchen", this after $prevKitchen, this before $currentLoc) from entry-point "ExtendedPersonLocationStream"
+        not (
+            exists PersonLocation(location == "Kitchen", this after $prevKitchen, this before $currentLoc) from entry-point "ExtendedPersonLocationStream"
+        )
+    then
+        System.out.println("++++++++++++++++ Triggering STOP Watering Plants rule following : " + $trigger + " AND " + $supplies +   
+            " AND "  + $currentLoc +  " AND " + $prevKitchen + "\n");
+        eventTracker.deleteStaticEvent($trigger);
+end
+*/
+// ==============================================================================================================
+// Actually watering the plants
+rule "Watering plants - in movement"
+    salience 10
+    when
+        $loc : PersonLocation(location == "DiningTable" || location == "LivingRoom", locAnn : annotations#DefaultAnnotationData,
+            eventDuration <= 30000) from entry-point "ExtendedPersonLocationStream"
+            
+        $moving : PersonMoving($loc annIntersects this) from entry-point "ExtendedPersonMovingStream"
+        $trigger : ActivityTriggered(name == "WateringPlantsPossible", timestamp <= locAnn.getStartTime().getTime())
+    then
+        System.out.println("---------------- PERSON IS WATERING THE PLANTS following events : " + $loc + " AND " + $moving + " AND " + $trigger + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData plantsAnn = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+        WaterPlants waterPlants = new WaterPlants(plantsAnn);
+        
+        eventTracker.insertDerivedEvent(waterPlants);
+end
+
+rule "Watering plants - moving in between"
+    when
+        $loc : PersonLocation(locName : location, locName in ("DiningTable", "LivingRoom", "TV"), 
+            locAnn : annotations#DefaultAnnotationData, 
+            eventDuration <= 30000) from entry-point "ExtendedPersonLocationStream"
+        
+        $nextLoc : PersonLocation(nextLocName : location, nextLocName in ("DiningTable", "LivingRoom", "TV"), 
+            nextLocAnn : annotations#DefaultAnnotationData, 
+            eventDuration <= 30000, this annHappensAfter $loc) from entry-point "ExtendedPersonLocationStream"
+        
+        //$moving : PersonMoving( this annIntersects $loc, this annIntersects $nextLoc) from entry-point "ExtendedPersonMovingStream"
+        
+        not (exists PersonLocation(this annHappensAfter $loc, this annHappensBefore $nextLoc) from entry-point "ExtendedPersonLocationStream")
+        
+        $trigger : ActivityTriggered(name == "WateringPlantsPossible", timestamp <= locAnn.getStartTime().getTime())
+    then
+        System.out.println("---------------- PERSON IS WATERING THE PLANTS with movement, following events : " + $loc 
+            + " AND " + $nextLoc + " AND " 
+            //+ $moving + " AND " 
+            + $trigger + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData plantsAnn = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+        WaterPlants waterPlants = new WaterPlants(plantsAnn);
+        
+        eventTracker.insertDerivedEvent(waterPlants);
+end
+
+
+rule "Watering plants - while in Kitchen"
+    when
+        // person is in the kitchen
+        $loc : PersonLocation(location == "Kitchen",  
+            locAnn : annotations#DefaultAnnotationData) 
+            from entry-point "ExtendedPersonLocationStream"
+        
+        // there is also at least some movement
+        exists PersonMoving( this annIntersects $loc) from entry-point "ExtendedPersonMovingStream"
+        
+        // the most recent SuppliesRetrieved is set to YES
+        $supRet : SuppliesRetrieved(status == "YES", this before $loc, retAnn : annotations#DefaultAnnotationData) 
+            from entry-point "SuppliesRetrievedStream"
+        not (exists SuppliesRetrieved(this after $supRet, this before $loc) from entry-point "SuppliesRetrievedStream")
+        
+        // watering plants is possible since recently
+        $trigger : ActivityTriggered(name == "WateringPlantsPossible", 
+            triggerTs : timestamp, triggerTs <= locAnn.getEndTime().getTime(), triggerTs >= retAnn.getStartTime().getTime())
+        
+    then
+        System.out.println("---------------- PERSON IS WATERING THE PLANTS in Kitchecn, following events : " + $loc 
+            + " AND " + $supRet + " AND " + $trigger + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData plantsAnn = new DefaultAnnotationData(ts, locAnn.getConfidence(), 
+            new Date( Math.max(triggerTs, locAnn.getStartTime().getTime()) ), 
+            new Date(ts));
+        WaterPlants waterPlants = new WaterPlants(plantsAnn);
+        
+        eventTracker.insertDerivedEvent(waterPlants);
+end
+
+// =======================================================================================
+// Actually cleaning
+rule "Person is Cleaning in Living Room, DiningTable or PlantArea"
+    when 
+        // mutually exclusive with watering the plants
+        not (exists ActivityTriggered(name == "WateringPlantsPossible"))
+        
+        // The person is in one of the locations that need to be cleaned
+        $loc : PersonLocation(locName : location, locName in ("DiningTable", "LivingRoom", "PlantArea"), 
+            locAnn : annotations#DefaultAnnotationData)
+            from entry-point "ExtendedPersonLocationStream"
+        
+        // the most recent SuppliesRetrieved is set to YES
+        $supRet : SuppliesRetrieved(status == "YES", this before $loc, retAnn : annotations#DefaultAnnotationData) 
+            from entry-point "SuppliesRetrievedStream"
+        not (exists SuppliesRetrieved(this after $supRet) from entry-point "SuppliesRetrievedStream")
+        
+        (
+            exists PersonMoving(this annIntersects $loc) from entry-point "ExtendedPersonMovingStream"
+            or
+            eval(locAnn.getDuration() <= 30000)
+        )
+    then        
+        System.out.println("---------------- PERSON IS CLEANING outside Kitchen, following events : " + $loc 
+            + " AND " + $supRet + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData cleaningAnn = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+        Cleaning cleaning = new Cleaning(cleaningAnn);
+        
+        eventTracker.insertDerivedEvent(cleaning);
+end
+
+rule "Person is Cleaning in Kitchen"
+    when 
+        // mutually exclusive with watering the plants
+        not (exists ActivityTriggered(name == "WateringPlantsPossible"))
+        
+        // The person is in one of the locations that need to be cleaned
+        $loc : PersonLocation(location == "Kitchen", 
+            locAnn : annotations#DefaultAnnotationData)
+            from entry-point "ExtendedPersonLocationStream"
+        
+        // the most recent SuppliesRetrieved is set to YES
+        $supRet : SuppliesRetrieved(status == "YES", this before $loc, retAnn : annotations#DefaultAnnotationData) 
+            from entry-point "SuppliesRetrievedStream"
+        not (exists SuppliesRetrieved(this after $supRet) from entry-point "SuppliesRetrievedStream")
+        
+        exists PersonMoving(this annIntersects $loc) from entry-point "ExtendedPersonMovingStream"
+    then        
+        System.out.println("---------------- PERSON IS CLEANING within Kitchen, following events : " + $loc 
+            + " AND " + $supRet + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData cleaningAnn = new DefaultAnnotationData(ts, locAnn.getConfidence(), locAnn.getStartTime(), new Date(ts));
+        Cleaning cleaning = new Cleaning(cleaningAnn);
+        
+        eventTracker.insertDerivedEvent(cleaning);
+end
 
