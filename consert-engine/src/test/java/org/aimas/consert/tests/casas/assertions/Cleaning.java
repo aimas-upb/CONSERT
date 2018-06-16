@@ -13,11 +13,11 @@ public class    Cleaning extends BinaryContextAssertion {
 
     public Cleaning() {}
     public Cleaning(AnnotationData annotations) {
-        super(new StringLiteral("Cleaning"),new StringLiteral("Cleaning"),  AcquisitionType.SENSED, annotations);
+        super(new StringLiteral("Cleaning"),new StringLiteral("Cleaning"),  AcquisitionType.DERIVED, annotations);
 
     }
     public Cleaning(String sensorId, String status, AnnotationData annotations) {
-        super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
+        super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.DERIVED, annotations);
 
         this.sensorId = sensorId;
         this.status = status;
