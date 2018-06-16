@@ -14,11 +14,13 @@ import org.aimas.consert.model.annotations.AnnotationUtils
 
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
+import org.aimas.consert.tests.casas.assertions.PersonMoving
 
 import org.aimas.consert.engine.EventTracker
 import org.aimas.consert.utils.AssertionLogger
 
 import java.util.Date;
+import java.lang.Math;
 
 global EventTracker eventTracker;
 global AssertionLogger assertionLogger;
@@ -46,9 +48,7 @@ Although the case may be that when staying for a long time at a given place (e.g
 it involves writing the birthday card OR watching the DVD.
 */
 
-query activityNotTriggered ($activityName)
-     not (exists ActivityTriggered(name == $activityName))
-end
+
 
 rule "Trigger for start writing birthday card" 
     // When the address book or the envelope are being used, it means the user plans to write a birthday card
@@ -96,7 +96,7 @@ end
 */
 
 rule "Trigger for end writing birthday card - items not placed back, but time long expired"
-    // When more than 4 mins have passed since the event has been triggered
+    // When more than 3 mins have passed since the event has been triggered
     timer (int: 0s 60s)
     when
         $trigger : ActivityTriggered(name == "WriteBirthdayCard", triggerTs : timestamp)
@@ -115,14 +115,16 @@ rule "Actually writing birthday card"
     when 
         $activity : ActivityTriggered(name == "WriteBirthdayCard", ts : timestamp)
         $loc : PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData,
-            locAnn.duration >= 20000
-            ) 
-            from entry-point "ExtendedPersonLocationStream"
+            locAnn.eventDuration >= 30000) from entry-point "ExtendedPersonLocationStream"
+        
+        not (exists PersonMoving($loc annOverlaps this) from entry-point "ExtendedPersonMovingStream")
     then
         System.out.println("////// Triggering ACTUALLY WRITE BITHDAY CARD rule following events: " + $loc + ", " + $activity + "\n");
         
         long currentTs = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        DefaultAnnotationData cardAnn = new DefaultAnnotationData(currentTs, locAnn.getConfidence(), locAnn.getStartTime(), new Date(currentTs));
+        DefaultAnnotationData cardAnn = new DefaultAnnotationData(currentTs, locAnn.getConfidence(), 
+            Math.max(locAnn.getStartTime(), ts), 
+            new Date(currentTs));
         
         WriteBirthdayCard writeCard = new WriteBirthdayCard(cardAnn);
         eventTracker.insertDerivedEvent(writeCard);
