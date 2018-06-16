@@ -27,4 +27,6 @@ public interface AnnotationData {
 	long getDuration();
 	
 	boolean hasSameValidity(AnnotationData otherAnn);
+	
+	boolean hasIncludedValidity(AnnotationData otherAnn);
 }

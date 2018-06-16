@@ -84,6 +84,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 				ann.setTimestamp(getCurrentTime());
 				ann.setStartTime(new Date(getCurrentTime()));
 				ann.setEndTime(new Date(getCurrentTime()));
+				event.setAnnotations(ann);
 			}
 			
 			/* shouldn't be null but it is*/
@@ -243,9 +244,9 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 			// if the objects have the same content
 			if (event.allowsContentContinuity(derivedEvent)) {
 				if (event.getAnnotations() != null) {
-					// and they have the same validity interval
-					if (event.getAnnotations().hasSameValidity(derivedEvent.getAnnotations())) {
-						//System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
+					// and they it includes the validity interval of the derived object
+					if (event.getAnnotations().hasIncludedValidity(derivedEvent.getAnnotations())) {
+						System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
 						return true;
 					}
 				}
@@ -307,6 +308,8 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 			    			trackedAssertionStore.trackDerived(updatedEvent, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
 		    			}
 		    			else {
+		    				System.out.println("000000000000 [EventTracker] New derived event " + eventObject + " does not intersect the tracked one: " + updatedEvent);
+		    				
 		    				// The newly derived event has to make it to the KnowledgeBase, so we perform the insert here
 				    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
 		    				

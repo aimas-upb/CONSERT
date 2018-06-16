@@ -276,4 +276,17 @@ public class DefaultAnnotationData implements AnnotationData {
 	    
 		return false;
     }
+	
+	
+	@Override
+    public boolean hasIncludedValidity(AnnotationData otherAnn) {
+		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
+		
+		if (getStartTime().getTime() <= ann.getStartTime().getTime() && 
+				getEndTime().getTime() >= ann.getEndTime().getTime()) {
+			return true;
+		}
+	    
+		return false;
+    }
 }
