@@ -115,16 +115,15 @@ rule "Actually writing birthday card"
     when 
         $activity : ActivityTriggered(name == "WriteBirthdayCard", ts : timestamp)
         $loc : PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData,
-            locAnn.eventDuration >= 30000) from entry-point "ExtendedPersonLocationStream"
+            locAnn.duration >= 30000) from entry-point "ExtendedPersonLocationStream"
         
         not (exists PersonMoving($loc annOverlaps this) from entry-point "ExtendedPersonMovingStream")
     then
         System.out.println("////// Triggering ACTUALLY WRITE BITHDAY CARD rule following events: " + $loc + ", " + $activity + "\n");
         
         long currentTs = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-        DefaultAnnotationData cardAnn = new DefaultAnnotationData(currentTs, locAnn.getConfidence(), 
-            Math.max(locAnn.getStartTime(), ts), 
-            new Date(currentTs));
+        DefaultAnnotationData cardAnn = new DefaultAnnotationData(currentTs, locAnn.getConfidence(),
+                                        new Date(Math.max(locAnn.getStartTime().getTime(), ts)), new Date(currentTs));
         
         WriteBirthdayCard writeCard = new WriteBirthdayCard(cardAnn);
         eventTracker.insertDerivedEvent(writeCard);

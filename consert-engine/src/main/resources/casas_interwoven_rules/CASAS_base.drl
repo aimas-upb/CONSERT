@@ -314,7 +314,7 @@ end
 rule "CleaningTest"
     salience -10
     when
-        $Cleaning : ChoosingOutfit() from entry-point "CleaningStream"
+        $Cleaning : Cleaning() from entry-point "CleaningStream"
     then
         System.out.println("Inserted Cleaning event with: " + $Cleaning + ", timestamp: " + (long)$Cleaning.getStartTimestamp() +
         " duration: " + (long)$Cleaning.getEventDuration());
@@ -379,7 +379,7 @@ rule "ExtendedPersonMovingTest"
 end
 
 
-rule "Cleaning"
+/*rule "Cleaning"
     salience -10
     when
         $clean : Cleaning() from entry-point "CleaningStream"
@@ -397,4 +397,4 @@ rule "ExtendedCleaning"
     then
         System.out.println("Inserted EXTENDED Cleaning event with: " + $clean + ", timestamp: " + (long)$clean.getStartTimestamp() + 
         " duration: " + (long)$clean.getEventDuration());
-end
+end*/

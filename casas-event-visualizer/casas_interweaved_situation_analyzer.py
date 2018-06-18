@@ -16,7 +16,7 @@ __maintainer__ = "David Iancu"
 __date__ = "11/06/2018"
 __version__ = "1.0.0"
 
-situations =  {"1":"FillDispenser", "2":"WatchDVD", "4":"PhoneCall", "5":"WriteBirthdatCard","6":"PreparingSoup", "7":"Cleaning","8":"ChoosingOutfit"};
+situations =  {"1":"FillDispenser", "2":"WatchDVD", "3":"WaterPlants", "4":"PhoneCall", "5":"WriteBirthdatCard","6":"PreparingSoup", "7":"Cleaning","8":"ChoosingOutfit"};
 
 
 # Parse arguments (input folder and output file)
@@ -44,8 +44,8 @@ for f in files:
 
             nameaux = i
             print (nameaux)
-            if nameaux == "3":
-                continue
+           # if nameaux == "3":
+                #continue
             activity = situations[i]
 
             for person in data[i].keys():
