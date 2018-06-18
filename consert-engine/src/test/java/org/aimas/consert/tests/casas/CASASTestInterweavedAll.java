@@ -75,7 +75,7 @@ public class CASASTestInterweavedAll extends TestSetup {
 			PERSON = filename.split("\\.")[0].split("_")[0];
 			TEST_FILE = "files/casas_adlinterweaved/" +  PERSON + "_interweaved" + ".json";
 			VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
-			//if (PERSON.startsWith("p25"))
+			//if (PERSON.startsWith("p29"))
 			try {
 				runEvents(TEST_FILE, PERSON, TASK);
 			} catch (Exception ex) {
@@ -202,9 +202,13 @@ public class CASASTestInterweavedAll extends TestSetup {
 					long  lstime = -1;
 					long fn=0,tn=0,tp=0,fp=0,tduration;
 					int totalHitForActivity = 0;
+					//System.out.println(act);
+					//System.out.println(H.get(act));
 					if (entryPoint.getObjects() != null && !entryPoint.getObjects().isEmpty())
 					{
 						actObject.put("detected intervals",  entryPoint.getObjects().size());
+					//	System.out.println(eventListNode.get(H.get(act)) + "!!!!");
+					//	System.out.println(eventListNode);
 						if (eventListNode.get(H.get(act)) != null){
 							actObject.put("real number of intervals",  eventListNode.get(H.get(act)).size());
 						}
@@ -300,11 +304,11 @@ public class CASASTestInterweavedAll extends TestSetup {
 
 					if (eventListNode.get(H.get(act)) != null)
 					{
-
-							actObject.put("detected intervals",  entryPoint.getObjects().size());
 							if (entryPoint.getObjects() == null || entryPoint.getObjects().isEmpty())
-								actObject.put("real number of intervals",  0);
-							actObject.put("detected intervals",  eventListNode.get(H.get(act)).size());
+								actObject.put("detected intervals",  0);
+							else
+								actObject.put("detected intervals",  entryPoint.getObjects().size());
+							actObject.put("real number of intervals",  eventListNode.get(H.get(act)).size());
 							Long intervall[] = new Long[100];
 							Long intervalr[] = new Long[100];
 							for (int j = 0; j < eventListNode.get(H.get(act)).size(); j++) {
