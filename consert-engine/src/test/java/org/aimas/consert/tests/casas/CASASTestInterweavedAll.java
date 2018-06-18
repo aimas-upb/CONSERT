@@ -167,7 +167,7 @@ public class CASASTestInterweavedAll extends TestSetup {
 	    	engineRunner.join(2000);
 	    	
 			// Plot the results. Plots are stored per task (i.e. the actions by all people are grouped per task).
-	    	CASASInterweavedExporter.exportToHTML(person, task, kSession, testStartTs);
+	    	CASASInterweavedExporter.exportResults(person, task, kSession, testStartTs);
 	    	eventInserter.stop();
 
 			try {

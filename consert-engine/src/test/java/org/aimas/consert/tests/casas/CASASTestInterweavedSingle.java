@@ -30,7 +30,7 @@ import org.kie.internal.builder.conf.EvaluatorOption;
 
 public class CASASTestInterweavedSingle extends TestSetup {
 
-	public static final String PERSON = "p15";
+	public static final String PERSON = "p27";
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
 	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
@@ -128,9 +128,9 @@ public class CASASTestInterweavedSingle extends TestSetup {
 
     	eventInserter.stop();
     	engineRunner.join(2000);
-
+    	
 		// Plot the results. Plots are stored per task (i.e. the actions by all people are grouped per task).
-    	CASASInterweavedExporter.exportToHTML(person, task, kSession, testStartTs);
+    	CASASInterweavedExporter.exportResults(person, task, kSession, testStartTs);
     	eventInserter.stop();
     	kSession.halt();
     	kSession.dispose();
