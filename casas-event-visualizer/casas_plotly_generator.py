@@ -16,6 +16,9 @@ from plotly import tools
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
 
+import plotly.plotly as py
+import plotly.graph_objs as go
+
 __author__ = "Mihai Trascau"
 __maintainer__ = "Mihai Trascau"
 __date__ = "23/05/2017"
@@ -132,6 +135,9 @@ files = [os.path.join(INPUT_FOLDER, f) for f in os.listdir(INPUT_FOLDER) if f.en
 OUTPUT_HTML_STATUS_SENSORS = OUTPUT_FOLDER + os.path.sep + PERSON + "-status-sensor-visualizer.html"
 OUTPUT_HTML_NUMERIC_SENSORS = OUTPUT_FOLDER + os.path.sep + PERSON + "-numeric-sensor-visualizer.html"
 
+OUTPUT_HTML_PRECISION_METRICS = OUTPUT_FOLDER + os.path.sep + PERSON + "-precision-metrics-visualizer.html"
+OUTPUT_HTML_DELAY_METRICS = OUTPUT_FOLDER + os.path.sep + PERSON + "-delay-metrics-visualizer.html"
+
 # Create folder paths if they do not exist
 if not os.path.exists(os.path.dirname(OUTPUT_HTML_STATUS_SENSORS)):
     try:
@@ -147,66 +153,66 @@ all_numeric_frames = []
 session_data = []
 
 for f in files:
-	with open(f, 'r') as data_file:
-		key = ''
-		if f.lower().find('burner') != -1:
-			key = 'BURNER'
-		elif f.lower().find('cabinet') != -1:
-			key = 'CABINET'
-		elif f.lower().find('cleaning') != -1:
-			key = 'CLEANING'
-		elif f.lower().find('cooking') != -1:
-			key = 'COOKING'
-		elif f.lower().find('eating') != -1:
-			key = 'EATING'	
-		elif f.lower().find('handlingfood') != -1:
-			key = 'HandlingFood'	
-		elif f.lower().find('heatingfood') != -1:
-			key = 'HeatingFood'	
-		elif f.lower().find('item') != -1:
-			key = 'ITEM'
-		elif f.lower().find('motion') != -1:
-			key = 'MOTION'
-		elif f.lower().find('personlocation') != -1:
-			key = 'PersonLocation'
-		elif f.lower().find('phonecall') != -1:
-			key = 'PHONECALL'
-		elif f.lower().find('phone') != -1:
-			key = 'PHONE'
-		elif f.lower().find('probablycleaning') != -1:
-			key = 'ProbablyCleaning'
-		elif f.lower().find('temperature') != -1:
-			key = 'TEMPERATURE'
-		elif f.lower().find('washhands') != -1:
-			key = 'WashHands'
-		elif f.lower().find('waterplants') != -1:
-			key = 'WaterPlants'
-		elif f.lower().find('water') != -1:
-			key = 'WATER'
-		elif f.lower().find('watchdvd') != -1:
-			key = 'WatchDVD'
-		elif f.lower().find('preparingsoup') != -1:
-			key = 'PreparingSoup'
-		elif f.lower().find('choosingoutfit') != -1:
-			key = 'ChoosingOutfit'
-		elif f.lower().find('filldispenser') != -1:
-			key = 'FillDispenser'
-		elif f.lower().find('writebirthdaycard') != -1:
-			key = 'WriteBirthdayCard'
-		elif f.lower().find('suppliesretrieved') != -1:
-			key = 'SuppliesRetrieved'
-		elif f.lower().find('personmoving') != -1:
-			key = 'PersonMoving'
+    with open(f, 'r') as data_file:
+        key = ''
+        if f.lower().find('burner') != -1:
+            key = 'BURNER'
+        elif f.lower().find('cabinet') != -1:
+            key = 'CABINET'
+        elif f.lower().find('cleaning') != -1:
+            key = 'CLEANING'
+        elif f.lower().find('cooking') != -1:
+            key = 'COOKING'
+        elif f.lower().find('eating') != -1:
+            key = 'EATING'
+        elif f.lower().find('handlingfood') != -1:
+            key = 'HandlingFood'
+        elif f.lower().find('heatingfood') != -1:
+            key = 'HeatingFood'
+        elif f.lower().find('item') != -1:
+            key = 'ITEM'
+        elif f.lower().find('motion') != -1:
+            key = 'MOTION'
+        elif f.lower().find('personlocation') != -1:
+            key = 'PersonLocation'
+        elif f.lower().find('phonecall') != -1:
+            key = 'PHONECALL'
+        elif f.lower().find('phone') != -1:
+            key = 'PHONE'
+        elif f.lower().find('probablycleaning') != -1:
+            key = 'ProbablyCleaning'
+        elif f.lower().find('temperature') != -1:
+            key = 'TEMPERATURE'
+        elif f.lower().find('washhands') != -1:
+            key = 'WashHands'
+        elif f.lower().find('waterplants') != -1:
+            key = 'WaterPlants'
+        elif f.lower().find('water') != -1:
+            key = 'WATER'
+        elif f.lower().find('watchdvd') != -1:
+            key = 'WatchDVD'
+        elif f.lower().find('preparingsoup') != -1:
+            key = 'PreparingSoup'
+        elif f.lower().find('choosingoutfit') != -1:
+            key = 'ChoosingOutfit'
+        elif f.lower().find('filldispenser') != -1:
+            key = 'FillDispenser'
+        elif f.lower().find('writebirthdaycard') != -1:
+            key = 'WriteBirthdayCard'
+        elif f.lower().find('suppliesretrieved') != -1:
+            key = 'SuppliesRetrieved'
+        elif f.lower().find('personmoving') != -1:
+            key = 'PersonMoving'
 
-		else:
+        else:
             # print 'Skipping JSON file \'' + f + '\''
-			continue
+            continue
 
-		raw_data = json.load(data_file)
-		for d in raw_data:
-			d.update({"Event Type" : key})
+        raw_data = json.load(data_file)
+        for d in raw_data:
+            d.update({"Event Type" : key})
 
-		session_data += raw_data
+        session_data += raw_data
 
 base_session_data = [elem for elem in session_data if elem["Event Type"] in raw_event_types]
 derived_session_data = [elem for elem in session_data if not elem["Event Type"] in raw_event_types]
@@ -261,9 +267,68 @@ df_status_derived.reset_index(inplace=True)
 
 df_status = pd.concat([df_status_base, df_status_derived], ignore_index = True)
 
+
+""" PROCESS THE DETECTION RESULT METRICS """
+metrics_filename = OUTPUT_FOLDER + os.path.sep + PERSON + "-detection-metrics" + ".json"
+with open(metrics_filename, 'r') as metrics_file:
+    metrics_data = json.load(metrics_file)
+
+    precision_plot_data = []
+    delay_plot_data = []
+
+    precision_metrics = ["precision", "recall", "accuracy", "hitRate"]
+    delay_metrics = ["maxStartDelay", "maxEndDelay"]
+
+    for metric in precision_metrics:
+        x = []
+        y = []
+
+        for activity_name in metrics_data['metrics']:
+            activity_metrics = metrics_data['metrics'][activity_name]
+
+            x.append(activity_name)
+            y.append(activity_metrics[metric])
+
+        trace = go.Bar(
+            x=x,
+            y=y,
+            name=metric
+        )
+
+        precision_plot_data.append(trace)
+
+    for metric in delay_metrics:
+        x = []
+        y = []
+
+        for activity_name in metrics_data['metrics']:
+            activity_metrics = metrics_data['metrics'][activity_name]
+
+            x.append(activity_name)
+            y.append(activity_metrics[metric])
+
+        trace = go.Bar(
+            x=x,
+            y=y,
+            name=metric
+        )
+
+        delay_plot_data.append(trace)
+
+
+    layout = go.Layout(
+        barmode = "group"
+    )
+
+    fig_precision = go.Figure(data = precision_plot_data, layout = layout)
+    fig_delay = go.Figure(data = delay_plot_data, layout = layout)
+
+    plotly.offline.plot(fig_precision, filename=OUTPUT_HTML_PRECISION_METRICS, auto_open=False)
+    plotly.offline.plot(fig_delay, filename=OUTPUT_HTML_DELAY_METRICS, auto_open=False)
+
+
 # Set color map for different event types
 colors = {
- 
     'BURNER': 'rgb(0, 220, 0)',	
     'CABINET': 'rgb(220, 0, 0)',
 	'CLEANING':  'rgb(46, 45, 3)',

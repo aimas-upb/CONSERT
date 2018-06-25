@@ -57,6 +57,53 @@ public class CASASInterweavedExporter {
     	public long relative_end;
     }
 	
+	private static class ActivityDetectionResult {
+		public String person;
+		public Map<String, DetectionMetrics> metrics; 
+	
+		public ActivityDetectionResult(String person) {
+			this.person = person;
+			metrics = new HashMap<String, DetectionMetrics>();
+		}
+		
+		public void addMetrics(String activityName, 
+				double precision, double recall, double accuracy, 
+				int nrHits, double hitRate, 
+				long maxStartDelay, long maxEndDelay) {
+			
+			metrics.put(activityName, 
+					new DetectionMetrics(precision, recall, accuracy, 
+							nrHits, hitRate, maxStartDelay, maxEndDelay));
+		}
+	}
+	
+	private static class DetectionMetrics {
+		public double precision;
+		public double recall;
+		public double accuracy;
+		
+		public int nrHits;
+		public double hitRate;
+		
+		public long maxStartDelay;
+		public long maxEndDelay;
+		
+		public DetectionMetrics(double precision, double recall,
+                double accuracy, int nrHits, double hitRate,
+                long maxStartDelay, long maxEndDelay) {
+	        
+			this.precision = precision;
+	        this.recall = recall;
+	        this.accuracy = accuracy;
+	        this.nrHits = nrHits;
+	        this.hitRate = hitRate;
+	        this.maxStartDelay = maxStartDelay;
+	        this.maxEndDelay = maxEndDelay;
+        }
+		
+	}
+	
+	
     private static final String [] activities = {
     	"PhoneCall", "WatchDVD", "FillDispenser", "ChoosingOutfit", 
     	"Cleaning","WaterPlants","PreparingSoup", "WriteBirthdayCard"
@@ -173,7 +220,7 @@ public class CASASInterweavedExporter {
         File parentFolder = cwd.getParentFile();
         
         //String outputHTMLFolder = parentFolder.getAbsolutePath() + File.separator  + "casas-event-visualizer" + File.separator + "outputs" + File.separator + task;
-        String outputHTMLFolder = parentFolder.getAbsolutePath() + File.separator + "casas-event-visualizer" + File.separator + "experiment" + File.separator + task;
+        String outputFolder = parentFolder.getAbsolutePath() + File.separator + "casas-event-visualizer" + File.separator + "experiment" + File.separator + task;
         
         // Create temporary folder
         Path tmp;
@@ -196,20 +243,24 @@ public class CASASInterweavedExporter {
 	 		final InputStream in =new FileInputStream(f);
 	 		JsonNode realActivityIntervalsNode = mapper.readTree(in);
 	        
+	 		ActivityDetectionResult detectionResult = new ActivityDetectionResult(person);
+	 		
 	        for (String activity : activities) {
 	        	String entryPointId = "Extended" + activity + "Stream";
 	        	EntryPoint ep = session.getEntryPoint(entryPointId);
 	        	
 	            analyzeActivityResults(activity, person, 
 	            		new ArrayList<Object>(ep.getObjects()), testStartTs, 
-	            		realActivityIntervalsNode, mapper);
+	            		realActivityIntervalsNode, mapper, detectionResult);
 	        } 
+	        
+	        File file = new File(outputFolder + File.separator + person + "-detection-metrics" + ".json");
+            mapper.writeValue(file, detectionResult);
         }
         catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
         
         // then plot all detected activities
         Collection<EntryPoint> entryPoints = (Collection<EntryPoint>) session.getEntryPoints();
@@ -247,7 +298,7 @@ public class CASASInterweavedExporter {
                 command[1]="-c";
                 command[2]=  "source activate consert; " +
                         "python ../casas-event-visualizer/casas_plotly_generator.py --f " +
-                        tmp + " --o " + outputHTMLFolder + " --p " + person;
+                        tmp + " --o " + outputFolder + " --p " + person;
             }
             else
                 {
@@ -255,7 +306,7 @@ public class CASASInterweavedExporter {
                     command[1]="/C";
                     command[2]=  "activate consert & " +
                             "python ..\\casas-event-visualizer\\casas_plotly_generator.py --f " +
-                            tmp + " --o " + outputHTMLFolder + " --p " + person;
+                            tmp + " --o " + outputFolder + " --p " + person;
                 }
 
             // build PATH environment variable value
@@ -289,7 +340,8 @@ public class CASASInterweavedExporter {
 
 	private static void analyzeActivityResults(String activity, String person,
             List<? extends Object> events, long testStartTs,
-            JsonNode realActivityIntervalsNode, ObjectMapper mapper) throws JsonProcessingException, IOException {
+            JsonNode realActivityIntervalsNode, ObjectMapper mapper, 
+            ActivityDetectionResult detectionResult) throws JsonProcessingException, IOException {
 	    
 		List<Interval<Long>> predictedEventIntervals = events.stream()
 				.map(e -> getIntervalFromAssertion((ContextAssertion)e, testStartTs))
@@ -298,8 +350,8 @@ public class CASASInterweavedExporter {
 		// sort the predictedEventIntervals
 		Collections.sort(predictedEventIntervals);
 		
-		System.out.println("######## Predicted Intervals for activity " + activity + " ########");
-		System.out.println(predictedEventIntervals);
+		//System.out.println("######## Predicted Intervals for activity " + activity + " ########");
+		//System.out.println(predictedEventIntervals);
 		
 		// first, reduce the events that might overlap others
 		for (int i = 0; i < predictedEventIntervals.size() - 1; i++) {
@@ -307,7 +359,7 @@ public class CASASInterweavedExporter {
 			Interval<Long> interval2 = predictedEventIntervals.get(i + 1);
 			
 			if (interval2.covers(interval1)) {
-				System.out.println("Found one");
+				//System.out.println("Found one");
 				predictedEventIntervals.remove(i);
 				i--;
 				
@@ -317,6 +369,12 @@ public class CASASInterweavedExporter {
 		// collect the real intervals that belong to this activity
 		String activityId = activityIdMap.get(activity);
 		JsonNode intervalListNode = realActivityIntervalsNode.get(activityId);
+		
+		if (intervalListNode == null) {
+			detectionResult.addMetrics(activity, 1, 1, 1, 
+					1, 1, 0, 0);
+			return;
+		}
 		
 		List<ActivityData> realIntervalList = 
 				mapper.convertValue(intervalListNode, new TypeReference<List<ActivityData>>() {});
@@ -328,12 +386,12 @@ public class CASASInterweavedExporter {
 		// sort real event list
 		Collections.sort(realEventIntervals);
 		
-		System.out.println("######## Predicted Intervals for activity " + activity + " ########");
+		//System.out.println("######## Predicted Intervals for activity " + activity + " ########");
 		System.out.println(predictedEventIntervals);
 		
-		System.out.println("######## Real Intervals for activity " + activity + " ########");
-		System.out.println(realEventIntervals);
-		System.out.println();
+		//System.out.println("######## Real Intervals for activity " + activity + " ########");
+		//System.out.println(realEventIntervals);
+		//System.out.println();
 		
 		int predSize = predictedEventIntervals.size();
 		int realSize = realEventIntervals.size();
@@ -547,6 +605,8 @@ public class CASASInterweavedExporter {
 		System.out.println("\t" + "maxEndDelay: " + maxEndDelay);
 		System.out.println();
 		
+		detectionResult.addMetrics(activity, precision, recall, accuracy, 
+				nrHits, hitRate, maxStartDelay, maxEndDelay);
     }
 
 	private static long updateMaxDelay(long currentMaxDelay, Interval<Long> gapInterval) {
@@ -571,6 +631,9 @@ public class CASASInterweavedExporter {
 	}
 	
 	private static long intervalLen(Interval<Long> interval) {
+		if (interval == null)
+			return 0;
+		
 		return interval.upperLimit() - interval.lowerLimit();
 	}
 	
