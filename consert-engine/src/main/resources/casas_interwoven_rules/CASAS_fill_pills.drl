@@ -68,7 +68,7 @@ rule "Pill dispenser removed"
         //not (exists Item(sensorId == "pill_dispenser", status == "ABSENT", this after $dispenser) from entry-point "ItemStream")
         
         
-        exists PersonLocation(location == "Kitchen", this annIncludes $medicine, 
+        exists PersonLocation(location == "Kitchen", this annIncludes $medicine || this annHappensAfter[0s, 10s] $medicine, 
             locAnn : annotations#DefaultAnnotationData)
             from entry-point "ExtendedPersonLocationStream"
     then

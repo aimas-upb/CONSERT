@@ -393,9 +393,9 @@ end
 // =============================================================================
 rule "In wardrobe area"
     when 
-        $motion : Motion(sensorId == "M21" || sensorId == "M22" || sensorId == "M23") from entry-point "MotionStream"
-        not ( exists Motion(id1 : sensorId, id1 not in ("M21", "M22", "M23"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
-        not ( exists Motion(id2 : sensorId, id2 not in ("M21", "M22", "M23"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
+        $motion : Motion(sensorId == "M21" || sensorId == "M22" || sensorId == "M23" || sensorId == "M01") from entry-point "MotionStream"
+        not ( exists Motion(id1 : sensorId, id1 not in ("M21", "M22", "M23", "M01"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
+        not ( exists Motion(id2 : sensorId, id2 not in ("M21", "M22", "M23", "M01"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
     then
         System.out.println("{}{}{}{} Triggering INIT IN WARDROBE AREA rule following event: " + $motion + "\n");
         
@@ -411,10 +411,10 @@ end
 rule "Stay in wardrobe area"
     salience 10
     when
-        $motion : Motion(id : sensorId == "M21" || sensorId == "M22" || sensorId == "M23", status == "OFF") from entry-point "MotionStream"
-        $motionPrev : Motion(id2: sensorId, id2 in ("M21", "M22", "M23"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        $motion : Motion(id : sensorId == "M21" || sensorId == "M22" || sensorId == "M23" || sensorId == "M01", status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 in ("M21", "M22", "M23", "M01"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
         not( 
-            exists Motion(id_other : sensorId, id_other != id, id_other not in ("M21", "M22", "M23"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            exists Motion(id_other : sensorId, id_other != id, id_other not in ("M21", "M22", "M23", "M01"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
             exists PersonLocation(location != "Wardrobe", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
         )
     then

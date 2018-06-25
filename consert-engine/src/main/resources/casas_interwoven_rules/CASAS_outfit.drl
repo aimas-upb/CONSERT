@@ -28,43 +28,46 @@ end
 
 rule "Wardrobe open"
     when
-        $loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
-        $Wardrobe: Cabinet(sensorId == "wardrobe", status == "OPEN",  this before [0s, 10s] $loc || this after [0s, 10s] $loc) from entry-point "CabinetStream"
+        //$loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
+        $Wardrobe: Cabinet(sensorId == "wardrobe", status == "OPEN") from entry-point "CabinetStream"
     then
-        System.out.println("////// Triggering WARDROBE OPEN rule following events: "  + $loc + ", "
-            + $Wardrobe  + "\n");
+        System.out.println("////// Triggering WARDROBE OPEN rule following events: " + $Wardrobe  + "\n");
 
-        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        long ts = eventTracker.getCurrentTime();
         ActivityTriggered WardrobeOpen = new ActivityTriggered("WardrobeOpen", ts);
         eventTracker.insertStaticEvent(WardrobeOpen);
 end
 
 
 rule "Choosing outfit"
-    timer (int: 0s 2s)
     when
-        $WardrobeOpen: ActivityTriggered(name == "WardrobeOpen")
-        $loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
+        $WardrobeOpen: ActivityTriggered(name == "WardrobeOpen", triggerTs : timestamp)
+        $loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe" || location == "TV",
+            locAnn : annotations#DefaultAnnotationData) 
+            from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering CHOOSING OUTFIT rule following events: "  + $WardrobeOpen + "," +  "\n");
-
-       long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
-       AnnotationData ann = new DefaultAnnotationData(ts);
-       ChoosingOutfit choosingOutfit = new ChoosingOutfit(ann);
-
-       eventTracker.insertAtomicEvent(choosingOutfit);
+        System.out.println("////// Triggering CHOOSING OUTFIT rule following events: "  + $WardrobeOpen + "," + $loc + "\n");
+        
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData ann = 
+            new DefaultAnnotationData(ts, locAnn.getConfidence(), 
+                new Date(Math.max(locAnn.getStartTime().getTime(), triggerTs)), 
+                new Date(ts));
+        
+        ChoosingOutfit choosingOutfit = new ChoosingOutfit(ann);
+        eventTracker.insertDerivedEvent(choosingOutfit);
 end
 
 
 rule "Wardrobe closed"
     when
-        $loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
+        //$loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
         $WardrobeOpen: ActivityTriggered(name == "WardrobeOpen")
 
-        $Wardrobe: Cabinet(sensorId == "wardrobe", status == "CLOSE",  this before [0s, 10s] $loc || this after [0s, 10s] $loc) from entry-point "CabinetStream"
+        $Wardrobe: Cabinet(sensorId == "wardrobe", status == "CLOSE") from entry-point "CabinetStream"
         not (exists Cabinet(sensorId == "wardrobe", status == "CLOSE", this after $Wardrobe) from entry-point "CabinetStream")
     then
-        System.out.println("////// Triggering WARDROBE CLOSED rule following events: " + $WardrobeOpen + ", " + $Wardrobe + "," + $loc +  "\n");
+        System.out.println("////// Triggering WARDROBE CLOSED rule following events: " + $WardrobeOpen + ", " + $Wardrobe + "\n");
 
         // remove the ActivityTriggered fact
         eventTracker.deleteStaticEvent($WardrobeOpen);
