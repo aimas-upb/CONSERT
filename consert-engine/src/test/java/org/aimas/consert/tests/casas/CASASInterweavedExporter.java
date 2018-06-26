@@ -237,7 +237,12 @@ public class CASASInterweavedExporter {
         
         // first perform the analysis by computing precision, recall, accuracy and other metrics (e.g. number of hits, detection delay)
         try {
-	        // read in the real intervals
+        	// create directory structure if it does not exist
+            if (!Files.isDirectory(Paths.get(outputFolder))) {
+            	Files.createDirectories(Paths.get(outputFolder));
+            }
+            
+        	// read in the real intervals
 	 		String VALID_FILE = "files/casas_adlinterweaved/" + person + "_activity_intervals" + ".json";
 	 		File f =  TestSetup.getFileNameFromResources(VALID_FILE);
 	 		final InputStream in =new FileInputStream(f);
@@ -255,7 +260,7 @@ public class CASASInterweavedExporter {
 	        } 
 	        
 	        File file = new File(outputFolder + File.separator + person + "-detection-metrics" + ".json");
-            mapper.writeValue(file, detectionResult);
+	        mapper.writeValue(file, detectionResult);
         }
         catch (IOException e) {
             // TODO Auto-generated catch block
