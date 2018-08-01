@@ -2,6 +2,7 @@ package org.aimas.consert.tests.hla.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.hla.entities.Area;
 import org.aimas.consert.tests.hla.entities.Person;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -28,6 +29,11 @@ public class Position extends BinaryContextAssertion {
     Area type;                      /* Positioning type*/
 
     public Position() {
+    }
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new Position(person, type, null);
     }
 
     public Position(Person person, Area type, AnnotationData annotations) {

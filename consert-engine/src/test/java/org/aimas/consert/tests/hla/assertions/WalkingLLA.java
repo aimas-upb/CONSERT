@@ -1,6 +1,7 @@
 package org.aimas.consert.tests.hla.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.hla.entities.LLAType;
 import org.aimas.consert.tests.hla.entities.Person;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
@@ -15,6 +16,11 @@ public class WalkingLLA extends LLA {
     
 	public WalkingLLA() {
         super(new LLAType("WALKING"));
+    }
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new WalkingLLA(person, null);
     }
 
     public WalkingLLA(Person person, AnnotationData annotationData) {
