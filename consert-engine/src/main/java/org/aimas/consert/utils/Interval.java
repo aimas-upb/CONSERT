@@ -1,4 +1,4 @@
-package org.aimas.consert.tests.casas.utils;
+package org.aimas.consert.utils;
 
 /**
  * Copyright (c) 2004 Domain Language, Inc. (http://domainlanguage.com)
