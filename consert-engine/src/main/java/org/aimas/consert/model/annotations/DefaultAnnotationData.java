@@ -191,6 +191,19 @@ public class DefaultAnnotationData implements AnnotationData {
 	    return true;
     }
 
+
+    @Override
+    public DefaultAnnotationData cloneAnnotations() {
+        DefaultAnnotationData clonedAnnotations = new DefaultAnnotationData();
+
+        clonedAnnotations.setTimestamp(lastUpdated);
+        clonedAnnotations.setStartTime(startTime);
+        clonedAnnotations.setEndTime(endTime);
+        clonedAnnotations.setConfidence(confidence);
+
+        return clonedAnnotations;
+    }
+
 	@Override
 	public boolean allowsAnnotationContinuity(AnnotationData annotationData) {
 		DefaultAnnotationData otherAnnotations = (DefaultAnnotationData)annotationData;
