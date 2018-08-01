@@ -238,7 +238,7 @@ public class AnnOverlapsOperator extends TestSetup {
 
             return this.getOperator().isNegated() ^
                     ( interval1.start <= interval2.start && interval1.end < interval2.end
-                            && dist >= this.minDev && dist <= this.maxDev );
+                            && dist > this.minDev && dist <= this.maxDev );
         }
 
 
