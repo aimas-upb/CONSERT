@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 
@@ -13,6 +14,11 @@ public class HandlingFood extends BinaryContextAssertion {
     String status;
 
     public HandlingFood() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new HandlingFood(null);
+    }
 
     public HandlingFood(AnnotationData annotations) {
         super(new StringLiteral("HandlingFood"),new StringLiteral("HandlingFood"),  AcquisitionType.DERIVED, annotations);

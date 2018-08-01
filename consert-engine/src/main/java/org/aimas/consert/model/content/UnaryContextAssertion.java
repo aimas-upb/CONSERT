@@ -38,5 +38,4 @@ public abstract class UnaryContextAssertion extends ContextAssertion {
 		
 		return entities;
 	}
-	
 }

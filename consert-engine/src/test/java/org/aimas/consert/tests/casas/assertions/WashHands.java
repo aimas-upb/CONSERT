@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class WashHands extends BinaryContextAssertion {
@@ -12,6 +13,12 @@ public class WashHands extends BinaryContextAssertion {
     String status;
 
     public WashHands() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new WashHands(null);
+    }
+
     public WashHands(AnnotationData annotations) {
         super(new StringLiteral("WashHands"), new StringLiteral("WashHands"),  AcquisitionType.DERIVED, annotations);
     }

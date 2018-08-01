@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 
@@ -13,6 +14,11 @@ public class WritingBirthdayCard extends BinaryContextAssertion {
     String status;
 
     public WritingBirthdayCard() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new WritingBirthdayCard(null);
+    }
 
     public WritingBirthdayCard(AnnotationData annotations) {
         super(new StringLiteral("WritingBirthdayCard"),new StringLiteral("WritingBirthdayCard"),  AcquisitionType.DERIVED, annotations);

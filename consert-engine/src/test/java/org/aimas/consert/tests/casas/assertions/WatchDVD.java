@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 
@@ -13,6 +14,11 @@ public class WatchDVD extends BinaryContextAssertion {
     String status;
 
     public WatchDVD() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new WatchDVD(null);
+    }
 
     public WatchDVD(AnnotationData annotations) {
         super(new StringLiteral("WatchDVD"),new StringLiteral("WatchDVD"),  AcquisitionType.DERIVED, annotations);

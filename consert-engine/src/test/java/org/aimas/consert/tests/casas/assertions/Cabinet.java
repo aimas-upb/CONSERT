@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Cabinet extends BinaryContextAssertion {
@@ -14,7 +15,7 @@ public class Cabinet extends BinaryContextAssertion {
 	public Cabinet() {
 		setAcquisitionType(AcquisitionType.SENSED);
 	}
-	
+
 	public Cabinet(String sensorId, String status, AnnotationData annotations) {
 		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
 		
@@ -38,5 +39,10 @@ public class Cabinet extends BinaryContextAssertion {
 	public void setStatus(String status) {
 		this.status = status;
 		setObject(new StringLiteral(status));
+	}
+
+	@Override
+	public ContextAssertion cloneContent() {
+		return new Cabinet(sensorId, status, null);
 	}
 }

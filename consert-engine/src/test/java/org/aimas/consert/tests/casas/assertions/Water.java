@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.NumericLiteral;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
@@ -11,7 +12,12 @@ public class Water extends BinaryContextAssertion {
 	double value;
 	
 	public Water() {}
-	
+
+	@Override
+	public ContextAssertion cloneContent() {
+		return new Water(sensorId, value, null);
+	}
+
 	public Water(String sensorId, double value, AnnotationData annotationData) {
 	    super(new StringLiteral(sensorId), new NumericLiteral(value), AcquisitionType.SENSED, annotationData);
 		

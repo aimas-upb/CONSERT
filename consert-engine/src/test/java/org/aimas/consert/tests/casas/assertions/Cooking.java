@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Cooking extends BinaryContextAssertion {
@@ -12,6 +13,12 @@ public class Cooking extends BinaryContextAssertion {
     String status;
 
     public Cooking() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new Cooking(null);
+    }
+
     public Cooking(AnnotationData annotations) {
         super(new StringLiteral("Cooking"),new StringLiteral("Cooking"),  AcquisitionType.SENSED, annotations);
 
