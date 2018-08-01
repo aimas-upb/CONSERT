@@ -1,20 +1,22 @@
 package org.aimas.consert.engine;
 
-import java.util.Date;
-
-import org.aimas.consert.engine.TrackedAssertionStore.TrackedEventData;
+import org.aimas.consert.engine.ContinuityChecker.ContinuityResult;
+import org.aimas.consert.engine.ConstraintChecker.ConstraintResult;
+import org.aimas.consert.engine.TrackedAssertionStore.TrackedAssertionData;
 import org.aimas.consert.engine.api.ContextAssertionListener;
-import org.aimas.consert.engine.api.ContextAssertionListenerRegistrer;
 import org.aimas.consert.engine.api.ContextAssertionNotifier;
 import org.aimas.consert.engine.api.EntityDescriptionListener;
-import org.aimas.consert.engine.api.EntityDescriptionListenerRegistrer;
 import org.aimas.consert.engine.api.EntityDescriptionNotifier;
-import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationDataFactory;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
+import org.aimas.consert.model.constraint.IConstraintViolation;
+import org.aimas.consert.model.constraint.IUniquenessConstraintViolation;
+import org.aimas.consert.model.constraint.UniquenessConstraintViolation;
+import org.aimas.consert.model.constraint.ValueConstraintViolation;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.EntityDescription;
+import org.drools.core.common.EventFactHandle;
 import org.kie.api.event.rule.ObjectDeletedEvent;
 import org.kie.api.event.rule.ObjectInsertedEvent;
 import org.kie.api.event.rule.ObjectUpdatedEvent;
@@ -22,9 +24,13 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
+import java.util.Date;
 
-public class EventTracker extends BaseEventTracker implements ContextAssertionListenerRegistrer, EntityDescriptionListenerRegistrer {
-	
+
+public class EventTracker extends BaseEventTracker {
+
+    public static final String CONSTRAINT_STORE = "ConstraintStore";
+
 	private TrackedAssertionStore trackedAssertionStore = TrackedAssertionStore.getNewInstance();
 	
 	private AnnotationDataFactory annotationFactory = new DefaultAnnotationDataFactory();
@@ -39,10 +45,19 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 	public void setAnnotationFactory(AnnotationDataFactory annotationFactory) {
 		this.annotationFactory = annotationFactory;
 	}
-	
+
+	private ContinuityChecker continuityChecker;
+    private ConstraintChecker constraintChecker;
+
+    private ConstraintResolutionService constraintResolutionService;
+
 	public EventTracker(KieSession kSession) {
 		super(kSession);
 		kSession.setGlobal("eventTracker", this);
+
+		continuityChecker = new ContinuityChecker(this, trackedAssertionStore);
+		constraintChecker = new ConstraintChecker(kSession);
+		constraintResolutionService = new DefaultConstraintResolutionService();
 	}
 
 	/**
@@ -109,95 +124,101 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 
 	/**
 	 * Insert an atomic event. The event will go through the verifications of temporal continuity.
-	 * @param event The atomic event to insert
+	 * @param newAssertion The atomic event to insert
 	 */
 	@Override
-    public void insertAtomicEvent(final ContextAssertion event) {
-    	String eventStream = event.getStreamName();
+    public void insertAtomicEvent(final ContextAssertion newAssertion) {
+    	String eventStream = newAssertion.getStreamName();
     	
     	// if this is the first event of its type
-    	if (!trackedAssertionStore.tracksSensed(event.getClass())) {
-    		if (event.getAnnotations().allowsAnnotationInsertion()) {
+    	if (!trackedAssertionStore.tracksSensed(newAssertion.getClass())) {
+    		if (newAssertion.getAnnotations().allowsAnnotationInsertion()) {
     			// go through with insertion in the map and the KieBase
-    			FactHandle handle = kSession.getEntryPoint(eventStream).insert(event);
-    			trackedAssertionStore.trackSensed(event, handle, kSession.getEntryPoint(eventStream));
+    			FactHandle handle = kSession.getEntryPoint(eventStream).insert(newAssertion);
+                trackedAssertionStore.trackSensed(newAssertion, handle, kSession.getEntryPoint(eventStream));
+
+    			// do constraint check
+//    			ConstraintResult constraintResult = constraintChecker.check(newAssertion);
+//
+//                if (!constraintResult.isClear()) {
+//                    System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+//                            + newAssertion + ". Violations:\n" + constraintResult);
+//
+//                    resolveConflict(constraintResult, newAssertion, handle, true);
+//                }
     		}
-    		else {
-    			// Go through with event insertion in its appropriate stream anyway, just don't hold the handle in the lastValidEventMap
-    			kSession.getEntryPoint(eventStream).insert(event);
-    		}
+    		//else {
+    		//	// Go through with event insertion in its appropriate stream anyway,
+            //    // just don't hold the handle in the lastValidEventMap
+    		//	kSession.getEntryPoint(eventStream).insert(newAssertion);
+    		//}
     	}
     	else {
     		// execute insertion in regular stream
     		// save handle in case we need to insert it in the lastValidEventMap
-    		final FactHandle newEventHandle = kSession.getEntryPoint(eventStream).insert(event);
-    		
+    		final FactHandle newEventHandle = kSession.getEntryPoint(eventStream).insert(newAssertion);
+
     		// afterwards, do the all continuity verification steps as an atomic action
     		kSession.submit(new KieSession.AtomicAction() {
 				
 				@Override
 				public void execute(KieSession kSession) {
 					// check to see if it matches one of the previous stored events by content
-					TrackedEventData existingEventData = trackedAssertionStore.searchSensedAssertionByContent(event); 
-		    		if (existingEventData != null) {
-		    			// if it DOES match any monitored event by content 
-		    			FactHandle existingEventHandle = existingEventData.getExistingHandle();
-		    			ContextAssertion updatedEvent = existingEventData.getExistingEvent();
-		    			EntryPoint existingEventEntry = existingEventData.getExistingEventEntryPoint();
-		    			
-		    			//System.out.println("TRACKED DATA exists: " + updatedEvent);
-		    			
-		    			// if it allows continuity by annotation
-		    			if (updatedEvent.getAnnotations().allowsAnnotationContinuity(event.getAnnotations())) { // time s
-			    			// create event clone
-							//System.out.println( updatedEvent.getProcessingTimeStamp());
-		    				//System.out.println("FOUND EXTENSION for existing event: " + updatedEvent + ", new event: " + event);
-			    			
-			    			// if the event allows continuity, remove the old instance and insert the new one
-			    			if (existingEventHandle != null)
-			    				existingEventEntry.delete(existingEventHandle);
-			    			
-			    			trackedAssertionStore.removeSensed(existingEventData);
-			    			
-			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
-			    					.applyExtensionOperator(event.getAnnotations());
-			    			updatedEvent.setAnnotations(updatedAnnotations);
-			    			
-			    			String extendedEventStream = updatedEvent.getExtendedStreamName();
-			    			FactHandle handle = kSession.getEntryPoint(extendedEventStream).insert(updatedEvent);
-			    			trackedAssertionStore.trackSensed(updatedEvent, handle, kSession.getEntryPoint(extendedEventStream));
-			    			
-			    			// TEST SIZE OF KnowledgeBase
-			    			//System.out.println("COUNT OF EVENTS FOR " + existingEventEntry.getEntryPointId() + " IS: " + existingEventEntry.getObjects().size());
-		    			}
-		    			// if NO annotation continuity (either because of timestamp or confidence)
-		    			else {
-		    				if (event.getAnnotations().allowsAnnotationInsertion()) {
-		    					// if allowed by confidence allowed, set the new event as the most recently valid one
-		    					trackedAssertionStore.removeSensed(existingEventData);
-		    					trackedAssertionStore.trackSensed(event, newEventHandle, kSession.getEntryPoint(eventStream));
-		    					
-		    					System.out.println("NO ANNOTATION EXTENSION FOUND for existing event: " + updatedEvent + ", new event: " + event);
-		    				}
-			    		}
-		    		}
-		    		else {
-		    			// if it DOES NOT match any monitored event by content
-		    			if (event.getAnnotations().allowsAnnotationInsertion()) {
-		    				// if the confidence value check allows it to be inserted,
-							// add it to the list of monitored events for this type
-		    				trackedAssertionStore.trackSensed(event, newEventHandle, kSession.getEntryPoint(eventStream));
-		    			
-		    				System.out.println("~~~~~~~~~~~~~~~~~~ NO EXTENSION FOUND for event: " + event);
-		    			}
-		    		}
-					
+                    ContinuityResult continuityResult = continuityChecker.check(newAssertion);
+
+                    if (continuityResult.hasExtension()) {
+                        TrackedAssertionData existingAssertionData = continuityResult.getTrackedAssertionData(kSession);
+                        EntryPoint existingAssertionEntry = existingAssertionData.getExistingEventEntryPoint();
+
+                        // insert the extended one
+                        FactHandle extendedAssertionHandle = kSession.getEntryPoint(continuityResult.getExtendedEventStream())
+                                .insert(continuityResult.getExtendedAssertion());
+
+                        ConstraintResult constraintResult =
+								constraintChecker.check(continuityResult.getExtendedAssertion());
+
+                        if (!constraintResult.isClear()) {
+                            System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+                                    + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
+
+                            resolveConflict(constraintResult, continuityResult, extendedAssertionHandle, true);
+                        }
+                        else {
+                            // No constraints found, so update update kSession and trackedAssertionStore,
+                            // remove existing ContextAssertion
+                            existingAssertionEntry.delete(continuityResult.getExistingAssertionHandle());
+
+                            trackedAssertionStore.removeSensed(existingAssertionData);
+                            trackedAssertionStore.trackSensed(continuityResult.getExtendedAssertion(),
+                                    extendedAssertionHandle,
+                                    kSession.getEntryPoint(continuityResult.getExtendedEventStream()));
+                        }
+                    }
+                    else {
+                        // if NO annotation continuity (either because of timestamp or confidence)
+                        if (newAssertion.getAnnotations().allowsAnnotationInsertion()) {
+                            // TODO: perform constraint check
+
+                            // if allowed by confidence allowed, set the new event as the most recently valid one
+                            TrackedAssertionData existingAssertionData = continuityResult.getTrackedAssertionData(kSession);
+
+                            if (existingAssertionData != null) {
+                                trackedAssertionStore.removeSensed(existingAssertionData);
+                                trackedAssertionStore.trackSensed(newAssertion, newEventHandle, kSession.getEntryPoint(eventStream));
+                            }
+                            else {
+                                System.out.println("CONTENT MISMATCH - NO TRACKED DATA FOR non-extended new Assertion: " + newAssertion);
+                                // add it to the list of monitored events for this type
+                                trackedAssertionStore.trackSensed(newAssertion, newEventHandle, kSession.getEntryPoint(eventStream));
+                            }
+                        }
+                    }
 				}
 			});
     	}
     }
-    
-    
+
+
 //	/**
 //	 * Insert a derived event. This method will usually be called in the right-hand-side of a 
 //     * ContextDerivationRule. The method will check for duplicates of events that have already been
@@ -221,8 +242,6 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
      */
 	@Override
     public void insertDerivedEvent(ContextAssertion event) {
-    	//kSession.getQueryResults(query, arguments);
-    	
     	// Check if event to be inserted exists already
     	if (!checkPreviouslyDerived(event)) {
     		doDerivedInsertion(event);
@@ -234,10 +253,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 	private boolean checkPreviouslyDerived(ContextAssertion derivedEvent) {
 		String derivedStreamName = derivedEvent.getStreamName();
 		EntryPoint derivedEventStream = kSession.getEntryPoint(derivedStreamName);
-		
-		//System.out.println("Derived Event Stream name: " + derivedStreamName);
-		
-		
+
 		for (Object eventObj : derivedEventStream.getObjects()) {
 			ContextAssertion event = (ContextAssertion) eventObj;
 			
@@ -246,7 +262,7 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
 				if (event.getAnnotations() != null) {
 					// and they it includes the validity interval of the derived object
 					if (event.getAnnotations().hasIncludedValidity(derivedEvent.getAnnotations())) {
-						System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
+						//System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
 						return true;
 					}
 				}
@@ -260,129 +276,352 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
     }
 
 	
-    private void doDerivedInsertion(final ContextAssertion eventObject) {
-		//BaseEvent insertedEventObject = (BaseEvent)insertEvent.getObject();
-		
-    	final String derivedEventStream = eventObject.getStreamName();
+    private void doDerivedInsertion(final ContextAssertion newAssertion) {
+    	final String derivedEventStream = newAssertion.getStreamName();
     	
 		// perform same type of checks as in the case of temporal validity extension
 		// if this is the first event of its type
-    	if (!trackedAssertionStore.tracksDerived(eventObject.getClass())) {
+    	if (!trackedAssertionStore.tracksDerived(newAssertion.getClass())) {
     		// go through with insertion in the map
-    		FactHandle handle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
-    		trackedAssertionStore.trackDerived(eventObject, handle, kSession.getEntryPoint(derivedEventStream));
+    		FactHandle handle = kSession.getEntryPoint(derivedEventStream).insert(newAssertion);
+    		trackedAssertionStore.trackDerived(newAssertion, handle, kSession.getEntryPoint(derivedEventStream));
     	}
     	else {
     		// do the overlap verification steps as an atomic action
     		kSession.submit(new KieSession.AtomicAction() {
 				@Override
 				public void execute(KieSession kSession) {
-					// check to see if it matches one of the previous stored events by content
-		    		TrackedEventData existingEventData = trackedAssertionStore.searchDerivedAssertionByContent(eventObject);
-		    		if (existingEventData != null) {
-		    			// if it DOES match any monitored event by content 
-		    			FactHandle existingEventHandle = existingEventData.getExistingHandle();
-		    			ContextAssertion updatedEvent = existingEventData.getExistingEvent();
-		    			EntryPoint existingEventEntry = existingEventData.getExistingEventEntryPoint();
-		    			
-		    			// if the validity interval of the previous deduced event is included in the interval of the extended one 
-		    			System.out.println("0000000000000000000000000");
-		    			System.out.println("Updated Event: " + updatedEvent);
-		    			System.out.println("New Event (that extends): " + eventObject);
-		    			System.out.println("0000000000000000000000000");
-		    			
-		    			
-		    			if (updatedEvent.intersects(eventObject)) {
-			    			//System.out.println("!!!!!!!!!![EventTracker] Analyzing garbage collection for DEDUCED event " + updatedEvent);
-		    				
-			    			if (existingEventHandle != null) 
-			    				existingEventEntry.delete(existingEventHandle);
-			    			trackedAssertionStore.removeDerived(existingEventData);
-			    			
-			    			AnnotationData updatedAnnotations = updatedEvent.getAnnotations()
-			    					.applyExtensionOperator(eventObject.getAnnotations());
-			    			updatedEvent.setAnnotations(updatedAnnotations);
-			    			
-			    			// The updated derived event has to make it to the KnowledgeBase, so we perform the insert here
-			    			FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(updatedEvent);
-			    			trackedAssertionStore.trackDerived(updatedEvent, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
-		    			}
-		    			else {
-		    				System.out.println("000000000000 [EventTracker] New derived event " + eventObject + " does not intersect the tracked one: " + updatedEvent);
-		    				
-		    				// The newly derived event has to make it to the KnowledgeBase, so we perform the insert here
-				    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
-		    				
-		    				// if it is not overlapped, then it means it just has to replace the existing event in the lastValidDeducedMap
-		    				trackedAssertionStore.removeDerived(existingEventData);
-		        			trackedAssertionStore.trackDerived(eventObject, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
-		    			}
-		    		}
-		    		else {
-		    			// If it DOES NOT match any monitored event by content,
-						// add it to the list of monitored events for this type
-		    			
-		    			// The newly derived event has to make it to the KnowledgeBase, so we perform the insert here
-			    		FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(eventObject);
-		    			trackedAssertionStore.trackDerived(eventObject, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
-		    		}
+                    ContinuityResult continuityResult = continuityChecker.check(newAssertion);
+
+                    if (continuityResult.hasExtension()) {
+                        // if it DOES match any monitored event by content
+                        TrackedAssertionData existingAssertionData = continuityResult.getTrackedAssertionData(kSession);
+                        EntryPoint existingAssertionEntry = existingAssertionData.getExistingEventEntryPoint();
+
+                        // insert the extended one
+                        FactHandle extendedAssertionHandle = kSession.getEntryPoint(continuityResult.getExtendedEventStream())
+                                .insert(continuityResult.getExtendedAssertion());
+
+                        ConstraintResult constraintResult =
+                                constraintChecker.check(continuityResult.getExtendedAssertion());
+
+                        if (!constraintResult.isClear()) {
+                            System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+                                    + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
+
+                            resolveConflict(constraintResult, continuityResult, extendedAssertionHandle, false);
+                        }
+                        else {
+                            // No constraints found, so update update kSession and trackedAssertionStore,
+                            // remove existing ContextAssertion
+                            if (continuityResult.getExistingAssertionHandle() != null)
+                                existingAssertionEntry.delete(continuityResult.getExistingAssertionHandle());
+                            trackedAssertionStore.removeDerived(existingAssertionData);
+
+                            trackedAssertionStore.trackDerived(continuityResult.getExtendedAssertion(), extendedAssertionHandle,
+                                    kSession.getEntryPoint(continuityResult.getExtendedEventStream()));
+                        }
+                    }
+                    else {
+                        if (continuityResult.getExistingAssertion() != null) {
+                            // The newly derived event has to make it to the KnowledgeBase, so we perform the insert here
+                            FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(newAssertion);
+
+                            ConstraintResult constraintResult =
+                                    constraintChecker.check(continuityResult.getExtendedAssertion());
+
+                            if (!constraintResult.isClear()) {
+                                System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+                                        + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
+
+                                resolveConflict(constraintResult, newAssertion, derivedEventHandle, false);
+                            }
+                            else {
+                                // if it is not overlapped, and there are no violated
+                                // constraints then it means it just has to replace the existing event in the lastValidDeducedMap
+                                trackedAssertionStore.removeDerived(continuityResult.getTrackedAssertionData(kSession));
+                                trackedAssertionStore.trackDerived(newAssertion, derivedEventHandle,
+                                        kSession.getEntryPoint(derivedEventStream));
+                            }
+                        }
+                        else {
+                            // If it DOES NOT match any monitored event by content,
+                            // add it to the list of monitored events for this type
+                            FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(newAssertion);
+                            trackedAssertionStore.trackDerived(newAssertion, derivedEventHandle, kSession.getEntryPoint(derivedEventStream));
+                        }
+                    }
 				}
 			});
     	}
 		
     }
-	
-    
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////// CONFLICT MANAGEMENT //////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void resolveConflict(ConstraintResult constraintResult, ContextAssertion assertion,
+                                 FactHandle assertionHandle, boolean sensedInsertion) {
+
+	    if (constraintResult.hasValueViolations()) {
+            // If we have value violations we currently ignore the extendedAssertion, deleting it
+            // Further ValueConstraintViolation implementation may attempt to alter the value to
+            // an "acceptable" one.
+            kSession.getEntryPoint(assertion.getStreamName()).delete(assertionHandle);
+        }
+        else if (constraintResult.hasUniquenessViolations()) {
+            // If the constraint check result contains a uniqueness violation, it can ONLY have
+            // one of these => run it through the resolution service and interpret the results
+            IUniquenessConstraintViolation ucv = constraintResult.getUniquenessViolation();
+            UniquenessConflictDecision decision = constraintResolutionService.resolveConflict(ucv);
+
+            if (!decision.keepNewAssertion()) {
+                // remove the extended assertion it from the entry point
+                kSession.getEntryPoint(assertion.getStreamName()).delete(assertionHandle);
+            }
+            else {
+                // we keep the new, extended assertion under a rectified form
+                ContextAssertion rectifiedNewAssertion = decision.getRectifiedNewAssertion();
+
+                // delete the extended assertion
+                kSession.getEntryPoint(assertion.getStreamName()).delete(assertionHandle);
+                trackedAssertionStore.remove(assertion);
+
+                // insert the rectified extended assertion
+                FactHandle rectifiedNewAssertionHandle =
+                        kSession.getEntryPoint(assertion.getStreamName()).insert(rectifiedNewAssertion);
+
+                if (sensedInsertion)
+                    trackedAssertionStore.trackSensed(rectifiedNewAssertion, rectifiedNewAssertionHandle,
+                        kSession.getEntryPoint(assertion.getStreamName()));
+                else
+                    trackedAssertionStore.trackDerived(rectifiedNewAssertion, rectifiedNewAssertionHandle,
+                            kSession.getEntryPoint(assertion.getStreamName()));
+
+                if (decision.getRectifiedExistingAssertion() != null) {
+                    // If the resolution decision involves altering the existing conflicting
+                    // assertion, then replace that as well
+                    ContextAssertion existingViolationAssertion = ucv.getExistingAssertion();
+
+                    // 1) delete the current existing violating assertion
+                    String entryPointName = existingViolationAssertion.getStreamName();
+                    FactHandle fh = kSession.getEntryPoint(entryPointName)
+                            .getFactHandle(existingViolationAssertion);
+
+                    kSession.getEntryPoint(entryPointName).delete(fh);
+
+                    // 2) insert the rectified existing violation assertion
+                    ContextAssertion rectifiedExistingAssertion = decision.getRectifiedExistingAssertion();
+                    DefaultAnnotationData ann = (DefaultAnnotationData) rectifiedExistingAssertion.getAnnotations();
+                    ann.setLastUpdated(getCurrentTime());
+
+                    FactHandle rectifiedExistingFh = kSession.getEntryPoint(entryPointName)
+                            .insert(rectifiedExistingAssertion);
+
+                    // 3) if the replaced existing violation assertion was also being tracked, then
+                    // replace the entry in the trackedAssertionStore as well
+                    TrackedAssertionData existingViolationData =
+                            trackedAssertionStore.searchTrackedAssertionByContent(existingViolationAssertion);
+                    if (existingViolationData != null) {
+                        if (sensedInsertion) {
+                            trackedAssertionStore.remove(existingViolationData);
+                            trackedAssertionStore.trackSensed(rectifiedExistingAssertion,
+                                    rectifiedExistingFh, kSession.getEntryPoint(entryPointName));
+                        }
+                        else {
+                            trackedAssertionStore.remove(existingViolationData);
+                            trackedAssertionStore.trackDerived(rectifiedExistingAssertion,
+                                    rectifiedExistingFh, kSession.getEntryPoint(entryPointName));
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            // TODO: It means we have one or several GENERAL constraints => we need to employ the
+            // "sequential resolution mechanism"
+        }
+    }
+
+    private void resolveConflict(ConstraintResult constraintResult, ContinuityResult continuityResult,
+                                 FactHandle extendedAssertionHandle, boolean atomicExtension) {
+        TrackedAssertionData existingAssertionData = continuityResult.getTrackedAssertionData(kSession);
+        EntryPoint existingAssertionEntry = existingAssertionData.getExistingEventEntryPoint();
+
+	    if (constraintResult.hasValueViolations()) {
+            // If we have value violations we currently ignore the extendedAssertion, deleting it
+            // Further ValueConstraintViolation implementation may attempt to alter the value to
+            // an "acceptable" one.
+            kSession.getEntryPoint(continuityResult.getExtendedEventStream())
+                    .delete(extendedAssertionHandle);
+        }
+        else if (constraintResult.hasUniquenessViolations()) {
+            // If the constraint check result contains a uniqueness violation, it can ONLY have
+            // one of these => run it through the resolution service and interpret the results
+            IUniquenessConstraintViolation ucv = constraintResult.getUniquenessViolation();
+            UniquenessConflictDecision decision = constraintResolutionService.resolveConflict(ucv);
+
+            if (!decision.keepNewAssertion()) {
+                // remove the extended assertion it from the entry point
+                kSession.getEntryPoint(continuityResult.getExtendedEventStream())
+                        .delete(extendedAssertionHandle);
+            }
+            else {
+                // we keep the new, extended assertion under a rectified form
+                ContextAssertion rectifiedNewAssertion = decision.getRectifiedNewAssertion();
+
+                // delete the extended assertion
+                kSession.getEntryPoint(continuityResult.getExtendedEventStream())
+                        .delete(extendedAssertionHandle);
+
+                // delete existing assertion
+                existingAssertionEntry.delete(continuityResult.getExistingAssertionHandle());
+                trackedAssertionStore.remove(existingAssertionData);
+
+                // insert the rectified extended assertion
+                FactHandle rectifiedNewAssertionHandle =
+                        kSession.getEntryPoint(continuityResult.getExtendedEventStream())
+                                .insert(rectifiedNewAssertion);
+
+                if (atomicExtension)
+                    trackedAssertionStore.trackSensed(rectifiedNewAssertion, rectifiedNewAssertionHandle,
+                        kSession.getEntryPoint(continuityResult.getExtendedEventStream()));
+                else
+                    trackedAssertionStore.trackDerived(rectifiedNewAssertion, rectifiedNewAssertionHandle,
+                        kSession.getEntryPoint(continuityResult.getExtendedEventStream()));
+
+
+                if (decision.getRectifiedExistingAssertion() != null) {
+                    // If the resolution decision involves altering the existing conflicting
+                    // assertion, then replace that as well
+                    ContextAssertion existingViolationAssertion = ucv.getExistingAssertion();
+
+                    // 1) delete the current existing violating assertion
+                    String entryPointName = existingViolationAssertion.getStreamName();
+                    FactHandle fh = kSession.getEntryPoint(entryPointName)
+                            .getFactHandle(existingViolationAssertion);
+
+                    kSession.getEntryPoint(entryPointName).delete(fh);
+
+                    // 2) insert the rectified existing violation assertion
+                    ContextAssertion rectifiedExistingAssertion = decision.getRectifiedExistingAssertion();
+                    DefaultAnnotationData ann = (DefaultAnnotationData) rectifiedExistingAssertion.getAnnotations();
+                    ann.setLastUpdated(getCurrentTime());
+
+                    FactHandle rectifiedExistingFh = kSession.getEntryPoint(entryPointName)
+                            .insert(rectifiedExistingAssertion);
+
+                    // 3) if the replaced existing violation assertion was also being tracked, then
+                    // replace the entry in the trackedAssertionStore as well
+                    TrackedAssertionData existingViolationData =
+                            trackedAssertionStore.searchTrackedAssertionByContent(existingViolationAssertion);
+                    if (existingViolationData != null) {
+                        if (atomicExtension) {
+                            trackedAssertionStore.remove(existingViolationData);
+                            trackedAssertionStore.trackSensed(rectifiedExistingAssertion,
+                                    rectifiedExistingFh, kSession.getEntryPoint(entryPointName));
+                        }
+                        else {
+                            trackedAssertionStore.remove(existingViolationData);
+                            trackedAssertionStore.trackDerived(rectifiedExistingAssertion,
+                                    rectifiedExistingFh, kSession.getEntryPoint(entryPointName));
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            // TODO: It means we have one or several GENERAL constraints => we need to employ the
+            // "sequential resolution mechanism"
+        }
+    }
+
+
+//    @Override
+//    public void conflictDetected(ValueConstraintViolation vcv) {
+//
+//    }
+//
+//    @Override
+//    public void conflictDetected(UniquenessConstraintViolation ucv) {
+//    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////// API MANAGEMENT ////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     @Override
 	public void objectDeleted(ObjectDeletedEvent event) {
 		//System.out.println("TRACKER DELETED EVENT object: " + event.getOldObject());
 		//System.out.println("	HANDLE: " + event.getFactHandle());
-		
-		//if (event.getRule() != null) {
-		//	System.out.println("	RULE: " + event.getRule().getName());
-		//}
-		//System.out.println();
-		
+
+        if (event.getOldObject() instanceof ContextAssertion) {
+            ContextAssertion assertion = (ContextAssertion)event.getOldObject();
+            if (!assertion.isAtomic())
+                System.out.println("[CALLBACK DELETE] ************ DELETED assertion: " + assertion + "; FACT HANDLE: " + event.getFactHandle());
+        }
+
 		FactHandle deletedHandle = event.getFactHandle();
-		if (event.getOldObject() instanceof ContextAssertion) {
-			ContextAssertion deletedAssertion = (ContextAssertion)event.getOldObject();
-		    
-		    if (trackedAssertionStore.untrack(deletedHandle, deletedAssertion)) {
-		    	trackedAssertionStore.markExpired(deletedHandle, deletedAssertion);
-		    }
-		    
-		    eventNotifier.notifyEventDeleted(deletedAssertion);
+		if (deletedHandle instanceof EventFactHandle) {
+		    // if we are deleting an event - ContextAssertion
+            EventFactHandle deletedEventHandle = (EventFactHandle)deletedHandle;
+
+            // only call the eventNotifier if we are deleting from
+            // the default EntryPoint or a ContextAssertion specific one
+            if (event.getOldObject() instanceof ContextAssertion
+                    && !deletedEventHandle.getEntryPoint().getEntryPointId().equals(CONSTRAINT_STORE)) {
+
+                ContextAssertion deletedAssertion = (ContextAssertion)event.getOldObject();
+
+                if (trackedAssertionStore.untrack(deletedHandle, deletedAssertion)) {
+                    trackedAssertionStore.markExpired(deletedHandle, deletedAssertion);
+                }
+
+                eventNotifier.notifyEventDeleted(deletedAssertion);
+            }
 		}
-		else if (event.getOldObject() instanceof EntityDescription) {
-			factNotifier.notifyFactDeleted((EntityDescription)event.getOldObject());
-		}
+		else {
+		    // if we are deleting a fact - EntityDescription
+		    if (event.getOldObject() instanceof EntityDescription) {
+                factNotifier.notifyFactDeleted((EntityDescription)event.getOldObject());
+            }
+        }
     }
 	
 	
     @Override
 	public void objectInserted(ObjectInsertedEvent insertEvent) {
-		
-		//System.out.println("	HANDLE: " + insertEvent.getFactHandle());
-		//if (insertEvent.getRule() != null) {
-		//	System.out.println("	RULE: " + insertEvent.getRule().getName());
-		//}
-		//System.out.println();
+//		if (insertEvent.getObject() instanceof ContextAssertion) {
+//
+//		    ContextAssertion assertion = (ContextAssertion)insertEvent.getObject();
+//		    if (!assertion.isAtomic())
+//                System.out.println("[CALLBACK INSERTION] Inserted assertion: " + assertion + "; FACT HANDLE: " + insertEvent.getFactHandle());
+//		}
 
-		// notify insertion of new event
-    	if (insertEvent.getObject() instanceof ContextAssertion) {
-    		eventNotifier.notifyEventInserted((ContextAssertion)insertEvent.getObject());
-    		//System.out.println("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
-    	}
-    	else if (insertEvent.getObject() instanceof EntityDescription)
-    		factNotifier.notifyFactInserted((EntityDescription)insertEvent.getObject());
+        FactHandle insertHandle = insertEvent.getFactHandle();
+        if (insertHandle instanceof EventFactHandle) {
+            // if we are inserting an event - ContextAssertion
+            EventFactHandle insertEventHandle = (EventFactHandle)insertHandle;
+
+            if (insertEvent.getObject() instanceof ContextAssertion
+                    && !insertEventHandle.getEntryPoint().getEntryPointId().equals(CONSTRAINT_STORE)) {
+                //System.out.println("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
+                eventNotifier.notifyEventInserted((ContextAssertion)insertEvent.getObject());
+            }
+        }
+    	else {
+            // if we are inserting a fact - EntityDescription
+            if (insertEvent.getObject() instanceof EntityDescription)
+                factNotifier.notifyFactInserted((EntityDescription) insertEvent.getObject());
+        }
     }
 
     
     @Override
 	public void objectUpdated(ObjectUpdatedEvent event) {
-//		System.out.println("UPDATED EVENT with handle: " + event.getFactHandle());
-//		System.out.println("UPDATED EVENT object: " + event.getObject());
-//		System.out.println();
     }
 
 	@Override
@@ -404,6 +643,4 @@ public class EventTracker extends BaseEventTracker implements ContextAssertionLi
     public void removeFactListener(EntityDescriptionListener factListener) {
 	    factNotifier.removefactListener(factListener);
     }
-	
-	
 }

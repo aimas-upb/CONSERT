@@ -1,30 +1,25 @@
 package org.aimas.consert.engine;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.aimas.consert.model.content.ContextAssertion;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
-public class TrackedAssertionStore {
+class TrackedAssertionStore {
 	
-	public static class TrackedEventData {
+	public static class TrackedAssertionData {
 		private FactHandle existingHandle;
 		private EntryPoint existingEventEntryPoint;
 		private ContextAssertion existingEvent;
 		
-		public TrackedEventData(FactHandle existingHandle, EntryPoint existingEventEntryPoint, ContextAssertion existingEvent) {
+		TrackedAssertionData(FactHandle existingHandle, EntryPoint existingEventEntryPoint, ContextAssertion existingEvent) {
 			this.existingHandle = existingHandle;
 	        this.existingEventEntryPoint = existingEventEntryPoint;
 	        this.existingEvent = existingEvent;
         }
 
-		public FactHandle getExistingHandle() {
+		FactHandle getExistingHandle() {
 			return existingHandle;
 		}
 
@@ -32,42 +27,55 @@ public class TrackedAssertionStore {
 			this.existingHandle = existingHandle;
 		}
 
-		public EntryPoint getExistingEventEntryPoint() {
+		EntryPoint getExistingEventEntryPoint() {
 			return existingEventEntryPoint;
 		}
 
-		public void setExistingEventEntryPoint(EntryPoint existingEventEntryPoint) {
+		void setExistingEventEntryPoint(EntryPoint existingEventEntryPoint) {
 			this.existingEventEntryPoint = existingEventEntryPoint;
 		}
 
-		public ContextAssertion getExistingEvent() {
+		ContextAssertion getExistingEvent() {
 			return existingEvent;
 		}
 
-		public void setExistingEvent(ContextAssertion existingEvent) {
+		void setExistingEvent(ContextAssertion existingEvent) {
 			this.existingEvent = existingEvent;
 		}
 		
-		public void clearHandle() {
+		void clearHandle() {
 			this.existingHandle = null;
 		}
-	}
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TrackedAssertionData that = (TrackedAssertionData) o;
+            return Objects.equals(existingHandle, that.existingHandle) &&
+                    Objects.equals(existingEvent, that.existingEvent);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(existingHandle, existingEvent);
+        }
+    }
 	
 	
 	private static TrackedAssertionStore store = null;
 	
-	private Map<Class<? extends ContextAssertion>, List<TrackedEventData>> lastValidEventMap;
-	private Map<Class<? extends ContextAssertion>, List<TrackedEventData>> lastValidDeducedMap;
-	private Set<FactHandle> deleteCache;
+	private final Map<Class<? extends ContextAssertion>, List<TrackedAssertionData>> lastValidEventMap;
+	private final Map<Class<? extends ContextAssertion>, List<TrackedAssertionData>> lastValidDeducedMap;
+	private final Set<FactHandle> deleteCache;
 	
 	private TrackedAssertionStore() {
-		lastValidEventMap = new HashMap<Class<? extends ContextAssertion>, List<TrackedEventData>>();
-		lastValidDeducedMap = new HashMap<Class<? extends ContextAssertion>, List<TrackedEventData>>();
-		
-		deleteCache = new HashSet<FactHandle>();
+		lastValidEventMap = new HashMap<>();
+		lastValidDeducedMap = new HashMap<>();
+		deleteCache = new HashSet<>();
 	}
 	
-	public static TrackedAssertionStore getNewInstance() {
+	static TrackedAssertionStore getNewInstance() {
 		//if (store == null) {
 		//	store = new TrackedAssertionStore();
 		//}
@@ -75,24 +83,32 @@ public class TrackedAssertionStore {
 		//return store;
 		return new TrackedAssertionStore();
 	}
-	
-	public TrackedEventData searchSensedAssertionByContent(ContextAssertion event) {
+
+	TrackedAssertionData searchTrackedAssertionByContent(ContextAssertion event) {
+	    TrackedAssertionData assertionData = searchSensedAssertionByContent(event);
+	    if (assertionData != null)
+	        return assertionData;
+	    else
+	        return searchDerivedAssertionByContent(event);
+    }
+
+	TrackedAssertionData searchSensedAssertionByContent(ContextAssertion event) {
 		synchronized (lastValidEventMap) {
 			return searchEventByContent(lastValidEventMap, event);
         }
 	}
 	
 	
-	public TrackedEventData searchDerivedAssertionByContent(ContextAssertion event) {
+	TrackedAssertionData searchDerivedAssertionByContent(ContextAssertion event) {
 		synchronized (lastValidDeducedMap) {
 			return searchEventByContent(lastValidDeducedMap, event);    
         }
 	}
 	
 	
-	private TrackedEventData searchEventByContent(Map<Class<? extends ContextAssertion>, List<TrackedEventData>> recencyMap, ContextAssertion event) {
-		List<TrackedEventData> trackedEventList = recencyMap.get(event.getClass());
-		for (TrackedEventData existingTrack : trackedEventList) {
+	private TrackedAssertionData searchEventByContent(Map<Class<? extends ContextAssertion>, List<TrackedAssertionData>> recencyMap, ContextAssertion event) {
+		List<TrackedAssertionData> trackedEventList = recencyMap.get(event.getClass());
+		for (TrackedAssertionData existingTrack : trackedEventList) {
 			ContextAssertion existingEvent = existingTrack.getExistingEvent();
 			
 			if (existingEvent.getContentHash() == event.getContentHash()) {
@@ -106,11 +122,12 @@ public class TrackedAssertionStore {
 	}
 	
 	
-	private TrackedEventData searchEventByHandle(Map<Class<? extends ContextAssertion>, List<TrackedEventData>> recencyMap, Class<? extends ContextAssertion> assertionType, 
-			FactHandle eventHandle) {
+	private TrackedAssertionData searchEventByHandle(Map<Class<? extends ContextAssertion>, List<TrackedAssertionData>> recencyMap,
+                                                     Class<? extends ContextAssertion> assertionType,
+													 FactHandle eventHandle) {
 		
-		List<TrackedEventData> trackedEventList = recencyMap.get(assertionType);
-		for (TrackedEventData existingTrack : trackedEventList) {
+		List<TrackedAssertionData> trackedEventList = recencyMap.get(assertionType);
+		for (TrackedAssertionData existingTrack : trackedEventList) {
 			FactHandle existingEventHandle = existingTrack.getExistingHandle();
 			
 			if (existingEventHandle.equals(eventHandle)) {
@@ -124,75 +141,138 @@ public class TrackedAssertionStore {
 	
 	
 	// ================================= SENSED ================================= 
-	public boolean tracksSensed(Class<? extends ContextAssertion> sensedAssertionType) {
+	boolean tracksSensed(Class<? extends ContextAssertion> sensedAssertionType) {
 		synchronized(lastValidEventMap) {
 			return lastValidEventMap.containsKey(sensedAssertionType);
 		}
     }
 
-	public void trackSensed(ContextAssertion event, FactHandle handle, EntryPoint entryPoint) {
+	void trackSensed(ContextAssertion event, FactHandle handle, EntryPoint entryPoint) {
 		synchronized(lastValidEventMap) {
-			List<TrackedEventData> eventList = lastValidEventMap.get(event.getClass());
+			List<TrackedAssertionData> eventList = lastValidEventMap.get(event.getClass());
 			if (eventList == null) {
-				eventList = new LinkedList<TrackedEventData>();
+				eventList = new LinkedList<TrackedAssertionData>();
 				lastValidEventMap.put(event.getClass(), eventList);
 			}
-		
-			eventList.add(new TrackedEventData(handle, entryPoint, event));
+
+			eventList.add(new TrackedAssertionData(handle, entryPoint, event));
 		}
 		
     }
 	
-	public void removeSensed(TrackedEventData existingEventData) {
+	boolean removeSensed(TrackedAssertionData existingEventData) {
 		synchronized(deleteCache) {
 			synchronized(lastValidEventMap) {
-				List<TrackedEventData> eventList = lastValidEventMap.get(existingEventData.getExistingEvent().getClass());
-				eventList.remove(existingEventData);
-				
+				List<TrackedAssertionData> eventList = lastValidEventMap.get(existingEventData.getExistingEvent().getClass());
+				boolean res = eventList.remove(existingEventData);
 				deleteCache.add(existingEventData.getExistingHandle());
+
+				return res;
 			}
 		}
     }
+
+    boolean removeSensed(ContextAssertion assertion) {
+        synchronized (deleteCache) {
+            synchronized (lastValidEventMap) {
+                TrackedAssertionData assertionData = searchSensedAssertionByContent(assertion);
+
+                if (assertionData != null) {
+                    List<TrackedAssertionData> eventList = lastValidEventMap.get(assertion.getClass());
+                    boolean res = eventList.remove(assertionData);
+                    deleteCache.add(assertionData.getExistingHandle());
+
+                    return res;
+                }
+
+                return false;
+            }
+        }
+	}
 	
 	// ================================= DERIVED ================================= 
-	public boolean tracksDerived(Class<? extends ContextAssertion> derivedAssertionType) {
+	boolean tracksDerived(Class<? extends ContextAssertion> derivedAssertionType) {
 		synchronized(lastValidDeducedMap) {
 			return lastValidDeducedMap.containsKey(derivedAssertionType);
 		}
     }
 	
-	public void trackDerived(ContextAssertion event, FactHandle handle, EntryPoint entryPoint) {
+	void trackDerived(ContextAssertion event, FactHandle handle, EntryPoint entryPoint) {
 		synchronized(lastValidDeducedMap) {
-			List<TrackedEventData> eventList = lastValidDeducedMap.get(event.getClass());
+			List<TrackedAssertionData> eventList = lastValidDeducedMap.get(event.getClass());
 			if (eventList == null) {
-				eventList = new LinkedList<TrackedEventData>();
+				eventList = new LinkedList<TrackedAssertionData>();
 				lastValidDeducedMap.put(event.getClass(), eventList);
 			}
 		
-			eventList.add(new TrackedEventData(handle, entryPoint, event));
+			eventList.add(new TrackedAssertionData(handle, entryPoint, event));
 		}
 		
     }
 	
-	public void removeDerived(TrackedEventData existingEventData) {
+	boolean removeDerived(TrackedAssertionData existingEventData) {
 		synchronized(deleteCache) {
 			synchronized(lastValidDeducedMap) {
-				List<TrackedEventData> eventList = lastValidDeducedMap.get(existingEventData.getExistingEvent().getClass());
-				eventList.remove(existingEventData);
-				
+				List<TrackedAssertionData> eventList = lastValidDeducedMap.get(existingEventData.getExistingEvent().getClass());
+				boolean res = eventList.remove(existingEventData);
 				deleteCache.add(existingEventData.getExistingHandle());
+
+				return res;
 			}
 		}
     }
 
-	public boolean untrack(FactHandle deletedHandle, ContextAssertion deletedAssertion) {
+    boolean removeDerived(ContextAssertion assertion) {
+        synchronized(deleteCache) {
+            synchronized(lastValidDeducedMap) {
+                TrackedAssertionData assertionData = searchDerivedAssertionByContent(assertion);
+                if (assertionData != null) {
+                    List<TrackedAssertionData> eventList = lastValidDeducedMap.get(assertionData.getExistingEvent().getClass());
+                    boolean res = eventList.remove(assertionData);
+                    deleteCache.add(assertionData.getExistingHandle());
+
+                    return res;
+                }
+
+                return false;
+            }
+        }
+	}
+
+
+	boolean remove(ContextAssertion assertion) {
+	    TrackedAssertionData assertionData = searchSensedAssertionByContent(assertion);
+	    if (assertionData != null) {
+	        return removeSensed(assertionData);
+        }
+        else {
+	        assertionData = searchDerivedAssertionByContent(assertion);
+	        if (assertionData != null) {
+	            return removeDerived(assertionData);
+            }
+        }
+
+        return false;
+    }
+
+    boolean remove(TrackedAssertionData assertionData) {
+        boolean res = removeSensed(assertionData);
+
+        if (res)
+            return true;
+        else
+            return removeDerived(assertionData);
+    }
+
+
+	boolean untrack(FactHandle deletedHandle, ContextAssertion deletedAssertion) {
 		synchronized(deleteCache) {
 			return deleteCache.remove(deletedHandle);
 		}
     }
 
-	public void markExpired(FactHandle deletedHandle, ContextAssertion deletedAssertion) {
-	    TrackedEventData eventData = null;
+	void markExpired(FactHandle deletedHandle, ContextAssertion deletedAssertion) {
+	    TrackedAssertionData eventData = null;
 		
 	    if (!deletedAssertion.isDerived()) {
 	    	synchronized (lastValidEventMap) {

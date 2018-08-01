@@ -1,11 +1,14 @@
 package org.aimas.consert.engine;
 
+import org.aimas.consert.engine.api.ContextAssertionListenerRegistrer;
+import org.aimas.consert.engine.api.EntityDescriptionListenerRegistrer;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.EntityDescription;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieSession;
 
-public abstract class BaseEventTracker implements RuleRuntimeEventListener {
+public abstract class BaseEventTracker implements RuleRuntimeEventListener,
+		ContextAssertionListenerRegistrer, EntityDescriptionListenerRegistrer {
 	
 	protected KieSession kSession;
 	
