@@ -1,19 +1,20 @@
 package org.aimas.consert.engine;
 
 import org.aimas.consert.engine.ContinuityChecker.ContinuityResult;
-import org.aimas.consert.engine.ConstraintChecker.ConstraintResult;
+import org.aimas.consert.engine.constraint.ConstraintChecker;
+import org.aimas.consert.engine.constraint.ConstraintChecker.ConstraintResult;
 import org.aimas.consert.engine.TrackedAssertionStore.TrackedAssertionData;
 import org.aimas.consert.engine.api.ContextAssertionListener;
 import org.aimas.consert.engine.api.ContextAssertionNotifier;
 import org.aimas.consert.engine.api.EntityDescriptionListener;
 import org.aimas.consert.engine.api.EntityDescriptionNotifier;
+import org.aimas.consert.engine.constraint.ConstraintResolutionService;
+import org.aimas.consert.engine.constraint.DefaultConstraintResolutionService;
+import org.aimas.consert.engine.constraint.UniquenessConflictDecision;
 import org.aimas.consert.model.annotations.AnnotationDataFactory;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
-import org.aimas.consert.model.constraint.IConstraintViolation;
 import org.aimas.consert.model.constraint.IUniquenessConstraintViolation;
-import org.aimas.consert.model.constraint.UniquenessConstraintViolation;
-import org.aimas.consert.model.constraint.ValueConstraintViolation;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.EntityDescription;
 import org.drools.core.common.EventFactHandle;
@@ -31,7 +32,7 @@ public class EventTracker extends BaseEventTracker {
 
     public static final String CONSTRAINT_STORE = "ConstraintStore";
 
-	private TrackedAssertionStore trackedAssertionStore = TrackedAssertionStore.getNewInstance();
+
 	
 	private AnnotationDataFactory annotationFactory = new DefaultAnnotationDataFactory();
 	
@@ -59,6 +60,7 @@ public class EventTracker extends BaseEventTracker {
 		constraintChecker = new ConstraintChecker(kSession);
 		constraintResolutionService = new DefaultConstraintResolutionService();
 	}
+
 
 	/**
 	 * Insert an EntityDescription (a fact)
@@ -154,10 +156,6 @@ public class EventTracker extends BaseEventTracker {
     		//}
     	}
     	else {
-    		// execute insertion in regular stream
-    		// save handle in case we need to insert it in the lastValidEventMap
-    		final FactHandle newEventHandle = kSession.getEntryPoint(eventStream).insert(newAssertion);
-
     		// afterwards, do the all continuity verification steps as an atomic action
     		kSession.submit(new KieSession.AtomicAction() {
 				
@@ -187,27 +185,27 @@ public class EventTracker extends BaseEventTracker {
                             // No constraints found, so update update kSession and trackedAssertionStore,
                             // remove existing ContextAssertion
                             existingAssertionEntry.delete(continuityResult.getExistingAssertionHandle());
-
-                            trackedAssertionStore.removeSensed(existingAssertionData);
-                            trackedAssertionStore.trackSensed(continuityResult.getExtendedAssertion(),
-                                    extendedAssertionHandle,
-                                    kSession.getEntryPoint(continuityResult.getExtendedEventStream()));
+                            trackedAssertionStore.updateTrackedAssertion(existingAssertionData,
+                                    continuityResult.getExtendedAssertion(), extendedAssertionHandle, false);
                         }
                     }
                     else {
                         // if NO annotation continuity (either because of timestamp or confidence)
                         if (newAssertion.getAnnotations().allowsAnnotationInsertion()) {
+                            // execute insertion in regular stream
+                            // save handle in case we need to insert it in the lastValidEventMap
+                            final FactHandle newEventHandle = kSession.getEntryPoint(eventStream).insert(newAssertion);
+
                             // TODO: perform constraint check
 
                             // if allowed by confidence allowed, set the new event as the most recently valid one
                             TrackedAssertionData existingAssertionData = continuityResult.getTrackedAssertionData(kSession);
-
                             if (existingAssertionData != null) {
-                                trackedAssertionStore.removeSensed(existingAssertionData);
-                                trackedAssertionStore.trackSensed(newAssertion, newEventHandle, kSession.getEntryPoint(eventStream));
+                                trackedAssertionStore.updateTrackedAssertion(existingAssertionData, newAssertion, newEventHandle, false);
                             }
                             else {
                                 System.out.println("CONTENT MISMATCH - NO TRACKED DATA FOR non-extended new Assertion: " + newAssertion);
+
                                 // add it to the list of monitored events for this type
                                 trackedAssertionStore.trackSensed(newAssertion, newEventHandle, kSession.getEntryPoint(eventStream));
                             }
@@ -285,6 +283,8 @@ public class EventTracker extends BaseEventTracker {
     		// go through with insertion in the map
     		FactHandle handle = kSession.getEntryPoint(derivedEventStream).insert(newAssertion);
     		trackedAssertionStore.trackDerived(newAssertion, handle, kSession.getEntryPoint(derivedEventStream));
+
+    		// TODO: constraint check
     	}
     	else {
     		// do the overlap verification steps as an atomic action
@@ -316,16 +316,15 @@ public class EventTracker extends BaseEventTracker {
                             // remove existing ContextAssertion
                             if (continuityResult.getExistingAssertionHandle() != null)
                                 existingAssertionEntry.delete(continuityResult.getExistingAssertionHandle());
-                            trackedAssertionStore.removeDerived(existingAssertionData);
 
-                            trackedAssertionStore.trackDerived(continuityResult.getExtendedAssertion(), extendedAssertionHandle,
-                                    kSession.getEntryPoint(continuityResult.getExtendedEventStream()));
+                            trackedAssertionStore.updateTrackedAssertion(existingAssertionData,
+                                    continuityResult.getExtendedAssertion(), extendedAssertionHandle, true);
                         }
                     }
                     else {
                         if (continuityResult.getExistingAssertion() != null) {
                             // The newly derived event has to make it to the KnowledgeBase, so we perform the insert here
-                            FactHandle derivedEventHandle = kSession.getEntryPoint(derivedEventStream).insert(newAssertion);
+                            FactHandle newAssertionHandle = kSession.getEntryPoint(derivedEventStream).insert(newAssertion);
 
                             ConstraintResult constraintResult =
                                     constraintChecker.check(continuityResult.getExtendedAssertion());
@@ -334,14 +333,13 @@ public class EventTracker extends BaseEventTracker {
                                 System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
                                         + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
 
-                                resolveConflict(constraintResult, newAssertion, derivedEventHandle, false);
+                                resolveConflict(constraintResult, newAssertion, newAssertionHandle, false);
                             }
                             else {
                                 // if it is not overlapped, and there are no violated
                                 // constraints then it means it just has to replace the existing event in the lastValidDeducedMap
-                                trackedAssertionStore.removeDerived(continuityResult.getTrackedAssertionData(kSession));
-                                trackedAssertionStore.trackDerived(newAssertion, derivedEventHandle,
-                                        kSession.getEntryPoint(derivedEventStream));
+                                trackedAssertionStore.updateTrackedAssertion(continuityResult.getTrackedAssertionData(kSession),
+                                        newAssertion, newAssertionHandle, true);
                             }
                         }
                         else {
@@ -361,6 +359,10 @@ public class EventTracker extends BaseEventTracker {
     ///////////////////////////////////////////// CONFLICT MANAGEMENT //////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private void applyUniquenessConflictDecision(UniquenessConflictDecision decision, boolean existingAssertion) {
+
+    }
+
     private void resolveConflict(ConstraintResult constraintResult, ContextAssertion assertion,
                                  FactHandle assertionHandle, boolean sensedInsertion) {
 
@@ -377,7 +379,7 @@ public class EventTracker extends BaseEventTracker {
             UniquenessConflictDecision decision = constraintResolutionService.resolveConflict(ucv);
 
             if (!decision.keepNewAssertion()) {
-                // remove the extended assertion it from the entry point
+                // remove the extended assertion from the entry point
                 kSession.getEntryPoint(assertion.getStreamName()).delete(assertionHandle);
             }
             else {
