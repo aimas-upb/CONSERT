@@ -165,7 +165,7 @@ public class ConstraintChecker {
                 ContextAssertion existingAssertion = (ContextAssertion)res.get("existingAssertion");
 
                 UniquenessConstraintViolation ucv = new UniquenessConstraintViolation(
-                        q.getName(), (String)q.getMetaData().get("conditionType"), existingAssertion, contextAssertion);
+                        q.getName(), conditionType, existingAssertion, contextAssertion);
                 result.setUniquenessViolation(ucv);
             }
         }

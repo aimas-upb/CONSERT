@@ -3,10 +3,12 @@ package org.aimas.consert.engine;
 import java.util.*;
 
 import org.aimas.consert.model.content.ContextAssertion;
+import org.drools.core.factmodel.Fact;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
-class TrackedAssertionStore {
+public class TrackedAssertionStore {
 	
 	public static class TrackedAssertionData {
 		private FactHandle existingHandle;
@@ -61,27 +63,25 @@ class TrackedAssertionStore {
             return Objects.hash(existingHandle, existingEvent);
         }
     }
-	
-	
-	private static TrackedAssertionStore store = null;
+
 	
 	private final Map<Class<? extends ContextAssertion>, List<TrackedAssertionData>> lastValidEventMap;
+
 	private final Map<Class<? extends ContextAssertion>, List<TrackedAssertionData>> lastValidDeducedMap;
 	private final Set<FactHandle> deleteCache;
-	
-	private TrackedAssertionStore() {
+
+	private KieSession kSession;
+
+	private TrackedAssertionStore(KieSession kSession) {
 		lastValidEventMap = new HashMap<>();
 		lastValidDeducedMap = new HashMap<>();
 		deleteCache = new HashSet<>();
+
+		this.kSession = kSession;
 	}
 	
-	static TrackedAssertionStore getNewInstance() {
-		//if (store == null) {
-		//	store = new TrackedAssertionStore();
-		//}
-		
-		//return store;
-		return new TrackedAssertionStore();
+	static TrackedAssertionStore getNewInstance(KieSession kSession) {
+		return new TrackedAssertionStore(kSession);
 	}
 
 	TrackedAssertionData searchTrackedAssertionByContent(ContextAssertion event) {
@@ -97,14 +97,14 @@ class TrackedAssertionStore {
 			return searchEventByContent(lastValidEventMap, event);
         }
 	}
-	
-	
+
+
 	TrackedAssertionData searchDerivedAssertionByContent(ContextAssertion event) {
 		synchronized (lastValidDeducedMap) {
-			return searchEventByContent(lastValidDeducedMap, event);    
+			return searchEventByContent(lastValidDeducedMap, event);
         }
 	}
-	
+
 	
 	private TrackedAssertionData searchEventByContent(Map<Class<? extends ContextAssertion>, List<TrackedAssertionData>> recencyMap, ContextAssertion event) {
 		List<TrackedAssertionData> trackedEventList = recencyMap.get(event.getClass());
@@ -138,16 +138,29 @@ class TrackedAssertionStore {
 		
 		return null;
 	}
-	
-	
+
+
+	void updateTrackedAssertion(TrackedAssertionData oldData, ContextAssertion newAssertion,
+                                FactHandle newAssertionHandle, boolean derived) {
+        if (!derived) {
+            removeSensed(oldData);
+            trackSensed(newAssertion, newAssertionHandle, kSession.getEntryPoint(newAssertion.getStreamName()));
+        }
+        else {
+            removeDerived(oldData);
+            trackDerived(newAssertion, newAssertionHandle, kSession.getEntryPoint(newAssertion.getStreamName()));
+        }
+    }
+
+
 	// ================================= SENSED ================================= 
-	boolean tracksSensed(Class<? extends ContextAssertion> sensedAssertionType) {
+	public boolean tracksSensed(Class<? extends ContextAssertion> sensedAssertionType) {
 		synchronized(lastValidEventMap) {
 			return lastValidEventMap.containsKey(sensedAssertionType);
 		}
     }
 
-	void trackSensed(ContextAssertion event, FactHandle handle, EntryPoint entryPoint) {
+	public void trackSensed(ContextAssertion event, FactHandle handle, EntryPoint entryPoint) {
 		synchronized(lastValidEventMap) {
 			List<TrackedAssertionData> eventList = lastValidEventMap.get(event.getClass());
 			if (eventList == null) {
@@ -191,13 +204,13 @@ class TrackedAssertionStore {
 	}
 	
 	// ================================= DERIVED ================================= 
-	boolean tracksDerived(Class<? extends ContextAssertion> derivedAssertionType) {
+	public boolean tracksDerived(Class<? extends ContextAssertion> derivedAssertionType) {
 		synchronized(lastValidDeducedMap) {
 			return lastValidDeducedMap.containsKey(derivedAssertionType);
 		}
     }
 	
-	void trackDerived(ContextAssertion event, FactHandle handle, EntryPoint entryPoint) {
+	public void trackDerived(ContextAssertion event, FactHandle handle, EntryPoint entryPoint) {
 		synchronized(lastValidDeducedMap) {
 			List<TrackedAssertionData> eventList = lastValidDeducedMap.get(event.getClass());
 			if (eventList == null) {
@@ -240,7 +253,7 @@ class TrackedAssertionStore {
 	}
 
 
-	boolean remove(ContextAssertion assertion) {
+	public boolean remove(ContextAssertion assertion) {
 	    TrackedAssertionData assertionData = searchSensedAssertionByContent(assertion);
 	    if (assertionData != null) {
 	        return removeSensed(assertionData);
@@ -255,7 +268,7 @@ class TrackedAssertionStore {
         return false;
     }
 
-    boolean remove(TrackedAssertionData assertionData) {
+    public boolean remove(TrackedAssertionData assertionData) {
         boolean res = removeSensed(assertionData);
 
         if (res)
@@ -265,7 +278,7 @@ class TrackedAssertionStore {
     }
 
 
-	boolean untrack(FactHandle deletedHandle, ContextAssertion deletedAssertion) {
+	public boolean untrack(FactHandle deletedHandle, ContextAssertion deletedAssertion) {
 		synchronized(deleteCache) {
 			return deleteCache.remove(deletedHandle);
 		}
