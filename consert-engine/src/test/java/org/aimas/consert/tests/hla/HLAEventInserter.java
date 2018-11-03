@@ -109,7 +109,7 @@ public class HLAEventInserter {
 		public void run() {
 			// filter by event instance type to see on which stream to insert
 			event.setProcessingTimeStamp(System.currentTimeMillis());
-			eventTracker.insertAtomicEvent(event);
+			eventTracker.insertEvent(event);
 			
 //			if (event instanceof Position) {
 //				EntryPoint positionStream = kSession.getEntryPoint(POSITION_ENTRYPOINT);

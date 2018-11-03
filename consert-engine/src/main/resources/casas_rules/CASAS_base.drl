@@ -102,7 +102,7 @@ rule "ItemInsertTest"
         //long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         //Item item = new Item(id, status, ann);
-        // eventTracker.insertAtomicEvent(item);
+        // eventTracker.insertEvent(item);
 end
 
 rule "CabinetInsertTest"

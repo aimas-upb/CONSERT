@@ -53,7 +53,7 @@ rule "Phone call"
         AnnotationData ann = new DefaultAnnotationData(ts);
         PhoneCall phoneCall = new PhoneCall(ann);
 
-        eventTracker.insertAtomicEvent(phoneCall);
+        eventTracker.insertEvent(phoneCall);
 end
 
 

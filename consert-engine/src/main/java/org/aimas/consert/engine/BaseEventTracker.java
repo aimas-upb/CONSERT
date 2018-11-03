@@ -11,10 +11,13 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 		ContextAssertionListenerRegistrer, EntityDescriptionListenerRegistrer {
 	
 	protected KieSession kSession;
+    protected TrackedAssertionStore trackedAssertionStore;
 	
 	protected BaseEventTracker(KieSession kSession) {
 		this.kSession = kSession;
 		kSession.addEventListener(this);
+
+        trackedAssertionStore = TrackedAssertionStore.getNewInstance(kSession);
 	}
 	
 	/*
@@ -28,11 +31,21 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 		return null;
 	}
 	*/
-	
+
+	public KieSession getKnowledgeSession() {
+		return kSession;
+	}
+
+	public TrackedAssertionStore getTrackedAssertionStore() {
+	    return trackedAssertionStore;
+    }
+
 	public long getCurrentTime() {
 		return kSession.getSessionClock().getCurrentTime();
 	}
-	
+
+
+
 	public abstract void insertStaticEvent(EntityDescription entityDescription);
 	
 	public abstract void deleteStaticEvent(EntityDescription entityDescription);
@@ -43,5 +56,5 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 	
 	public abstract void insertDerivedEvent(ContextAssertion event);
 	
-	public abstract void insertAtomicEvent(ContextAssertion event);	
+	public abstract void insertEvent(ContextAssertion event);
 }

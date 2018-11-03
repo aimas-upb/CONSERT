@@ -115,7 +115,7 @@ rule "Preparing Soup"
        AnnotationData ann = new DefaultAnnotationData(ts);
        PreparingSoup preparingSoup = new PreparingSoup(ann);
 
-       eventTracker.insertAtomicEvent(preparingSoup);
+       eventTracker.insertEvent(preparingSoup);
 end
 
 

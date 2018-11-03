@@ -7,7 +7,7 @@ import org.aimas.consert.tests.hla.entities.Person;
 
 
 /*
- *   Class for modeling a dining  high level activity
+ *   ReplaceAssertionOperation for modeling a dining  high level activity
 */
 public class DiningHLA extends HLA {
 

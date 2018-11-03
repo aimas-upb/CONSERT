@@ -87,7 +87,7 @@ rule "handling food"
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
 	    HandlingFood handlingFood = new HandlingFood(ann);
 	    
-	    eventTracker.insertAtomicEvent(handlingFood);
+	    eventTracker.insertEvent(handlingFood);
 end
 
 /*
@@ -105,7 +105,7 @@ then
     DefaultAnnotationData ann = new DefaultAnnotationData(ts, foodAnn.getConfidence());
     PreparingFood prepFood = new PreparingFood(ann);
     
-    eventTracker.insertAtomicEvent(prepFood);
+    eventTracker.insertEvent(prepFood);
 */  
 
  
@@ -121,7 +121,7 @@ rule "heating food using burner"
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
 	    HeatingFood heatingFood = new HeatingFood(ann);
 	    
-	    eventTracker.insertAtomicEvent(heatingFood);
+	    eventTracker.insertEvent(heatingFood);
 end    
 
 

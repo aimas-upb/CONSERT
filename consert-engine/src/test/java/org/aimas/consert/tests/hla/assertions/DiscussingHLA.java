@@ -6,7 +6,7 @@ import org.aimas.consert.tests.hla.entities.HLAType;
 import org.aimas.consert.tests.hla.entities.Person;
 
 /*
- * Class for modeling a discussing  high level activity 
+ * ReplaceAssertionOperation for modeling a discussing  high level activity
 */
 public class DiscussingHLA extends HLA {
     public DiscussingHLA() {

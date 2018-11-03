@@ -1,4 +1,4 @@
-package org.aimas.consert.model.constraint.operations;
+package org.aimas.consert.engine.constraint.operations;
 
 
 public interface IResolutionOperation {

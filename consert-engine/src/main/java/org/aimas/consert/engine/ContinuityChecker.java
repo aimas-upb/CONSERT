@@ -91,17 +91,8 @@ public class ContinuityChecker {
     }
 
     public ContinuityResult check(ContextAssertion newAssertion) {
-        if (newAssertion.isAtomic()) {
-            return checkAtomic(newAssertion);
-        }
-        else {
-            return checkExtended(newAssertion);
-        }
-    }
-
-    private ContinuityResult checkAtomic(ContextAssertion newAssertion) {
         // check to see if the newAssertion matches one of the previous stored events by content
-        TrackedAssertionData existingAssertionData = trackedAssertionStore.searchSensedAssertionByContent(newAssertion);
+        TrackedAssertionData existingAssertionData = trackedAssertionStore.searchTrackedAssertionByContent(newAssertion);
 
         if (existingAssertionData != null) {
             // if it DOES match any monitored event by content
@@ -128,35 +119,4 @@ public class ContinuityChecker {
             return new ContinuityResult(false, null, null, null);
         }
     }
-
-    private ContinuityResult checkExtended(ContextAssertion newAssertion) {
-        // check to see if the newAssertion matches one of the previous stored events by content
-        TrackedAssertionData existingAssertionData = trackedAssertionStore.searchDerivedAssertionByContent(newAssertion);
-
-        if (existingAssertionData != null) {
-            // if it DOES match any monitored event by content
-            FactHandle existingAssertionHandle = existingAssertionData.getExistingHandle();
-            ContextAssertion existingAssertion = existingAssertionData.getExistingEvent();
-
-            if (existingAssertion.intersects(newAssertion)) {
-                // if the event allows continuity, create a content clone of the existing assertion
-                // and update its annotations
-                ContextAssertion extendedAssertion = existingAssertion.cloneContent();
-
-                AnnotationData extendedAnnotations = existingAssertion.getAnnotations()
-                        .applyExtensionOperator(newAssertion.getAnnotations());
-                extendedAssertion.setAnnotations(extendedAnnotations);
-
-                return new ContinuityResult(true, existingAssertion, existingAssertionHandle, extendedAssertion);
-            } else {
-                // if NO annotation continuity (because of no intersection)
-                System.out.println("NO ANNOTATION EXTENSION FOUND for existing event: " + existingAssertion + ", new event: " + newAssertion);
-                return new ContinuityResult(false, existingAssertion, existingAssertionHandle, null);
-            }
-        }
-        else {
-            return new ContinuityResult(false, null, null, null);
-        }
-    }
-
 }

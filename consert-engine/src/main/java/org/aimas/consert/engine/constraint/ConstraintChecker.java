@@ -1,7 +1,9 @@
-package org.aimas.consert.engine;
+package org.aimas.consert.engine.constraint;
 
 import org.aimas.consert.model.constraint.*;
 import org.aimas.consert.model.content.ContextAssertion;
+import org.drools.core.QueryResultsImpl;
+import org.drools.core.QueryResultsRowImpl;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.kie.api.definition.rule.Query;
 import org.kie.api.runtime.KieSession;
@@ -28,34 +30,30 @@ public class ConstraintChecker {
             this.evaluatedAssertion = evaluatedAssertion;
         }
 
-        boolean isClear() {
+       public boolean isClear() {
             return valueViolations.isEmpty() && uniquenessViolations.isEmpty() && generalViolations.isEmpty();
         }
 
-        void addViolation(IValueConstraintViolation violation) {
+        public void addViolation(IValueConstraintViolation violation) {
             valueViolations.add(violation);
         }
 
-//        void addViolation(IUniquenessConstraintViolation violation) {
-//            uniquenessViolations.add(violation);
-//        }
-
-        void setUniquenessViolation(IUniquenessConstraintViolation violation) {
+        public void setUniquenessViolation(IUniquenessConstraintViolation violation) {
             if (uniquenessViolations.isEmpty()) {
                 uniquenessViolations.add(violation);
             }
         }
 
-        void addViolation(IGeneralConstraintViolation violation) {
+        public void addViolation(IGeneralConstraintViolation violation) {
             generalViolations.add(violation);
         }
 
-        List<IValueConstraintViolation> getValueViolations() {
+        public List<IValueConstraintViolation> getValueViolations() {
             return valueViolations;
         }
 
         // List<IUniquenessConstraintViolation> getUniquenessViolations() { return uniquenessViolations; }
-        IUniquenessConstraintViolation getUniquenessViolation() {
+        public IUniquenessConstraintViolation getUniquenessViolation() {
             if (uniquenessViolations.isEmpty())
                 return null;
 
@@ -63,9 +61,9 @@ public class ConstraintChecker {
         }
 
 
-        List<IGeneralConstraintViolation> getGeneralViolations() { return generalViolations; }
+        public List<IGeneralConstraintViolation> getGeneralViolations() { return generalViolations; }
 
-        List<IConstraintViolation> getAllViolations() {
+        public List<IConstraintViolation> getAllViolations() {
 
             List<IConstraintViolation> allViolations = new LinkedList<>();
             if (!isClear()) {
@@ -77,15 +75,15 @@ public class ConstraintChecker {
             return allViolations;
         }
 
-        boolean hasValueViolations() {
+        public boolean hasValueViolations() {
             return !valueViolations.isEmpty();
         }
 
-        boolean hasUniquenessViolations() {
+        public boolean hasUniquenessViolations() {
             return !uniquenessViolations.isEmpty();
         }
 
-        boolean hasGeneralViolations() {
+        public boolean hasGeneralViolations() {
             return !generalViolations.isEmpty();
         }
 
@@ -112,20 +110,6 @@ public class ConstraintChecker {
 
 
     public ConstraintResult check(ContextAssertion contextAssertion) {
-//        AgendaFilter filter = new AgendaFilter() {
-//
-//            @Override
-//            public boolean accept(Match match) {
-//                Object assertionType = match.getRule().getMetaData().get(ASSERTION_TYPE);
-//                if (assertionType != null)
-//                    return assertionType.equals(contextAssertionType);
-//
-//                return false;
-//            }
-//        };
-//
-//        kSession.getAgenda().getAgendaGroup("constraint").setFocus();
-//
 //        KieServices ks = KieServices.Factory.get();
 //        KieRepository kr = ks.getRepository();
 //        KieFileSystem kfs = ks.newKieFileSystem();
@@ -152,6 +136,7 @@ public class ConstraintChecker {
         for (Query q : constraintQueries) {
             String conditionType = q.getMetaData().get("conditionType").toString();
             QueryResults constraintResults = ((StatefulKnowledgeSessionImpl)kSession).getQueryResultsFromRHS(q.getName(), contextAssertion);
+
 
             System.out.println("QUERY RESULTS RETRIEVED");
 

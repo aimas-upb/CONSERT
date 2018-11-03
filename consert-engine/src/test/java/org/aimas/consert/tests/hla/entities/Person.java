@@ -9,7 +9,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /*
- * Class for modeling a Person.
+ * ReplaceAssertionOperation for modeling a Person.
  */
 
 @RDFNamespaces({

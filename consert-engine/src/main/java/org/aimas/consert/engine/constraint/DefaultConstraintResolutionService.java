@@ -1,4 +1,4 @@
-package org.aimas.consert.engine;
+package org.aimas.consert.engine.constraint;
 
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.constraint.*;
@@ -15,6 +15,12 @@ public class DefaultConstraintResolutionService implements ConstraintResolutionS
 
     static class DeleteNewDecision implements UniquenessConflictDecision {
 
+        private ContextAssertion existingAssertion;
+
+        public DeleteNewDecision(ContextAssertion existingAssertion) {
+            this.existingAssertion = existingAssertion;
+        }
+
         @Override
         public boolean keepExistingAssertion() {
             return true;
@@ -28,7 +34,7 @@ public class DefaultConstraintResolutionService implements ConstraintResolutionS
 
         @Override
         public ContextAssertion getRectifiedExistingAssertion() {
-            return null;
+            return existingAssertion;
         }
 
 
@@ -41,6 +47,12 @@ public class DefaultConstraintResolutionService implements ConstraintResolutionS
 
     static class DeleteExistingDecision implements UniquenessConflictDecision {
 
+        private ContextAssertion newAssertion;
+
+        public DeleteExistingDecision(ContextAssertion newAssertion) {
+            this.newAssertion = newAssertion;
+        }
+
         @Override
         public boolean keepExistingAssertion() {
             return false;
@@ -60,7 +72,7 @@ public class DefaultConstraintResolutionService implements ConstraintResolutionS
 
         @Override
         public ContextAssertion getRectifiedNewAssertion() {
-            return null;
+            return newAssertion;
         }
     }
 
@@ -146,13 +158,13 @@ public class DefaultConstraintResolutionService implements ConstraintResolutionS
                 // new assertion and the amount of time by which the existing one.
                 // In the default case, we just recommend deleting the included assertion altogether
 
-                return new DeleteNewDecision();
+                return new DeleteNewDecision(existingAssertion);
             }
             else {
                 // If both assertions have the same end time, remove the included assertion if its duration is less
                 // than 3000 ms, otherwise, apply the "cut both" logic
                 if (newAssertionAnn.getDuration() <= 3000)
-                    return new DeleteNewDecision();
+                    return new DeleteNewDecision(existingAssertion);
                 else
                     return new CutBothDecision(existingAssertion, newAssertion);
             }
@@ -165,16 +177,17 @@ public class DefaultConstraintResolutionService implements ConstraintResolutionS
                 // If the existing Assertion is completely included in the new one, judge by the length of the
                 // existing assertion.
                 // In the default case, we just recommend deleting the included assertion altogether
-
-                return new DeleteExistingDecision();
+                return new DeleteExistingDecision(newAssertion);
             }
             else {
                 // If both assertions have the same end time, remove the included assertion if its duration is less
                 // than 3000 ms, otherwise, apply the "cut both" logic
-                if (existingAssertionAnn.getDuration() <= 3000)
-                    return new DeleteExistingDecision();
-                else
+                if (existingAssertionAnn.getDuration() <= 3000) {
+                    return new DeleteExistingDecision(newAssertion);
+                }
+                else {
                     return new CutBothDecision(existingAssertion, newAssertion);
+                }
             }
         }
         else if (violation.getConditionType().equals(OVERLAP_UNIQUENESS_CONDITION)) {

@@ -7,7 +7,7 @@ import org.aimas.consert.tests.hla.entities.Person;
 
 
 /*
- *   Class for modeling an exercise  high level activity
+ *   ReplaceAssertionOperation for modeling an exercise  high level activity
 */
 public class ExerciseHLA extends HLA {
     

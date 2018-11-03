@@ -8,7 +8,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 
 /*
- * Class for modeling a sitting  low level activity
+ * ReplaceAssertionOperation for modeling a sitting  low level activity
 */
 @RDFNamespaces("hlatest = http://example.org/hlatest/")
 @RDFBean("hlatest:SittingLLA")

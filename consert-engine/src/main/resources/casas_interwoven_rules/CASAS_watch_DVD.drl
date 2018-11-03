@@ -53,7 +53,7 @@ rule "Watching DVD"
        AnnotationData ann = new DefaultAnnotationData(ts);
        WatchDVD watch = new WatchDVD(ann);
 
-       eventTracker.insertAtomicEvent(watch);
+       eventTracker.insertEvent(watch);
 end
 
 

@@ -124,7 +124,7 @@ public class TestInserter {
 		public void run() {
 			// filter by event instance type to see on which stream to insert
 			
-			eventTracker.insertAtomicEvent(event);
+			eventTracker.insertEvent(event);
 			
 //			if (event instanceof Position) {
 //				EntryPoint positionStream = kSession.getEntryPoint(POSITION_ENTRYPOINT);

@@ -1,4 +1,4 @@
-package org.aimas.consert.engine;
+package org.aimas.consert.engine.constraint;
 
 import org.aimas.consert.model.content.ContextAssertion;
 

@@ -5,7 +5,7 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 
 /*
- * Class for modeling annotations information and metadata
+ * ReplaceAssertionOperation for modeling annotations information and metadata
  * when an atomic event arrives.
  */
 
@@ -207,14 +207,24 @@ public class DefaultAnnotationData implements AnnotationData {
 	@Override
 	public boolean allowsAnnotationContinuity(AnnotationData annotationData) {
 		DefaultAnnotationData otherAnnotations = (DefaultAnnotationData)annotationData;
-		
-    	// check timestamp continuity
-    	if (!AnnotationUtils.allowsTimestampContinuity(
-    			getEndTime().getTime(), 
-    			otherAnnotations.getStartTime().getTime(), 
-    			TIMESTAMP_DIFF_THRESHOLD)) 
-    		return false;
-    		
+
+		if (otherAnnotations.getDuration() == 0) {
+            // we perform a continuity check, where the newAssertion is an atomic one
+            // therefore, we need to verify timestamp annotation
+            if (!AnnotationUtils.allowsTimestampContinuity(
+                    getEndTime().getTime(),
+                    otherAnnotations.getStartTime().getTime(),
+                    TIMESTAMP_DIFF_THRESHOLD))
+                return false;
+        }
+        else {
+		    // for a continuity check where the newAssertion is an extended one, we consider
+            // annotation continuity if there is overlap with an existing one
+            if (!AnnotationUtils.intersects(this, otherAnnotations))
+                return false;
+        }
+
+        // Finally, in both cases, confidence continuity has to be ensured
     	// check confidence continuity
     	if (!AnnotationUtils.allowsConfidenceContinuity(
     			otherAnnotations.getConfidence(), 

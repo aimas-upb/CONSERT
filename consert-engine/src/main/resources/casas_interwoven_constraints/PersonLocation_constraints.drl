@@ -18,15 +18,28 @@ query "PersonLocation_overlaps_constraint" (PersonLocation locationAssertion)
         this annOverlaps newAssertion) from entry-point "ExtendedPersonLocationStream"
 end
 
-query "PersonLocation_includes_constraint" (PersonLocation locationAssertion)
+query "PersonLocation_isIncluded_constraint" (PersonLocation locationAssertion)
     @constraintType("uniqueness")
-    @conditionType("include")
+    @conditionType("isIncluded")
     @assertionType(PersonLocation)
 
     newAssertion : PersonLocation(this == locationAssertion, newLocName : location) from entry-point "ExtendedPersonLocationStream"
     existingAssertion : PersonLocation(this != locationAssertion, location != newLocName,
         this annIncludes newAssertion) from entry-point "ExtendedPersonLocationStream"
 end
+
+
+query "PersonLocation_includes_constraint" (PersonLocation locationAssertion)
+    @constraintType("uniqueness")
+    @conditionType("includes")
+    @assertionType(PersonLocation)
+
+    newAssertion : PersonLocation(this == locationAssertion, newLocName : location) from entry-point "ExtendedPersonLocationStream"
+    existingAssertion : PersonLocation(this != locationAssertion, location != newLocName,
+        newAssertion annIncludes this) from entry-point "ExtendedPersonLocationStream"
+end
+
+
 
 /*
 rule "PersonLocation_overlaps_constraint"
