@@ -30,7 +30,7 @@ import org.kie.internal.builder.conf.EvaluatorOption;
 
 public class CASASTestInterweavedSingle extends TestSetup {
 
-	public static final String PERSON = "p22";
+	public static final String PERSON = "p29";
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
 	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";
@@ -93,7 +93,12 @@ public class CASASTestInterweavedSingle extends TestSetup {
 
 		//kSession.setGlobal("assertionLogger", assertionLogger);
 
-
+		System.out.println("Access to event MetaData: ");
+		System.out.println(kSession.getKieBase().getFactType("org.aimas.consert.tests.casas.assertions", "PersonLocation"));
+		
+		System.exit(0);
+		
+		
 		// set up engine runner thread and event inserter
     	Thread engineRunner = new Thread(new EngineRunner(kSession));
     	File inputFile = getFileNameFromResources(filepath);

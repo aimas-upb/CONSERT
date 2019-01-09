@@ -48,7 +48,7 @@ public class CASASTestSingle extends TestSetup {
 //	public static final String TASK = "t4";
 //	public static final String TEST_FILE = "files/casas_adlnormal/" + PERSON + "." + TASK + ".json";
 	
-	public static final String PERSON = "23";
+	public static final String PERSON = "24";
 	public static final String TASK = "data-single";
 	public static final String TEST_FILE = "files/casas_adlnormal_singles/" + TASK + "-" + PERSON + ".json";
 
