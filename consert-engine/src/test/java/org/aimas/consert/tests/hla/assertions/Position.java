@@ -2,6 +2,7 @@ package org.aimas.consert.tests.hla.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.hla.entities.Area;
 import org.aimas.consert.tests.hla.entities.Person;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -9,7 +10,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
 
 /*
- *Class for modeling a positioning event
+ *ReplaceAssertionOperation for modeling a positioning event
 */
 @RDFNamespaces("hlatest = http://example.org/hlatest/")
 @RDFBean("hlatest:Position")
@@ -28,6 +29,11 @@ public class Position extends BinaryContextAssertion {
     Area type;                      /* Positioning type*/
 
     public Position() {
+    }
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new Position(person, type, null);
     }
 
     public Position(Person person, Area type, AnnotationData annotations) {

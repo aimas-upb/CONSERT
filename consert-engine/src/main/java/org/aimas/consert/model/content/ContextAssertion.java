@@ -5,6 +5,7 @@ import java.util.Map;
 import org.aimas.consert.model.Constants;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
@@ -20,8 +21,9 @@ public abstract class ContextAssertion {
 	private static int assertionCounter = 1;
 	
 	protected String assertionIdentifier = Constants.CORE_NS + "assertion-" + (assertionCounter++);
-	
-	/* ================== ContextAssertion characterization ================== */
+
+
+    /* ================== ContextAssertion characterization ================== */
 	public enum AcquisitionType {
 		DERIVED,
 		PROFILED,
@@ -44,7 +46,9 @@ public abstract class ContextAssertion {
 	
 	/* ================== ContextAssertion content ================== */
 	protected abstract Map<String, ContextEntity> getEntities();
-	
+
+    public abstract ContextAssertion cloneContent();
+
 	@RDFSubject
 	public String getAssertionIdentifier() {
 		return assertionIdentifier;
@@ -230,7 +234,8 @@ public abstract class ContextAssertion {
 	public boolean intersects(ContextAssertion event) {
 	    return AnnotationUtils.intersects(getAnnotations(), event.getAnnotations());
 	}
-	
+
+
 	@Override
 	public String toString() {
 		String str = getClass().getSimpleName() + "[";

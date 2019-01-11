@@ -51,7 +51,7 @@ rule "Cleaning"
        AnnotationData ann = new DefaultAnnotationData(ts);
        Cleaning cleaning = new Cleaning(ann);
 
-       eventTracker.insertAtomicEvent(cleaning);
+       eventTracker.insertEvent(cleaning);
 end
 
 

@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class FillingDispenser  extends BinaryContextAssertion {
@@ -12,6 +13,12 @@ public class FillingDispenser  extends BinaryContextAssertion {
     String status;
 
     public FillingDispenser() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new FillingDispenser(null);
+    }
+
     public FillingDispenser(AnnotationData annotations) {
         super(new StringLiteral("FillingDispenser"),new StringLiteral("FillingDispenser"),  AcquisitionType.DERIVED, annotations);
 

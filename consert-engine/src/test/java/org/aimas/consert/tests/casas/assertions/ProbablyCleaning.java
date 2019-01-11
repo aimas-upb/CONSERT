@@ -3,6 +3,7 @@ package org.aimas.consert.tests.casas.assertions;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 import java.util.Date;
@@ -18,7 +19,12 @@ public class ProbablyCleaning extends BinaryContextAssertion {
     Date start;
     Date current;
     public ProbablyCleaning() {}
-    
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new ProbablyCleaning(null);
+    }
+
     public ProbablyCleaning(AnnotationData annotations) {
         super(new StringLiteral("ProbablyCleaning"),new StringLiteral("ProbablyCleaning"),  AcquisitionType.DERIVED, annotations);
 

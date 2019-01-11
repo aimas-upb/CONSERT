@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.ContextAssertion.AcquisitionType;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
@@ -15,7 +16,12 @@ public class Item extends BinaryContextAssertion {
 	public Item() {
 		setAcquisitionType(AcquisitionType.SENSED);
 	}
-	
+
+	@Override
+	public ContextAssertion cloneContent() {
+		return new Item(sensorId, status, null);
+	}
+
 	public Item(String sensorId, String status, AnnotationData annotations) {
 		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
 	

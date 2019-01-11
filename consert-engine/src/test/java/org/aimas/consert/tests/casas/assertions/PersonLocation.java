@@ -1,6 +1,7 @@
 package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.UnaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
@@ -9,7 +10,12 @@ public class PersonLocation extends UnaryContextAssertion {
 	
 	public PersonLocation() {
 	}
-	
+
+	@Override
+	public ContextAssertion cloneContent() {
+		return new PersonLocation(location, null);
+	}
+
 	public PersonLocation(String location, AnnotationData annotations) {
 		super(new StringLiteral(location), AcquisitionType.DERIVED, annotations);
 		

@@ -15,12 +15,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
-import org.aimas.consert.tests.casas.utils.Interval;
+import org.aimas.consert.utils.Interval;
 import org.aimas.consert.utils.TestSetup;
 import org.apache.commons.lang.SystemUtils;
 import org.kie.api.runtime.KieSession;

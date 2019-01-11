@@ -29,4 +29,6 @@ public interface AnnotationData {
 	boolean hasSameValidity(AnnotationData otherAnn);
 	
 	boolean hasIncludedValidity(AnnotationData otherAnn);
+
+	AnnotationData cloneAnnotations();
 }

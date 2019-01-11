@@ -44,7 +44,7 @@ rule "At Dining Table"
         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation loc = new PersonLocation("DiningTable", ann);
         
-        eventTracker.insertAtomicEvent(loc);
+        eventTracker.insertEvent(loc);
 end
 
 
@@ -62,7 +62,7 @@ rule "Stay At Dining Table"
         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation loc = new PersonLocation("DiningTable", ann);
         
-        eventTracker.insertAtomicEvent(loc);
+        eventTracker.insertEvent(loc);
 end
 
 
@@ -86,7 +86,7 @@ rule "Remain at dining table"
         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation sameLoc = new PersonLocation("DiningTable", ann);
      
-        eventTracker.insertAtomicEvent(sameLoc);
+        eventTracker.insertEvent(sameLoc);
         
         //System.out.println("Triggering REMAIN AT DINING TABLE RULE following events: " + loc + "\n" + loc2);
         //System.out.println("Triggering REMAIN AT DINING TABLE RULE following event: " + loc + "\n");
@@ -119,7 +119,7 @@ rule "In the kitchen"
         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation loc = new PersonLocation("Kitchen", ann);
         
-        eventTracker.insertAtomicEvent(loc);
+        eventTracker.insertEvent(loc);
 end
 
 
@@ -141,7 +141,7 @@ rule "Stay in kitchen"
         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation loc = new PersonLocation("Kitchen", ann);
         
-        eventTracker.insertAtomicEvent(loc);
+        eventTracker.insertEvent(loc);
 end
 
 
@@ -164,5 +164,5 @@ rule "Remain in kitchen"
         DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         PersonLocation sameLoc = new PersonLocation("Kitchen", ann);
         
-        eventTracker.insertAtomicEvent(sameLoc);
+        eventTracker.insertEvent(sameLoc);
 end

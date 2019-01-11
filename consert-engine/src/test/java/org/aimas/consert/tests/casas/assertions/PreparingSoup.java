@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 
@@ -13,6 +14,11 @@ public class PreparingSoup extends BinaryContextAssertion {
     String status;
 
     public PreparingSoup() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new PreparingSoup(null);
+    }
 
     public PreparingSoup(AnnotationData annotations) {
         super(new StringLiteral("PreparingSoup"),new StringLiteral("PreparingSoup"),  AcquisitionType.DERIVED, annotations);

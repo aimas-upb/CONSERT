@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class ChoosingOutfit  extends BinaryContextAssertion {
@@ -12,6 +13,12 @@ public class ChoosingOutfit  extends BinaryContextAssertion {
     String status;
 
     public ChoosingOutfit() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new ChoosingOutfit(null);
+    }
+
     public ChoosingOutfit(AnnotationData annotations) {
         super(new StringLiteral("ChoosingOutfit"),new StringLiteral("ChoosingOutfit"),  AcquisitionType.DERIVED, annotations);
 
@@ -40,4 +47,6 @@ public class ChoosingOutfit  extends BinaryContextAssertion {
         this.status = status;
         setObject(new StringLiteral(status));
     }
+
+
 }

@@ -44,7 +44,7 @@ rule "Pill dispenser removed"
         //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
         //HandlingFood handlingFood = new HandlingFood(ann);
         
-        //eventTracker.insertAtomicEvent(handlingFood);
+        //eventTracker.insertEvent(handlingFood);
         
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         ActivityTriggered medicineFill = new ActivityTriggered("MedicineFill", ts);
@@ -95,7 +95,7 @@ rule "Filling pill dispenser"
         AnnotationData ann = new DefaultAnnotationData(ts);
         FillDispenser fillDispenser = new FillDispenser(ann);
         
-        eventTracker.insertAtomicEvent(fillDispenser);
+        eventTracker.insertEvent(fillDispenser);
 end
 */
 
@@ -110,7 +110,7 @@ rule "Filling pill dispenser"
         AnnotationData ann = new DefaultAnnotationData(ts);
         FillDispenser fillDispenser = new FillDispenser(ann);
         
-        eventTracker.insertAtomicEvent(fillDispenser);
+        eventTracker.insertEvent(fillDispenser);
 end
 
 

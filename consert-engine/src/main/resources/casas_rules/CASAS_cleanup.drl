@@ -70,7 +70,7 @@ rule "Probably Cleaning"
 	    
 	    //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
 	    //ProbablyCleaning probClean = new ProbablyCleaning(ann);
-	    //eventTracker.insertAtomicEvent(probClean);
+	    //eventTracker.insertEvent(probClean);
 end    
     
 rule "Probably Cleaning perpetuated"

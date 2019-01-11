@@ -62,7 +62,7 @@ rule "Trigger for start writing birthday card"
         DefaultAnnotationData cardAnn = new DefaultAnnotationData(ts);
         
         WriteBirthdayCard writeCard = new WriteBirthdayCard(cardAnn);
-        eventTracker.insertAtomicEvent(writeCard);
+        eventTracker.insertEvent(writeCard);
         
         ActivityTriggered triggerStartWritingCard = new ActivityTriggered("WriteBirthdayCard", ts);
         System.out.println("////// ADDING WRITE BITHDAY CARD TRIGGER: " + triggerStartWritingCard + "\n");

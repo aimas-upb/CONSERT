@@ -2,9 +2,10 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
-public class    Cleaning extends BinaryContextAssertion {
+public class Cleaning extends BinaryContextAssertion {
 
     String sensorId;
 
@@ -12,6 +13,12 @@ public class    Cleaning extends BinaryContextAssertion {
     String status;
 
     public Cleaning() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new Cleaning(null);
+    }
+
     public Cleaning(AnnotationData annotations) {
         super(new StringLiteral("Cleaning"),new StringLiteral("Cleaning"),  AcquisitionType.DERIVED, annotations);
 

@@ -57,7 +57,7 @@ rule "Preparing to eat"
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
 	    Eating eating = new Eating(ann);
 	    
-	    eventTracker.insertAtomicEvent(eating);
+	    eventTracker.insertEvent(eating);
 end
     
 
@@ -73,7 +73,7 @@ rule "Continuing to eat 1"
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
 	    Eating eating = new Eating(ann);
 	    
-	    eventTracker.insertAtomicEvent(eating);
+	    eventTracker.insertEvent(eating);
 end   
   
 
@@ -90,5 +90,5 @@ rule "Continuing to eat 2"
 	    DefaultAnnotationData ann = new DefaultAnnotationData(ts);
 	    Eating eating = new Eating(ann);
 	    
-	    eventTracker.insertAtomicEvent(eating);
+	    eventTracker.insertEvent(eating);
 end

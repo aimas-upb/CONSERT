@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Motion extends BinaryContextAssertion {
@@ -12,7 +13,12 @@ public class Motion extends BinaryContextAssertion {
 	String status;
 	
 	public Motion() {}
-	
+
+	@Override
+	public ContextAssertion cloneContent() {
+		return new Motion(sensorId, status, null);
+	}
+
 	public Motion(String sensorId, String status, AnnotationData annotations) {
 		super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.SENSED, annotations);
 		

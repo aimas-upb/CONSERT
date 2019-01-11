@@ -2,6 +2,7 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.BinaryContextAssertion;
+import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class PhoneCall extends BinaryContextAssertion {
@@ -12,6 +13,12 @@ public class PhoneCall extends BinaryContextAssertion {
     String status;
 
     public PhoneCall() {}
+
+    @Override
+    public ContextAssertion cloneContent() {
+        return new PhoneCall(null);
+    }
+
     public PhoneCall(AnnotationData annotations) {
         super(new StringLiteral("PhoneCall"),new StringLiteral("PhoneCall"),  AcquisitionType.SENSED, annotations);
 
