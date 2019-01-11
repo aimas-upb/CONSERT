@@ -1,11 +1,11 @@
 package org.aimas.consert.engine;
 
+import org.aimas.consert.engine.TrackedAssertionStore.TrackedAssertionData;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
-import org.aimas.consert.engine.TrackedAssertionStore.TrackedAssertionData;
 
 public class ContinuityChecker {
     public static class ContinuityResult {
@@ -14,15 +14,25 @@ public class ContinuityChecker {
         ContextAssertion existingAssertion;
         FactHandle existingAssertionHandle;
 
+        ContextAssertion insertedAssertion;
+        FactHandle insertedAssertionHandle;
+        
         ContextAssertion extendedAssertion;
+        FactHandle extendedAssertionHandle;
 
 
-        ContinuityResult(boolean hasExtension, ContextAssertion existingEvent, FactHandle existingEventHandle,
-                                ContextAssertion extendedAssertion) {
+        ContinuityResult(boolean hasExtension, ContextAssertion existingAssertion, FactHandle existingAssertionHandle,
+        						ContextAssertion insertedAssertion, FactHandle insertedAssertionHandle,
+                                ContextAssertion extendedAssertion, FactHandle extendedAssertionHandle) {
             this.hasExtension = hasExtension;
-            this.existingAssertion = existingEvent;
-            this.existingAssertionHandle = existingEventHandle;
+            this.existingAssertion = existingAssertion;
+            this.existingAssertionHandle = existingAssertionHandle;
+            
+            this.insertedAssertion = insertedAssertion;
+            this.insertedAssertionHandle = insertedAssertionHandle;
+            
             this.extendedAssertion = extendedAssertion;
+            this.extendedAssertionHandle = extendedAssertionHandle;
         }
 
 
@@ -30,15 +40,19 @@ public class ContinuityChecker {
             return hasExtension;
         }
 
-        public void setHasExtension(boolean hasExtension) {
+        void setHasExtension(boolean hasExtension) {
             this.hasExtension = hasExtension;
         }
 
         ContextAssertion getExistingAssertion() {
             return existingAssertion;
         }
-
-        public void setExistingAssertion(ContextAssertion existingAssertion) {
+        
+        boolean hasExistingAssertion() {
+        	return existingAssertion != null;
+        }
+        
+        void setExistingAssertion(ContextAssertion existingAssertion) {
             this.existingAssertion = existingAssertion;
         }
 
@@ -46,19 +60,74 @@ public class ContinuityChecker {
             return existingAssertionHandle;
         }
 
-        public void setExistingAssertionHandle(FactHandle existingAssertionHandle) {
+        void setExistingAssertionHandle(FactHandle existingAssertionHandle) {
             this.existingAssertionHandle = existingAssertionHandle;
         }
+        
+        void setInsertedAssertion(ContextAssertion insertedAssertion) {
+        	this.insertedAssertion = insertedAssertion;
+        }
+        
+        ContextAssertion getInsertedAssertion() {
+        	return insertedAssertion;
+        }
+        
+        
+        FactHandle getInsertedAssertionHandle() {
+			return insertedAssertionHandle;
+		}
+        
+		void setInsertedAssertionHandle(FactHandle insertedAssertionHandle) {
+			this.insertedAssertionHandle = insertedAssertionHandle;
+		}
 
-        ContextAssertion getExtendedAssertion() {
+
+		ContextAssertion getExtendedAssertion() {
             return extendedAssertion;
         }
 
-        public void setExtendedAssertion(ContextAssertion extendedAssertion) {
+        void setExtendedAssertion(ContextAssertion extendedAssertion) {
             this.extendedAssertion = extendedAssertion;
         }
 
-        public String getExistingEventStream() {
+        
+        FactHandle getExtendedAssertionHandle() {
+			return extendedAssertionHandle;
+		}
+        
+		void setExtendedAssertionHandle(FactHandle extendedAssertionHandle) {
+			this.extendedAssertionHandle = extendedAssertionHandle;
+		}
+		
+		// ==== Generalize between the newAssertion and the extendedAssertion depending on whether an extension exists ====
+		ContextAssertion getContinuityAssertion() {
+			if (hasExtension) {
+				return extendedAssertion;
+			}
+			
+			return insertedAssertion;
+		}
+		
+		FactHandle getContinuityAssertionHandle() {
+			if (hasExtension) {
+				return extendedAssertionHandle;
+			}
+			
+			return insertedAssertionHandle;
+		}
+		
+		String getContinuityEventStream() {
+			if (hasExtension) {
+				return extendedAssertion.getStreamName();
+			}
+			else if (insertedAssertion != null) {
+				return insertedAssertion.getStreamName();
+			}
+			
+			return null;
+		}
+		
+		String getExistingEventStream() {
             if (existingAssertion != null)
                 return existingAssertion.getStreamName();
 
@@ -72,7 +141,7 @@ public class ContinuityChecker {
             return null;
         }
 
-        TrackedAssertionData getTrackedAssertionData(KieSession kSession) {
+        TrackedAssertionData getExistingAssertionData(KieSession kSession) {
             if (existingAssertionHandle == null)
                 return null;
 
@@ -85,9 +154,9 @@ public class ContinuityChecker {
     private EventTracker eventTracker;
     private TrackedAssertionStore trackedAssertionStore;
 
-    public ContinuityChecker(EventTracker eventTracker, TrackedAssertionStore assertionStore) {
+    public ContinuityChecker(EventTracker eventTracker) {
         this.eventTracker = eventTracker;
-        this.trackedAssertionStore = assertionStore;
+        this.trackedAssertionStore = eventTracker.getTrackedAssertionStore();
     }
 
     public ContinuityResult check(ContextAssertion newAssertion) {
@@ -108,15 +177,15 @@ public class ContinuityChecker {
                         .applyExtensionOperator(newAssertion.getAnnotations());
                 extendedAssertion.setAnnotations(extendedAnnotations);
 
-                return new ContinuityResult(true, existingAssertion, existingAssertionHandle, extendedAssertion);
+                return new ContinuityResult(true, existingAssertion, existingAssertionHandle, newAssertion, null, extendedAssertion, null);
             } else {
                 // if NO annotation continuity (either because of timestamp or confidence)
                 System.out.println("NO ANNOTATION EXTENSION FOUND for existing event: " + existingAssertion + ", new event: " + newAssertion);
-                return new ContinuityResult(false, existingAssertion, existingAssertionHandle, null);
+                return new ContinuityResult(false, existingAssertion, existingAssertionHandle, newAssertion, null, null, null);
             }
         }
         else {
-            return new ContinuityResult(false, null, null, null);
+            return new ContinuityResult(false, null, null, newAssertion, null, null, null);
         }
     }
 }

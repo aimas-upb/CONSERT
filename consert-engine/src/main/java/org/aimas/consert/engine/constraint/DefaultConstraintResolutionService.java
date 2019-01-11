@@ -3,6 +3,7 @@ package org.aimas.consert.engine.constraint;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.constraint.*;
 import org.aimas.consert.model.content.ContextAssertion;
+
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Date;

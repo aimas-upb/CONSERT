@@ -14,13 +14,13 @@ public class TrackedAssertionStore {
 		private EntryPoint existingEventEntryPoint;
 		private ContextAssertion existingEvent;
 		
-		TrackedAssertionData(FactHandle existingHandle, EntryPoint existingEventEntryPoint, ContextAssertion existingEvent) {
+		public TrackedAssertionData(FactHandle existingHandle, EntryPoint existingEventEntryPoint, ContextAssertion existingEvent) {
 			this.existingHandle = existingHandle;
 	        this.existingEventEntryPoint = existingEventEntryPoint;
 	        this.existingEvent = existingEvent;
         }
 
-		FactHandle getExistingHandle() {
+		public FactHandle getExistingHandle() {
 			return existingHandle;
 		}
 
@@ -28,23 +28,23 @@ public class TrackedAssertionStore {
 			this.existingHandle = existingHandle;
 		}
 
-		EntryPoint getExistingEventEntryPoint() {
+		public EntryPoint getExistingEventEntryPoint() {
 			return existingEventEntryPoint;
 		}
 
-		void setExistingEventEntryPoint(EntryPoint existingEventEntryPoint) {
+		public void setExistingEventEntryPoint(EntryPoint existingEventEntryPoint) {
 			this.existingEventEntryPoint = existingEventEntryPoint;
 		}
 
-		ContextAssertion getExistingEvent() {
+		public ContextAssertion getExistingEvent() {
 			return existingEvent;
 		}
 
-		void setExistingEvent(ContextAssertion existingEvent) {
+		public void setExistingEvent(ContextAssertion existingEvent) {
 			this.existingEvent = existingEvent;
 		}
 		
-		void clearHandle() {
+		public void clearHandle() {
 			this.existingHandle = null;
 		}
 

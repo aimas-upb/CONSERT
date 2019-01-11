@@ -1,4 +1,4 @@
-package org.aimas.consert.engine.constraint;
+package org.aimas.consert.engine;
 
 import org.aimas.consert.model.constraint.*;
 import org.aimas.consert.model.content.ContextAssertion;
@@ -101,11 +101,11 @@ public class ConstraintChecker {
             return res;
         }
     }
-
+    
     private KieSession kSession;
 
-    public ConstraintChecker(KieSession kSession) {
-        this.kSession = kSession;
+    public ConstraintChecker(EventTracker eventTracker) {
+        this.kSession = eventTracker.getKnowledgeSession();
     }
 
 

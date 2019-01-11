@@ -1,8 +1,9 @@
 package org.aimas.consert.engine;
 
+import java.util.Date;
+
+import org.aimas.consert.engine.ConstraintChecker.ConstraintResult;
 import org.aimas.consert.engine.ContinuityChecker.ContinuityResult;
-import org.aimas.consert.engine.constraint.ConstraintChecker;
-import org.aimas.consert.engine.constraint.ConstraintChecker.ConstraintResult;
 import org.aimas.consert.engine.TrackedAssertionStore.TrackedAssertionData;
 import org.aimas.consert.engine.api.ContextAssertionListener;
 import org.aimas.consert.engine.api.ContextAssertionNotifier;
@@ -24,8 +25,6 @@ import org.kie.api.event.rule.ObjectUpdatedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
-
-import java.util.Date;
 
 
 public class EventTracker extends BaseEventTracker {
@@ -49,16 +48,18 @@ public class EventTracker extends BaseEventTracker {
 
 	private ContinuityChecker continuityChecker;
     private ConstraintChecker constraintChecker;
+    
+    private ConstraintResolutionHandler constraintResolutionHandler;
 
-    private ConstraintResolutionService constraintResolutionService;
+    
 
 	public EventTracker(KieSession kSession) {
 		super(kSession);
 		kSession.setGlobal("eventTracker", this);
 
-		continuityChecker = new ContinuityChecker(this, trackedAssertionStore);
-		constraintChecker = new ConstraintChecker(kSession);
-		constraintResolutionService = new DefaultConstraintResolutionService();
+		continuityChecker = new ContinuityChecker(this);
+		constraintChecker = new ConstraintChecker(this);
+		constraintResolutionHandler = new ConstraintResolutionHandler(this);
 	}
 
 
@@ -87,7 +88,7 @@ public class EventTracker extends BaseEventTracker {
 	}
 	
 	/**
-	 * Insert an event that is not required to go through the verifications OF temporal continuity.
+	 * Insert an event that is NOT required to go through the verifications of TEMPORAL CONTINUITY or CONSTRAINT CHECKING.
 	 * @param event The event to be inserted.
 	 * @param setTimestamp Boolean value controlling whether to set the timestamp of the event based on the kSession clock.
 	 */
@@ -106,7 +107,7 @@ public class EventTracker extends BaseEventTracker {
 			
 			/* shouldn't be null but it is*/
 //			if (kSession.getEntryPoint(eventStream)!=null)
-				kSession.getEntryPoint(eventStream).insert(event);
+			kSession.getEntryPoint(eventStream).insert(event);
 		}
 	}
 	
@@ -125,7 +126,7 @@ public class EventTracker extends BaseEventTracker {
 	}
 
 	/**
-	 * Insert an event. The event will go through the verifications of temporal continuity.
+	 * Insert an event. The event will go through the verifications of TEMPORAL CONTINUITY and possibly ensuing CONSTRAINT CHECK.
 	 * @param newAssertion The event to insert
 	 */
 	@Override
@@ -135,10 +136,30 @@ public class EventTracker extends BaseEventTracker {
     	// if this is the first event of its type
     	if (!trackedAssertionStore.tracksAssertion(newAssertion.getClass())) {
     		if (newAssertion.getAnnotations().allowsAnnotationInsertion()) {
-    			// go through with insertion in the map and the KieBase
+    			// Go through with insertion in the tracking map and the KieBase
     			FactHandle handle = kSession.getEntryPoint(eventStream).insert(newAssertion);
-                // TODO - perform constraint check
-                trackedAssertionStore.trackAssertion(newAssertion, handle, kSession.getEntryPoint(eventStream));
+                
+                if (!newAssertion.isAtomic()) {
+                	// Go through with constraint check 
+                	ContinuityResult continuityResult = new ContinuityResult(false, null, null, newAssertion, handle, null, null);
+                	ConstraintResult constraintResult =
+							constraintChecker.check(newAssertion);
+                	
+                	if (!constraintResult.isClear()) {
+                        System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+                                + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
+
+                        constraintResolutionHandler.resolveConflict(constraintResult, continuityResult);
+                    }
+                    else {
+                        // No constraints found, so start tracking the newly inserted assertion type 
+                    	trackedAssertionStore.trackAssertion(newAssertion, handle, kSession.getEntryPoint(eventStream));
+                    }
+                }
+                else {
+                	// No constraints are applied for atomic event, so start tracking the newly inserted assertion type 
+                	trackedAssertionStore.trackAssertion(newAssertion, handle, kSession.getEntryPoint(eventStream));
+                }
     		}
     	}
     	else {
@@ -150,12 +171,13 @@ public class EventTracker extends BaseEventTracker {
                     ContinuityResult continuityResult = continuityChecker.check(newAssertion);
 
                     if (continuityResult.hasExtension()) {
-                        TrackedAssertionData existingAssertionData = continuityResult.getTrackedAssertionData(kSession);
+                        TrackedAssertionData existingAssertionData = continuityResult.getExistingAssertionData(kSession);
                         EntryPoint existingAssertionEntry = existingAssertionData.getExistingEventEntryPoint();
 
                         // insert the extended one
                         FactHandle extendedAssertionHandle = kSession.getEntryPoint(continuityResult.getExtendedEventStream())
                                 .insert(continuityResult.getExtendedAssertion());
+                        continuityResult.setExtendedAssertionHandle(extendedAssertionHandle);
 
                         ConstraintResult constraintResult =
 								constraintChecker.check(continuityResult.getExtendedAssertion());
@@ -164,7 +186,7 @@ public class EventTracker extends BaseEventTracker {
                             System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
                                     + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
 
-                            resolveConflict(constraintResult, continuityResult, extendedAssertionHandle);
+                            constraintResolutionHandler.resolveConflict(constraintResult, continuityResult);
                         }
                         else {
                             // No constraints found, so update update kSession and trackedAssertionStore,
@@ -182,20 +204,29 @@ public class EventTracker extends BaseEventTracker {
                                 // (from an annotation perspective).
                                 // Therefore, it has to make it to the KnowledgeBase => we perform the insert here
                                 FactHandle newAssertionHandle = kSession.getEntryPoint(eventStream).insert(newAssertion);
-
-                                // next, run it through the constraint check
-                                ConstraintResult constraintResult =
-                                        constraintChecker.check(newAssertion);
-
-                                if (!constraintResult.isClear()) {
-                                    System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
-                                            + newAssertion + ". Violations:\n" + constraintResult);
-
-                                    resolveConflict(constraintResult, newAssertion, newAssertionHandle);
-                                } else {
-                                    // if there are no violated constraints then it means it
-                                    // can also replace the existing event in the lastValidMap
-                                    trackedAssertionStore.updateTrackedAssertion(continuityResult.getTrackedAssertionData(kSession),
+                                continuityResult.setInsertedAssertionHandle(newAssertionHandle);
+                                
+                                // next, if the assertion is not an atomic event, run it through the constraint check
+                                if (!newAssertion.isAtomic()) {
+	                                ConstraintResult constraintResult =
+	                                        constraintChecker.check(newAssertion);
+	
+	                                if (!constraintResult.isClear()) {
+	                                    System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+	                                            + newAssertion + ". Violations:\n" + constraintResult);
+	
+	                                    constraintResolutionHandler.resolveConflict(constraintResult, continuityResult);
+	                                } 
+	                                else {
+	                                    // if there are no violated constraints then it means it
+	                                    // can also replace the existing event in the lastValidMap
+	                                    trackedAssertionStore.updateTrackedAssertion(continuityResult.getExistingAssertionData(kSession),
+	                                            newAssertion, newAssertionHandle);
+	                                }
+                                }
+                                else {
+                                	// if it is atomic it means we can also replace the existing event in the lastValidMap
+                                    trackedAssertionStore.updateTrackedAssertion(continuityResult.getExistingAssertionData(kSession),
                                             newAssertion, newAssertionHandle);
                                 }
                             }
@@ -205,8 +236,26 @@ public class EventTracker extends BaseEventTracker {
                                 // monitored event by content, add it to the list of monitored events for this type
 
                                 FactHandle newEventHandle = kSession.getEntryPoint(eventStream).insert(newAssertion);
-                                // TODO - perform constraint check
-                                trackedAssertionStore.trackAssertion(newAssertion, newEventHandle, kSession.getEntryPoint(eventStream));
+                                continuityResult.setInsertedAssertionHandle(newEventHandle);
+                                
+                                if (!newAssertion.isAtomic()) {
+                                	ConstraintResult constraintResult = constraintChecker.check(newAssertion);
+                                	if (!constraintResult.isClear()) {
+	                                    System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+	                                            + newAssertion + ". Violations:\n" + constraintResult);
+	
+	                                    constraintResolutionHandler.resolveConflict(constraintResult, continuityResult);
+	                                } 
+	                                else {
+	                                    // if there are no violated constraints then it means it
+	                                    // the new assertion content can also be tracked
+	                                	trackedAssertionStore.trackAssertion(newAssertion, newEventHandle, kSession.getEntryPoint(eventStream));
+	                                }
+                                }
+                                else {
+                                	// No constraint checking is performed for atomic events, so the new assertion content is tracked
+                                	trackedAssertionStore.trackAssertion(newAssertion, newEventHandle, kSession.getEntryPoint(eventStream));
+                                }
                             }
                         }
                     }
@@ -278,192 +327,9 @@ public class EventTracker extends BaseEventTracker {
     ///////////////////////////////////////////// CONFLICT MANAGEMENT //////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void applyUniquenessConflictDecision(UniquenessConflictDecision decision, boolean existingAssertion) {
-
-    }
-
-    private void resolveConflict(ConstraintResult constraintResult, ContextAssertion assertion,
-                                 FactHandle assertionHandle) {
-
-	    if (constraintResult.hasValueViolations()) {
-            // If we have value violations we currently ignore the extendedAssertion, deleting it
-            // Further ValueConstraintViolation implementation may attempt to alter the value to
-            // an "acceptable" one.
-            kSession.getEntryPoint(assertion.getStreamName()).delete(assertionHandle);
-        }
-        else if (constraintResult.hasUniquenessViolations()) {
-            // If the constraint check result contains a uniqueness violation, it can ONLY have
-            // one of these => run it through the resolution service and interpret the results
-            IUniquenessConstraintViolation ucv = constraintResult.getUniquenessViolation();
-            UniquenessConflictDecision decision = constraintResolutionService.resolveConflict(ucv);
-
-            if (!decision.keepNewAssertion()) {
-                // remove the extended assertion from the entry point
-                kSession.getEntryPoint(assertion.getStreamName()).delete(assertionHandle);
-            }
-            else {
-                // we keep the new, extended assertion under a rectified form
-                ContextAssertion rectifiedNewAssertion = decision.getRectifiedNewAssertion();
-
-                // delete the extended assertion
-                kSession.getEntryPoint(assertion.getStreamName()).delete(assertionHandle);
-                trackedAssertionStore.removeAssertion(assertion);
-
-                // insert the rectified extended assertion
-                FactHandle rectifiedNewAssertionHandle =
-                        kSession.getEntryPoint(assertion.getStreamName()).insert(rectifiedNewAssertion);
-
-                trackedAssertionStore.trackAssertion(rectifiedNewAssertion, rectifiedNewAssertionHandle,
-                    kSession.getEntryPoint(assertion.getStreamName()));
-
-
-                if (decision.getRectifiedExistingAssertion() != null) {
-                    // If the resolution decision involves altering the existing conflicting
-                    // assertion, then replace that as well
-                    ContextAssertion existingViolationAssertion = ucv.getExistingAssertion();
-
-                    // 1) delete the current existing violating assertion
-                    String entryPointName = existingViolationAssertion.getStreamName();
-                    FactHandle fh = kSession.getEntryPoint(entryPointName)
-                            .getFactHandle(existingViolationAssertion);
-
-                    kSession.getEntryPoint(entryPointName).delete(fh);
-
-                    // 2) insert the rectified existing violation assertion
-                    ContextAssertion rectifiedExistingAssertion = decision.getRectifiedExistingAssertion();
-                    DefaultAnnotationData ann = (DefaultAnnotationData) rectifiedExistingAssertion.getAnnotations();
-                    ann.setLastUpdated(getCurrentTime());
-
-                    FactHandle rectifiedExistingFh = kSession.getEntryPoint(entryPointName)
-                            .insert(rectifiedExistingAssertion);
-
-                    // 3) if the replaced existing violation assertion was also being tracked, then
-                    // replace the entry in the trackedAssertionStore as well
-                    TrackedAssertionData existingViolationData =
-                            trackedAssertionStore.searchTrackedAssertionByContent(existingViolationAssertion);
-
-                    if (existingViolationData != null) {
-                        trackedAssertionStore.removeAssertion(existingViolationData);
-                        trackedAssertionStore.trackAssertion(rectifiedExistingAssertion,
-                            rectifiedExistingFh, kSession.getEntryPoint(entryPointName));
-                    }
-                }
-            }
-        }
-        else {
-            // TODO: It means we have one or several GENERAL constraints => we need to employ the
-            // "sequential resolution mechanism"
-        }
-    }
-
-    private void resolveConflict(ConstraintResult constraintResult, ContinuityResult continuityResult,
-                                 FactHandle extendedAssertionHandle) {
-        TrackedAssertionData existingAssertionData = continuityResult.getTrackedAssertionData(kSession);
-        EntryPoint existingAssertionEntry = existingAssertionData.getExistingEventEntryPoint();
-
-	    if (constraintResult.hasValueViolations()) {
-            // If we have value violations we currently ignore the extendedAssertion, deleting it
-            // Further ValueConstraintViolation implementation may attempt to alter the value to
-            // an "acceptable" one.
-            kSession.getEntryPoint(continuityResult.getExtendedEventStream())
-                    .delete(extendedAssertionHandle);
-        }
-        else if (constraintResult.hasUniquenessViolations()) {
-            // If the constraint check result contains a uniqueness violation, it can ONLY have
-            // one of these => run it through the resolution service and interpret the results
-            IUniquenessConstraintViolation ucv = constraintResult.getUniquenessViolation();
-            UniquenessConflictDecision decision = constraintResolutionService.resolveConflict(ucv);
-
-            if (!decision.keepNewAssertion()) {
-                // If we are not keeping the new assertion
-                // remove the extended assertion from the entry point
-                kSession.getEntryPoint(continuityResult.getExtendedEventStream())
-                        .delete(extendedAssertionHandle);
-            }
-            else {
-                // We are keeping the new assertion - so update the trackedAssertionStore with the rectified version
-                // (which may be the same as the inserted one if we are not keeping the existing one as well
-                ContextAssertion rectifiedNewAssertion = decision.getRectifiedNewAssertion();
-                if (rectifiedNewAssertion != null) {
-                    // we keep the new, extended assertion under a rectified form
-                    // delete the extended assertion
-                    kSession.getEntryPoint(continuityResult.getExtendedEventStream())
-                            .delete(extendedAssertionHandle);
-
-                    // delete existing assertion - the one that is being extended
-                    existingAssertionEntry.delete(continuityResult.getExistingAssertionHandle());
-                    trackedAssertionStore.removeAssertion(existingAssertionData);
-
-                    // insert the rectified extended assertion
-                    FactHandle rectifiedNewAssertionHandle =
-                            kSession.getEntryPoint(continuityResult.getExtendedEventStream()).insert(rectifiedNewAssertion);
-
-                    trackedAssertionStore.trackAssertion(rectifiedNewAssertion, rectifiedNewAssertionHandle,
-                            kSession.getEntryPoint(continuityResult.getExtendedEventStream()));
-                }
-
-                // Next check whether the existing assertion, with which there is a conflict, needs to be kept
-                if (decision.keepExistingAssertion()) {
-                    // If we keep the existing assertion too, there must be a rectification, even if it equals
-                    // the current one
-
-                    // If the resolution decision involves altering the existing conflicting
-                    // assertion, then replace that as well
-                    ContextAssertion existingViolationAssertion = ucv.getExistingAssertion();
-
-                    // 1) delete the current existing violating assertion
-                    String entryPointName = existingViolationAssertion.getStreamName();
-                    FactHandle fh = kSession.getEntryPoint(entryPointName)
-                            .getFactHandle(existingViolationAssertion);
-
-                    kSession.getEntryPoint(entryPointName).delete(fh);
-
-                    // 2) insert the rectified existing violation assertion
-                    ContextAssertion rectifiedExistingAssertion = decision.getRectifiedExistingAssertion();
-//                    DefaultAnnotationData ann = (DefaultAnnotationData) rectifiedExistingAssertion.getAnnotations();
-//                    ann.setLastUpdated(getCurrentTime());
-
-                    FactHandle rectifiedExistingFh = kSession.getEntryPoint(entryPointName)
-                            .insert(rectifiedExistingAssertion);
-
-                    // 3) if the replaced existing violation assertion was also being tracked, then
-                    // replace the entry in the trackedAssertionStore as well
-                    TrackedAssertionData existingViolationData =
-                            trackedAssertionStore.searchTrackedAssertionByContent(existingViolationAssertion);
-
-                    if (existingViolationData != null) {
-                        trackedAssertionStore.removeAssertion(existingViolationData);
-                        trackedAssertionStore.trackAssertion(rectifiedExistingAssertion,
-                                rectifiedExistingFh, kSession.getEntryPoint(entryPointName));
-                    }
-                }
-                else {
-                    // If we are to delete the existing assertion - then just delete it from the entrypoint and
-                    // check if it was also tracked
-                    ContextAssertion existingViolationAssertion = ucv.getExistingAssertion();
-
-                    // 1) delete the existing assertion
-                    String entryPointName = existingViolationAssertion.getStreamName();
-                    FactHandle fh = kSession.getEntryPoint(entryPointName)
-                            .getFactHandle(existingViolationAssertion);
-                    kSession.getEntryPoint(entryPointName).delete(fh);
-
-                    // 2) if the replaced existing violation assertion was also being tracked, then
-                    // replace the entry in the trackedAssertionStore as well
-                    TrackedAssertionData existingViolationData =
-                            trackedAssertionStore.searchTrackedAssertionByContent(existingViolationAssertion);
-                    if (existingViolationData != null) {
-                        trackedAssertionStore.removeAssertion(existingViolationData);
-                    }
-                }
-            }
-        }
-        else {
-            // TODO: It means we have one or several GENERAL constraints => we need to employ the
-            // "sequential resolution mechanism"
-        }
-    }
-
+//    private void applyUniquenessConflictDecision(UniquenessConflictDecision decision, boolean existingAssertion) {
+//
+//    }
 
 //    @Override
 //    public void conflictDetected(ValueConstraintViolation vcv) {
