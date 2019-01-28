@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.aimas.consert.engine.EngineRunner;
-import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.engine.core.EngineRunner;
+import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.tests.casas.utils.AnnAfterOperator;
 import org.aimas.consert.tests.casas.utils.AnnBeforeOperator;
 import org.aimas.consert.tests.casas.utils.AnnIncludesOperator;
@@ -93,10 +93,10 @@ public class CASASTestInterweavedSingle extends TestSetup {
 
 		//kSession.setGlobal("assertionLogger", assertionLogger);
 
-		System.out.println("Access to event MetaData: ");
-		System.out.println(kSession.getKieBase().getFactType("org.aimas.consert.tests.casas.assertions", "PersonLocation"));
-		
-		System.exit(0);
+//		System.out.println("Access to event MetaData: ");
+//		System.out.println(kSession.getKieBase().getFactType("org.aimas.consert.tests.casas.assertions", "PersonLocation"));
+//		
+//		System.exit(0);
 		
 		
 		// set up engine runner thread and event inserter

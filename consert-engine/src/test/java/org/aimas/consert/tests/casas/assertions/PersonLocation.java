@@ -1,11 +1,13 @@
 package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.content.AssertionRole;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.UnaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class PersonLocation extends UnaryContextAssertion {
+	@AssertionRole
 	private String location;
 	
 	public PersonLocation() {
@@ -28,6 +30,6 @@ public class PersonLocation extends UnaryContextAssertion {
 
 	public void setLocation(String location) {
 		this.location = location;
-		setInvolvedEntity(new StringLiteral(location));
+		setEntity(new StringLiteral(location));
 	}
 }

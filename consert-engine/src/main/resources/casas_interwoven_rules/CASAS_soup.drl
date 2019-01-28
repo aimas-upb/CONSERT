@@ -16,7 +16,7 @@ import org.aimas.consert.model.annotations.AnnotationUtils
 
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 
-import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.engine.core.EventTracker
 import org.aimas.consert.utils.AssertionLogger
 
 import java.util.Date;

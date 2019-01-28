@@ -1,15 +1,18 @@
 package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.content.AssertionRole;
 import org.aimas.consert.model.content.BinaryContextAssertion;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 public class Motion extends BinaryContextAssertion {
 	
-	String sensorId;
-	
-	/** can be one of {ON, OFF} */
+	@AssertionRole("subject")
+    String sensorId;
+
+    /** can be one of {ON, OFF} */
+	@AssertionRole("object")
 	String status;
 	
 	public Motion() {}

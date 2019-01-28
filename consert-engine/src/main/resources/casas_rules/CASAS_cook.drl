@@ -15,7 +15,7 @@ import org.aimas.consert.tests.casas.assertions.Cooking
 import org.aimas.consert.tests.casas.assertions.HandlingFood
 import org.aimas.consert.tests.casas.assertions.HeatingFood
 
-import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.engine.core.EventTracker
 import org.aimas.consert.utils.AssertionLogger
 
 import java.util.Date;

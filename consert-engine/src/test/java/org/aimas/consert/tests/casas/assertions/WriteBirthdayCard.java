@@ -9,7 +9,7 @@ import org.aimas.consert.tests.casas.entities.StringLiteral;
 public class WriteBirthdayCard extends UnaryContextAssertion {
 	
 	public WriteBirthdayCard() {
-		setInvolvedEntity(new StringLiteral("WriteBirthdayCard"));
+		setEntity(new StringLiteral("WriteBirthdayCard"));
 		setAcquisitionType(AcquisitionType.DERIVED);
 	}
 

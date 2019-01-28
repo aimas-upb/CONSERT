@@ -1,12 +1,14 @@
 package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
+import org.aimas.consert.model.content.AssertionRole;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.UnaryContextAssertion;
 import org.aimas.consert.tests.casas.entities.NumericLiteral;
 
 public class Burner extends UnaryContextAssertion {
 	
+	@AssertionRole("entity")
 	double value;
 	
 	public Burner() {}
@@ -23,7 +25,7 @@ public class Burner extends UnaryContextAssertion {
 
 	public void setValue(double value) {
 		this.value = value;
-		setInvolvedEntity(new NumericLiteral(value));
+		setEntity(new NumericLiteral(value));
 	}
 	
 	public String getSensorId() {

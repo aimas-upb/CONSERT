@@ -3,7 +3,7 @@ package org.aimas.consert.casas_interwoven_constraints;
 
 import org.aimas.consert.model.constraint.UniquenessConstraintViolation
 import org.aimas.consert.tests.casas.assertions.PersonLocation
-import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.content.ContextAssertion;
 
 global EventTracker eventTracker;

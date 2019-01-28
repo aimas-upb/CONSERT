@@ -18,7 +18,7 @@ import org.aimas.consert.tests.casas.assertions.Eating
 
 import java.util.Date
 
-import org.aimas.consert.engine.EventTracker
+import org.aimas.consert.engine.core.EventTracker
 import org.aimas.consert.tests.casas.CASASTestSingle
 
 global EventTracker eventTracker;

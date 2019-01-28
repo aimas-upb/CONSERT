@@ -5,8 +5,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.concurrent.TimeUnit;
 
-import org.aimas.consert.engine.EngineRunner;
-import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.engine.core.EngineRunner;
+import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.tests.casas.utils.*;
 import org.aimas.consert.utils.TestSetup;
 import org.drools.core.time.SessionPseudoClock;

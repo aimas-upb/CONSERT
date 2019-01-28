@@ -8,10 +8,11 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.ContextAssertion.AcquisitionType;
@@ -69,8 +70,26 @@ public class CASASSimClockEventInserter {
 		
 		// instantiate readerService and insertionService
 		if (readerService == null || readerService.isShutdown()) {
-			readerService = Executors.newScheduledThreadPool(1);
-			insertionService = Executors.newSingleThreadExecutor();
+			readerService = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+				
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread eventReaderThread = new Thread(r);
+					eventReaderThread.setName("CASAS Event Reader Thread");
+					
+					return eventReaderThread;
+				}
+			});
+			insertionService = Executors.newSingleThreadExecutor(new ThreadFactory() {
+				
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread eventInsertionThread = new Thread(r);
+					eventInsertionThread.setName("CASAS Event Insertion Thread");
+					
+					return eventInsertionThread;
+				}
+			});
 		}
 		
 		// start readerService

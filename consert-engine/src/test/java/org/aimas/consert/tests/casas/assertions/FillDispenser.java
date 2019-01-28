@@ -9,7 +9,7 @@ import org.aimas.consert.tests.casas.entities.StringLiteral;
 public class FillDispenser extends UnaryContextAssertion {
 	
 	public FillDispenser() {
-		setInvolvedEntity(new StringLiteral("FillDispenser"));
+		setEntity(new StringLiteral("FillDispenser"));
 		setAcquisitionType(AcquisitionType.DERIVED);
 	}
 

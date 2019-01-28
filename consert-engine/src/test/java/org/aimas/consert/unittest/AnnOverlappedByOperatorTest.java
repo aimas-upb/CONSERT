@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.hla.assertions.Position;

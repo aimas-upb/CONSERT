@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.aimas.consert.engine.EngineRunner;
-import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.engine.core.EngineRunner;
+import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.tests.casas.assertions.Cooking;

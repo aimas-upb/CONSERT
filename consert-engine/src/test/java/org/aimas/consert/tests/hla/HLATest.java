@@ -4,8 +4,8 @@ package org.aimas.consert.tests.hla;
 
 import java.io.File;
 
-import org.aimas.consert.engine.EngineRunner;
-import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.engine.core.EngineRunner;
+import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.utils.TestSetup;
 import org.kie.api.runtime.KieSession;
 

@@ -4,8 +4,8 @@ package org.aimas.consert.unittest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.aimas.consert.engine.EngineRunner;
-import org.aimas.consert.engine.EventTracker;
+import org.aimas.consert.engine.core.EngineRunner;
+import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.utils.TestSetup;
 import org.kie.api.runtime.KieSession;
 
