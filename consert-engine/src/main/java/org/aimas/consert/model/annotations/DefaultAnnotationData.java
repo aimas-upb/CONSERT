@@ -11,7 +11,11 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 
 @RDFBean("annotation:DefaultAnnotationData")
 public class DefaultAnnotationData implements AnnotationData {
-    
+    public static final String TIMESTAMP_TYPE = "TimestampAnnotation";
+    public static final String VALIDITY_TYPE = "ValidityAnnotation";
+    public static final String CERTAINTY_TYPE = "CertaintyAnnotation";
+	
+	
 	public static final double CONFIDENCE_VALUE_THRESHOLD 	= 0.5;
 	public static final double CONFIDENCE_DIFF_THRESHOLD 	= 0.3;
 	
