@@ -250,10 +250,18 @@ df_status_base.reset_index(inplace=True)
 
 """ PROCESS THE DERIVED STATUS SENSORS """
 def fun(d):
-    if 'hasEntity' in d['entities']:
-        return d['entities']['hasEntity']['entityId']
+    if d['unary']:
+        return d['entity']['entityId']    
+    elif d['binary']:
+        return d['subject']['entityId']
     else:
-        return d['entities']['hasSubject']['entityId']
+        key = d['entities'].keys()[0]
+        return d['entities'][key]['entityId']
+
+    # if 'entity' in d['entities']:
+    #     return d['entities']['entity']['entityId']
+    # else:
+    #     return d['entities']['subject']['entityId']
 
 derived_session_data = [dict(d, entityId = fun(d)) for d in derived_session_data]
 df_status_derived = json_normalize(derived_session_data)

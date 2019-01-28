@@ -1,19 +1,21 @@
 package org.aimas.consert.engine.core;
 
-import org.aimas.consert.model.constraint.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.aimas.consert.model.constraint.IConstraintViolation;
+import org.aimas.consert.model.constraint.IGeneralConstraintViolation;
+import org.aimas.consert.model.constraint.IUniquenessConstraintViolation;
+import org.aimas.consert.model.constraint.IValueConstraintViolation;
+import org.aimas.consert.model.constraint.UniquenessConstraintViolation;
 import org.aimas.consert.model.content.ContextAssertion;
-import org.drools.core.QueryResultsImpl;
-import org.drools.core.QueryResultsRowImpl;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.kie.api.definition.rule.Query;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ConstraintChecker {
     private static final String CONSTRAINT_TYPE = "constraintType";
