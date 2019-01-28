@@ -14,4 +14,5 @@ public interface ContextEntity {
 	boolean isLiteral();
 	
 	Object getValue();
+	
 }

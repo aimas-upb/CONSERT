@@ -5,7 +5,6 @@ import java.util.Map;
 import org.aimas.consert.model.Constants;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
@@ -45,7 +44,7 @@ public abstract class ContextAssertion {
 	
 	
 	/* ================== ContextAssertion content ================== */
-	protected abstract Map<String, ContextEntity> getEntities();
+	public abstract Map<String, ContextEntity> getEntities();
 
     public abstract ContextAssertion cloneContent();
 

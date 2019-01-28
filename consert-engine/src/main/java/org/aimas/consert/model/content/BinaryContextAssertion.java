@@ -1,5 +1,6 @@
 package org.aimas.consert.model.content;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,13 +26,35 @@ public abstract class BinaryContextAssertion extends ContextAssertion {
 	@Override
 	public Map<String, ContextEntity> getEntities() {
 		Map<String, ContextEntity> entities = new HashMap<String, ContextEntity>();
-		entities.put("hasSubject", subject);
-		entities.put("hasObject", object);
+		
+		String subjectRole = AssertionRole.SUBJECT;
+		String objectRole = AssertionRole.OBJECT;
+		
+		boolean subjectFound = false;
+		boolean objectFound = false;
+		
+		for (Field field: getClass().getDeclaredFields()) {
+			AssertionRole roleAnnotation = field.getAnnotation(AssertionRole.class);
+			if (roleAnnotation != null && roleAnnotation.value().equals(AssertionRole.SUBJECT) && !subjectFound) {
+				subjectRole = field.getName();
+				subjectFound = true;
+			}
+			else if (roleAnnotation != null && roleAnnotation.value().equals(AssertionRole.OBJECT) && !objectFound) {
+				objectRole = field.getName();
+				objectFound = true;
+			}
+			
+			if (subjectFound && objectFound)
+				break;
+		}
+		
+		entities.put(subjectRole, subject);
+		entities.put(objectRole, object);
 		
 		return entities;
 	}
 	
-	@JsonIgnore
+	//@JsonIgnore
 	public ContextEntity getSubject() {
 		return subject;
 	}
@@ -40,7 +63,7 @@ public abstract class BinaryContextAssertion extends ContextAssertion {
 		this.subject = subject;
 	}
 	
-	@JsonIgnore
+	//@JsonIgnore
 	public ContextEntity getObject() {
 		return object;
 	}
