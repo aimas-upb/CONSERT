@@ -4,24 +4,21 @@ import java.io.File;
 import java.util.Collection;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.KnowledgeBaseFactory;
 import org.kie.api.KieBase;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.conf.EventProcessingOption;
+import org.kie.api.definition.KiePackage;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
-import org.kie.api.runtime.conf.ClockTypeOption;
-import org.kie.internal.KnowledgeBase;
-import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.builder.conf.RuleEngineOption;
-import org.kie.internal.definition.KnowledgePackage;
-import org.kie.internal.io.ResourceFactory; 
+import org.kie.internal.io.ResourceFactory;
 
 public class TestSetup {
-	public static RuleEngineOption 		PHREAK = RuleEngineOption.PHREAK;
 	public static EventProcessingOption STREAM = EventProcessingOption.STREAM;
 	
 	public static KieSession getKieSessionFromResources( String... classPathResources ) {
@@ -37,17 +34,17 @@ public class TestSetup {
         return kbase.newKieSession(kSessionConfig, null);
 	}
 	
-	public static KnowledgeBase loadKnowledgeBase(KnowledgeBuilderConfiguration kbuilderConf, KieBaseConfiguration kbaseConf, String... classPathResources) {
-		Collection<KnowledgePackage> knowledgePackages = loadKnowledgePackages(kbuilderConf, classPathResources);
+	public static KieBase loadKnowledgeBase(KnowledgeBuilderConfiguration kbuilderConf, KieBaseConfiguration kbaseConf, String... classPathResources) {
+		Collection<KiePackage> knowledgePackages = loadKnowledgePackages(kbuilderConf, classPathResources);
 
 		if (kbaseConf == null) {
 			kbaseConf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
 		}
-		kbaseConf.setOption(PHREAK);
+		//kbaseConf.setOption(PHREAK);
 		kbaseConf.setOption(STREAM);
 		
-		KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(kbaseConf);
-		kbase.addKnowledgePackages(knowledgePackages);
+		InternalKnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(kbaseConf);
+		kbase.addPackages(knowledgePackages);
 		try {
 			kbase = SerializationHelper.serializeObject(kbase);
 		} catch (Exception e) {
@@ -57,12 +54,12 @@ public class TestSetup {
 	}
     
 	
-	public static Collection<KnowledgePackage> loadKnowledgePackages( KnowledgeBuilderConfiguration kbuilderConf, String... classPathResources) {
+	public static Collection<KiePackage> loadKnowledgePackages( KnowledgeBuilderConfiguration kbuilderConf, String... classPathResources) {
         return loadKnowledgePackages(kbuilderConf, true, classPathResources);
     }
 	
 	
-	public static Collection<KnowledgePackage> loadKnowledgePackages( KnowledgeBuilderConfiguration kbuilderConf, boolean serialize, String... classPathResources) {
+	public static Collection<KiePackage> loadKnowledgePackages( KnowledgeBuilderConfiguration kbuilderConf, boolean serialize, String... classPathResources) {
 		if (kbuilderConf == null) {
 			kbuilderConf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
 		}
@@ -76,7 +73,7 @@ public class TestSetup {
 			System.out.println(kbuilder.getErrors().toString());
 		}
 
-		Collection<KnowledgePackage> knowledgePackages = null;
+		Collection<KiePackage> knowledgePackages = null;
         if ( serialize ) {
             try {
                 knowledgePackages = SerializationHelper.serializeObject(kbuilder.getKnowledgePackages(),  ((KnowledgeBuilderConfigurationImpl)kbuilderConf).getClassLoader() );
