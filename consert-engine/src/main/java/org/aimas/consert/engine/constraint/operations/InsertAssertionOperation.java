@@ -1,7 +1,7 @@
 package org.aimas.consert.engine.constraint.operations;
 
-import org.aimas.consert.engine.EventTracker;
-import org.aimas.consert.engine.TrackedAssertionStore;
+import org.aimas.consert.engine.core.EventTracker;
+import org.aimas.consert.engine.core.TrackedAssertionStore;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
