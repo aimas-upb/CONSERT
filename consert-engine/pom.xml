@@ -12,7 +12,8 @@
 	<description>A Drools Fusion Maven project to detect high level activities from low level ones.</description>
 
 	<properties>
-		<runtime.version>6.5.0.Final</runtime.version>
+		<runtime.version>7.5.0.Final</runtime.version>
+		<reteoo.version>6.5.0.Final</reteoo.version>
 		<cdi.version>1.2</cdi.version>
         <weld.version>2.3.2.Final</weld.version>
 	</properties>
@@ -71,7 +72,17 @@
         <repository>
             <id>cep-engine-repository</id>
             <name>CONSERT Engine Local Repository</name>
-            <url>file:${project.basedir}/repo</url>
+            <url>file://${project.basedir}/repo</url>
+        </repository>
+        
+        <repository>
+            <id>rosjava</id>
+            <url>https://github.com/rosjava/rosjava_mvn_repo/raw/master/</url>
+        </repository>
+        
+        <repository>
+            <id>jfrog</id>
+            <url>http://repo.jfrog.org/artifactory/libs-releases/</url>
         </repository>
 	</repositories>
 
@@ -91,11 +102,14 @@
 			<artifactId>drools-compiler</artifactId>
 			<version>${runtime.version}</version>
 		</dependency>
+        
+        <!-- 
         <dependency>
             <groupId>org.drools</groupId>
             <artifactId>drools-reteoo</artifactId>
-            <version>${runtime.version}</version>
+            <version>${reteoo.version}</version>
         </dependency>
+        -->
         
         <!-- https://mvnrepository.com/artifact/org.drools/drools-templates -->
 		<dependency>
@@ -164,6 +178,35 @@
 		    <artifactId>log4j</artifactId>
 		    <version>1.2.17</version>
 		</dependency>
+		
+		<!-- ROSJava dependencies -->
+		<dependency>
+            <groupId>org.ros.rosjava_core</groupId>
+            <artifactId>rosjava</artifactId>
+            <version>[0.3, 0.4)</version>
+        </dependency>
+        
+        <!-- 
+        <dependency>
+            <groupId>org.ros.rosjava_bootstrap</groupId>
+            <artifactId>message_generation</artifactId>
+            <version>[0.3, 0.4)</version>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>org.ros.rosjava_messages</groupId>
+            <artifactId>std_msgs</artifactId>
+            <version>[0.5, 0.6)</version>
+        </dependency>
+         -->
+        <!--  
+        <dependency>
+            <groupId>org.ros.rosjava_messages</groupId>
+            <artifactId>consert</artifactId>
+            <version>0.0.0</version>
+        </dependency>
+         -->
 	</dependencies>
 	<packaging>jar</packaging>
 	
