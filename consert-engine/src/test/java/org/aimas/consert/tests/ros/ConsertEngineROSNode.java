@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.engine.api.ContextAssertionListener;
@@ -32,7 +31,6 @@ import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.builder.conf.EvaluatorOption;
-import org.kie.internal.concurrent.ExecutorProviderFactory;
 import org.ros.concurrent.CancellableLoop;
 import org.ros.exception.RosRuntimeException;
 import org.ros.internal.loader.CommandLineLoader;

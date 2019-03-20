@@ -1,6 +1,5 @@
-package org.aimas.consert.tests.casas.entities;
+package org.aimas.consert.model.content;
 
-import org.aimas.consert.model.content.BaseContextEntity;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 public class NumericLiteral extends BaseContextEntity {

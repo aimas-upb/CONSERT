@@ -1,7 +1,5 @@
 package org.aimas.consert.model.content;
 
-import org.aimas.consert.tests.casas.entities.StringLiteral;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public abstract class BaseContextEntity implements ContextEntity {

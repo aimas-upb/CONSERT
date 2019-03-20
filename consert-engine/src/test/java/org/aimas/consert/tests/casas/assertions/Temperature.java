@@ -4,8 +4,8 @@ import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.AssertionRole;
 import org.aimas.consert.model.content.BinaryContextAssertion;
 import org.aimas.consert.model.content.ContextAssertion;
-import org.aimas.consert.tests.casas.entities.NumericLiteral;
-import org.aimas.consert.tests.casas.entities.StringLiteral;
+import org.aimas.consert.model.content.NumericLiteral;
+import org.aimas.consert.model.content.StringLiteral;
 
 public class Temperature extends BinaryContextAssertion {
 	

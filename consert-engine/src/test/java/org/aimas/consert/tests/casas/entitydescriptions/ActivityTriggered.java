@@ -1,8 +1,8 @@
 package org.aimas.consert.tests.casas.entitydescriptions;
 
 import org.aimas.consert.model.content.EntityDescription;
-import org.aimas.consert.tests.casas.entities.NumericLiteral;
-import org.aimas.consert.tests.casas.entities.StringLiteral;
+import org.aimas.consert.model.content.NumericLiteral;
+import org.aimas.consert.model.content.StringLiteral;
 
 public class ActivityTriggered extends EntityDescription {
 	

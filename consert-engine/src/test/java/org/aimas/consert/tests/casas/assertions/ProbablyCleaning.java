@@ -5,7 +5,7 @@ import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.AssertionRole;
 import org.aimas.consert.model.content.BinaryContextAssertion;
 import org.aimas.consert.model.content.ContextAssertion;
-import org.aimas.consert.tests.casas.entities.StringLiteral;
+import org.aimas.consert.model.content.StringLiteral;
 
 import java.util.Date;
 

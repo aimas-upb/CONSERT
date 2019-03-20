@@ -2,8 +2,8 @@ package org.aimas.consert.tests.casas.assertions;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
+import org.aimas.consert.model.content.StringLiteral;
 import org.aimas.consert.model.content.UnaryContextAssertion;
-import org.aimas.consert.tests.casas.entities.StringLiteral;
 
 
 public class AccessingSupplies extends UnaryContextAssertion {
