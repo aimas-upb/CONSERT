@@ -45,8 +45,10 @@ public class EventTracker extends BaseEventTracker {
 	private ContinuityChecker continuityChecker;
     private ConstraintChecker constraintChecker;
     
+    private EventWindowManager eventWindowManager;
+    
     private ConstraintResolutionHandler constraintResolutionHandler;
-
+    
     
 
 	public EventTracker(KieSession kSession) {
