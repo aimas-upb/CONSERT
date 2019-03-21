@@ -1,8 +1,0 @@
-prefix=/home/alex/work/AI-MAS/projects/CONSERT/dev/consert-project/catkin_ws/devel
-
-Name: consert
-Description: Description of consert
-Version: 0.0.0
-Cflags: -I/home/alex/work/AI-MAS/projects/CONSERT/dev/consert-project/catkin_ws/devel/include
-Libs: -L/home/alex/work/AI-MAS/projects/CONSERT/dev/consert-project/catkin_ws/devel/lib 
-Requires: roscpp rospy std_msgs message_runtime
