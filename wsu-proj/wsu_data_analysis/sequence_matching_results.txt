@@ -1,0 +1,9 @@
+-- with outliers
+Mean quick ratio:	0.680982013536
+Mean ratio:			0.630134933689
+Mean std:			0.13376252188
+
+-- without outliers
+Mean quick ratio:	0.764477223401
+Mean ratio:			0.718445463209
+Mean std:			0.125315112281
