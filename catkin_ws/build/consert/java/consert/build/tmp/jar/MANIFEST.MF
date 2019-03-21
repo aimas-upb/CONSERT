@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Export-Package: consert;version="0.0.0";uses:="org.ros.internal.messag
+ e"
+Bundle-SymbolicName: org.ros.rosjava_messages.consert
+Bundle-Version: 0.0.0
+Bundle-Name: consert
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1553159452000
+Import-Package: org.ros.internal.message
+Created-By: 1.8.0_201 (Oracle Corporation)
+Tool: Bnd-2.1.0.20130426-122213
+

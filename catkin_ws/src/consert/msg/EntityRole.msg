@@ -1,0 +1,2 @@
+string role
+ContextEntity entity

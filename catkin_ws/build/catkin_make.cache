@@ -1,0 +1,2 @@
+consert
+-DCATKIN_DEVEL_PREFIX=/home/alex/work/AI-MAS/projects/CONSERT/dev/consert-project/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/alex/work/AI-MAS/projects/CONSERT/dev/consert-project/catkin_ws/install -G Unix Makefiles
