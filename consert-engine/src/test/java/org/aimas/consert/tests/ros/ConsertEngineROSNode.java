@@ -2,6 +2,7 @@ package org.aimas.consert.tests.ros;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -22,6 +23,7 @@ import org.aimas.consert.tests.casas.utils.AnnOverlappedByOperator;
 import org.aimas.consert.tests.casas.utils.AnnOverlapsOperator;
 import org.aimas.consert.tests.casas.utils.AnnStartsAfterOperator;
 import org.aimas.consert.tests.ros.serializers.ConsertModelSerializer;
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.PropertyConfigurator;
 import org.drools.core.time.SessionPseudoClock;
 import org.kie.api.KieServices;
@@ -238,17 +240,19 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode implements Co
     }
 	
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws URISyntaxException {
 		// create a list of a single element with the qualified java name of the ConsertEngineROSNode
 		List<String> argList = new ArrayList<String>();
 		argList.add(ConsertEngineROSNode.class.getName());
 		
 		CommandLineLoader loader = new CommandLineLoader(argList);
 		
-		
 		String nodeClassName = ConsertEngineROSNode.class.getName();
 		System.out.println("Loading node class: " + loader.getNodeClassName());
 		NodeConfiguration nodeConfiguration = loader.build();
+		
+		nodeConfiguration.setMasterUri(new java.net.URI("http://localhost:11311/"));
+		
 		
 		NodeMain nodeMain = null;
 		try {
