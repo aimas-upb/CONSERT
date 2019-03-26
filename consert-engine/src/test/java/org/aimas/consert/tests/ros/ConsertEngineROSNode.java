@@ -9,9 +9,11 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.engine.api.ContextAssertionListener;
+import org.aimas.consert.engine.api.EventWindowListener;
 import org.aimas.consert.engine.core.EngineRunner;
 import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.content.ContextAssertion;
+import org.aimas.consert.model.eventwindow.EventWindow;
 import org.aimas.consert.tests.casas.CASASEventReader;
 import org.aimas.consert.tests.casas.CASASSimClockEventInserter;
 import org.aimas.consert.tests.casas.EventReader;
@@ -23,7 +25,6 @@ import org.aimas.consert.tests.casas.utils.AnnOverlappedByOperator;
 import org.aimas.consert.tests.casas.utils.AnnOverlapsOperator;
 import org.aimas.consert.tests.casas.utils.AnnStartsAfterOperator;
 import org.aimas.consert.tests.ros.serializers.ConsertModelSerializer;
-import org.apache.commons.httpclient.URI;
 import org.apache.log4j.PropertyConfigurator;
 import org.drools.core.time.SessionPseudoClock;
 import org.kie.api.KieServices;
@@ -36,6 +37,7 @@ import org.kie.internal.builder.conf.EvaluatorOption;
 import org.ros.concurrent.CancellableLoop;
 import org.ros.exception.RosRuntimeException;
 import org.ros.internal.loader.CommandLineLoader;
+import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
 import org.ros.node.ConnectedNode;
 import org.ros.node.DefaultNodeMainExecutor;
@@ -44,8 +46,10 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMain;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.topic.Publisher;
+import org.ros.node.topic.Subscriber;
 
-public class ConsertEngineROSNode extends BaseConsertEngineROSNode implements ContextAssertionListener {
+public class ConsertEngineROSNode extends BaseConsertEngineROSNode 
+	implements ContextAssertionListener, EventWindowListener, MessageListener<consert.ContextAssertion> {
 	
 	public static final String PERSON = "p20";
 	public static final String TASK = "interweaved";
@@ -55,6 +59,11 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode implements Co
 
 	
 	private Publisher<consert.ContextAssertion> contextAssertionPublisher;
+	private Publisher<consert.EventWindow> eventWindowPublisher;
+	
+	private Subscriber<consert.ContextAssertion> contextAssertionSubscriber;
+	
+	
 	private ConsertModelSerializer consertModelSerializer;
 	
 	private KieSession kSession;
@@ -182,19 +191,33 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode implements Co
 	
 	@Override
 	public void onStart(final ConnectedNode connectedNode) {
+		// create CONSERT Model serializer to read/write from/to CONSERT ROS messages to CONSERT Object Model form
+		consertModelSerializer = new ConsertModelSerializer(connectedNode.getTopicMessageFactory());
+		
 		// Create context assertion publisher
 		contextAssertionPublisher = connectedNode
 		        .newPublisher("consert/engine/contextAssertions", consert.ContextAssertion._TYPE);
-		consertModelSerializer = new ConsertModelSerializer(connectedNode.getTopicMessageFactory());
+		
+		// Create event window publisher
+		eventWindowPublisher = connectedNode
+		        .newPublisher("consert/engine/eventWindows", consert.EventWindow._TYPE);
+		
+		// Create ContextAssertion subscriber - to listen for ContextAssertions inserted from external sources
+		contextAssertionSubscriber = connectedNode.newSubscriber("consert/engine/insertedAssertions", consert.ContextAssertion._TYPE);
+		contextAssertionSubscriber.addMessageListener(this);
 		
 		// register ourselves as a ContextAssertionListener
-		eventTracker.addEventListener(this);
+		eventTracker.addContextAssertionListener(this);
+		
+		// register ourselves as a EventWindowListener
+		eventTracker.addEventWindowListener(this);
     	
     	// start a main loop which waits for the processing of all the events
 		// by the engine runner
 		
     	connectedNode.executeCancellableLoop(new CASASTestLoop(connectedNode));
 	}
+	
 	
 	@Override
 	public void onShutdown(Node node) {
@@ -237,6 +260,25 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode implements Co
 	    // we don't need to do anything upon delete - 
 		// we assumed the consumer will only be interested in the most recent instance of a ContextAssertion
 	    
+    }
+	
+	@Override
+    public void notifyEventWindowSubmitted(EventWindow eventWindow) {
+	    consert.EventWindow msg = consertModelSerializer.writeEventWindow(eventWindow);
+	    eventWindowPublisher.publish(msg);
+    }
+	
+	
+	@Override
+    public void onNewMessage(consert.ContextAssertion assertionMsg) {
+	    ContextAssertion newAssertion = consertModelSerializer.readAssertion(assertionMsg);
+	    
+	    if (newAssertion.isAtomic()) {
+	    	eventTracker.insertEvent(newAssertion);
+	    }
+	    else {
+	    	eventTracker.insertDerivedEvent(newAssertion);
+	    }
     }
 	
 	

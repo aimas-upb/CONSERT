@@ -14,13 +14,13 @@ public class ContextAssertionNotifier {
 		registeredListeners = new LinkedList<ContextAssertionListener>();
 	}
 	
-	public void addEventListener(ContextAssertionListener eventListener) {
+	public void addContextAssertionListener(ContextAssertionListener eventListener) {
 		synchronized(registeredListeners) {
 			registeredListeners.add(eventListener);
 		}
 	}
 	
-	public void removeEventListener(ContextAssertionListener eventListener) {
+	public void removeContextAssertionListener(ContextAssertionListener eventListener) {
 		synchronized(registeredListeners) {
 			registeredListeners.remove(eventListener);
 		}

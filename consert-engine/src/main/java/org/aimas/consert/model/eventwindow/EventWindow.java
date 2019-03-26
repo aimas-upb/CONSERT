@@ -7,8 +7,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.aimas.consert.model.content.ContextAssertion;
+import org.aimas.consert.model.content.ContextAssertionContent;
 
-public class EventWindow {
+public class EventWindow implements Comparator<EventWindow> {
 	
 	private static class AssertionTimestampComparator implements Comparator<ContextAssertion> {
 		@Override
@@ -26,38 +27,55 @@ public class EventWindow {
 		
 	}
 	
-	private ContextAssertion possibleAssertion;
+	private ContextAssertionContent possibleAssertion;
 	
 	private SortedSet<ContextAssertion> supportingAssertions;
 	
 	
 	
 	public EventWindow() {
-		supportingAssertions = new TreeSet<ContextAssertion>(new AssertionTimestampComparator());
+		this(null, null);
 	}
 
-	public EventWindow(ContextAssertion possibleAssertion) {
-	    this.possibleAssertion = possibleAssertion;
-	    supportingAssertions = new TreeSet<ContextAssertion>(new AssertionTimestampComparator());
+	public EventWindow(ContextAssertionContent possibleAssertion) {
+	    this(possibleAssertion, null);
     }
-
+	
+	public EventWindow(ContextAssertionContent possibleAssertion, List<ContextAssertion> supportingAssertions) {
+		this.supportingAssertions = new TreeSet<ContextAssertion>(new AssertionTimestampComparator());
+		
+		if (possibleAssertion != null) {
+			this.possibleAssertion = possibleAssertion;
+		}
+		
+		if (supportingAssertions != null) {
+			this.supportingAssertions.addAll(supportingAssertions);
+		}
+	}
+	
+	
 	/**
 	 * @return the possibleAssertion
 	 */
-	public ContextAssertion getPossibleAssertion() {
+	public ContextAssertionContent getPossibleAssertion() {
 		return possibleAssertion;
 	}
 
 	/**
 	 * @param possibleAssertion the possibleAssertion to set
 	 */
-	public void setPossibleAssertion(ContextAssertion possibleAssertion) {
+	public void setPossibleAssertion(ContextAssertionContent possibleAssertion) {
 		this.possibleAssertion = possibleAssertion;
 	}
 	
 	
-	public void addSupportingAssertions(ContextAssertion assertion) {
+	public void addSupportingAssertion(ContextAssertion assertion) {
 		supportingAssertions.add(assertion);
+	}
+	
+	
+	public void addSupportingAssertions(List<ContextAssertion> assertions) {
+		supportingAssertions.addAll(assertions);
 	}
 	
 	
@@ -90,5 +108,19 @@ public class EventWindow {
 		
 		return -1;
 	}
+
+	/**
+	 * Compares two EventWindows based on their start timestamps
+	 */
+	@Override
+    public int compare(EventWindow o1, EventWindow o2) {
+	    if (o1.getWindowStart() < o2.getWindowStart())
+	    	return -1;
+	    			
+	    if(o1.getWindowStart() > o2.getWindowStart())
+	    	return 1;
+	    
+	    return 0;
+    }
 	
 }

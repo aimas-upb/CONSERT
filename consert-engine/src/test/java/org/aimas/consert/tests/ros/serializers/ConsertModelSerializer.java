@@ -13,11 +13,14 @@ import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.BaseContextEntity;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.ContextAssertion.AcquisitionType;
+import org.aimas.consert.model.content.ContextAssertionContent;
 import org.aimas.consert.model.content.ContextEntity;
 import org.aimas.consert.model.content.EntityDescription;
 import org.aimas.consert.model.content.NaryContextAssertion;
+import org.aimas.consert.model.eventwindow.EventWindow;
 import org.aimas.consert.utils.TimestampPair;
 import org.apache.commons.lang.StringUtils;
+import org.drools.core.util.LinkedList;
 import org.ros.message.MessageFactory;
 
 import consert.EntityRole;
@@ -30,6 +33,8 @@ public class ConsertModelSerializer {
 		this.messageFactory = messageFactory;
 	}
 	
+	// =========================== Read and write ContextEntities =========================== //
+	// ====================================================================================== //
 	public consert.ContextEntity writeEntity(ContextEntity entity) {
 		consert.ContextEntity msg = messageFactory.newFromType(consert.ContextEntity._TYPE);
 		msg.setId(entity.getEntityId());
@@ -56,6 +61,37 @@ public class ConsertModelSerializer {
         }
 		
 		return null;
+	}
+	
+	// =========================== Read and write ContextAnnotations =========================== //
+	// ========================================================================================= //
+	public List<consert.ContextAnnotation> writeAnnotations(AnnotationData annotations) {
+		DefaultAnnotationData annotationData = (DefaultAnnotationData) annotations;
+		List<consert.ContextAnnotation> annMessages = new ArrayList<consert.ContextAnnotation>();
+		
+		// add timestamp annotation
+		consert.ContextAnnotation timestampMsg = messageFactory.newFromType(consert.ContextAnnotation._TYPE);
+		timestampMsg.setId("" + annotationData.getLastUpdated());
+		timestampMsg.setType(DefaultAnnotationData.TIMESTAMP_TYPE);
+		timestampMsg.setValue("" + annotationData.getLastUpdated());
+		annMessages.add(timestampMsg);
+		
+		// add the certainty annotation
+		consert.ContextAnnotation certaintyMsg = messageFactory.newFromType(consert.ContextAnnotation._TYPE);
+		certaintyMsg.setId("" + annotationData.getConfidence());
+		certaintyMsg.setType(DefaultAnnotationData.CERTAINTY_TYPE);
+		certaintyMsg.setValue("" + annotationData.getConfidence());
+		annMessages.add(certaintyMsg);
+		
+		// add the validity annotation
+		consert.ContextAnnotation validityMsg = messageFactory.newFromType(consert.ContextAnnotation._TYPE);
+		TimestampPair tsPair = new TimestampPair(annotationData.getStartTime().getTime(), annotationData.getEndTime().getTime());
+		validityMsg.setId(tsPair.toString());
+		validityMsg.setType(DefaultAnnotationData.VALIDITY_TYPE);
+		validityMsg.setValue(tsPair.toString());
+		annMessages.add(validityMsg);
+		
+		return annMessages;
 	}
 	
 	
@@ -88,36 +124,8 @@ public class ConsertModelSerializer {
 		return annData;
 	}
 	
-	public List<consert.ContextAnnotation> writeAnnotations(AnnotationData annotations) {
-		DefaultAnnotationData annotationData = (DefaultAnnotationData) annotations;
-		List<consert.ContextAnnotation> annMessages = new ArrayList<consert.ContextAnnotation>();
-		
-		// add timestamp annotation
-		consert.ContextAnnotation timestampMsg = messageFactory.newFromType(consert.ContextAnnotation._TYPE);
-		timestampMsg.setId("" + annotationData.getLastUpdated());
-		timestampMsg.setType(DefaultAnnotationData.TIMESTAMP_TYPE);
-		timestampMsg.setValue("" + annotationData.getLastUpdated());
-		annMessages.add(timestampMsg);
-		
-		// add the certainty annotation
-		consert.ContextAnnotation certaintyMsg = messageFactory.newFromType(consert.ContextAnnotation._TYPE);
-		certaintyMsg.setId("" + annotationData.getConfidence());
-		certaintyMsg.setType(DefaultAnnotationData.CERTAINTY_TYPE);
-		certaintyMsg.setValue("" + annotationData.getConfidence());
-		annMessages.add(certaintyMsg);
-		
-		// add the validity annotation
-		consert.ContextAnnotation validityMsg = messageFactory.newFromType(consert.ContextAnnotation._TYPE);
-		TimestampPair tsPair = new TimestampPair(annotationData.getStartTime().getTime(), annotationData.getEndTime().getTime());
-		validityMsg.setId(tsPair.toString());
-		validityMsg.setType(DefaultAnnotationData.VALIDITY_TYPE);
-		validityMsg.setValue(tsPair.toString());
-		annMessages.add(validityMsg);
-		
-		return annMessages;
-	}
-	
-	
+	// =========================== Read and write EntityDescriptions =========================== //
+	// ========================================================================================= //
 	public consert.EntityDescription writeEntityDescription(EntityDescription entityDescription) {
 		consert.EntityDescription msg = messageFactory.newFromType(consert.EntityDescription._TYPE);
 		
@@ -144,6 +152,33 @@ public class ConsertModelSerializer {
         }
         
 		return null;
+	}
+	
+	// =========================== Read and write ContextAssertions =========================== //
+	// ======================================================================================== //
+	public consert.ContextAssertion writeAssertion(ContextAssertion assertion) {
+		consert.ContextAssertion msg = messageFactory.newFromType(consert.ContextAssertion._TYPE);
+		
+		msg.setId(assertion.getAssertionIdentifier());
+		msg.setType(assertion.getClass().getName());
+		msg.setAcquisitionType(assertion.getAcquisitionType().name());
+		
+		msg.setAnnotations(writeAnnotations(assertion.getAnnotations()));
+		
+		Set<Entry<String, ContextEntity>> roles = assertion.getEntities().entrySet();
+		List<consert.EntityRole> rolesList = new ArrayList<EntityRole>();
+		
+		for (Entry<String, ContextEntity> entityRole : roles) {
+			consert.EntityRole roleMsg = messageFactory.newFromType(consert.EntityRole._TYPE);
+			roleMsg.setRole(entityRole.getKey());
+			roleMsg.setEntity(writeEntity(entityRole.getValue()));
+			
+			rolesList.add(roleMsg);
+		}
+		
+		msg.setEntities(rolesList);
+		
+		return msg;
 	}
 	
 	
@@ -208,16 +243,15 @@ public class ConsertModelSerializer {
 		return null;
 	}
 	
-	public consert.ContextAssertion writeAssertion(ContextAssertion assertion) {
-		consert.ContextAssertion msg = messageFactory.newFromType(consert.ContextAssertion._TYPE);
+	
+	public consert.ContextAssertionContent writeContextAssertionContent(ContextAssertionContent assertionContent) {
+		consert.ContextAssertionContent msg = messageFactory.newFromType(consert.ContextAssertion._TYPE);
 		
-		msg.setId(assertion.getAssertionIdentifier());
-		msg.setType(assertion.getClass().getName());
-		msg.setAcquisitionType(assertion.getAcquisitionType().name());
+		msg.setType(assertionContent.getType());
+		msg.setAcquisitionType(assertionContent.getAcquisitionType());
 		
-		msg.setAnnotations(writeAnnotations(assertion.getAnnotations()));
 		
-		Set<Entry<String, ContextEntity>> roles = assertion.getEntities().entrySet();
+		Set<Entry<String, ContextEntity>> roles = assertionContent.getEntities().entrySet();
 		List<consert.EntityRole> rolesList = new ArrayList<EntityRole>();
 		
 		for (Entry<String, ContextEntity> entityRole : roles) {
@@ -232,6 +266,24 @@ public class ConsertModelSerializer {
 		
 		return msg;
 	}
+	
+	public consert.EventWindow writeEventWindow(EventWindow eventWindow) {
+		consert.EventWindow msg = messageFactory.newFromType(consert.EventWindow._TYPE);
+		
+		msg.setPossibleContextAssertion(writeContextAssertionContent(eventWindow.getPossibleAssertion()));
+		msg.setStartTimestamp(eventWindow.getWindowStart());
+		msg.setEndTimestamp(eventWindow.getWindowEnd());
+		
+		List<consert.ContextAssertion> supportingAssertions = new ArrayList<>();
+		for (ContextAssertion assertion : eventWindow.getSupportingAssertions()) {
+			supportingAssertions.add(writeAssertion(assertion));
+		}
+		
+		msg.setSupportingAssertions(supportingAssertions);
+		
+		return msg;
+    }
+	
 	
 //	public ContextAssertion readAssertion(BinaryAssertion rosMessage) {
 //		try {

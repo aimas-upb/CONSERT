@@ -2,7 +2,7 @@ package org.aimas.consert.engine.api;
 
 public interface ContextAssertionListenerRegistrer {
 	
-	void addEventListener(ContextAssertionListener eventListener);
+	void addContextAssertionListener(ContextAssertionListener eventListener);
 	
-	void removeEventListener(ContextAssertionListener updateListener);
+	void removeContextAssertionListener(ContextAssertionListener updateListener);
 }
