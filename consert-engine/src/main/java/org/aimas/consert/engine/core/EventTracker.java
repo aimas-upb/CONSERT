@@ -2,16 +2,10 @@ package org.aimas.consert.engine.core;
 
 import java.util.Date;
 
-import org.aimas.consert.engine.api.ContextAssertionListener;
-import org.aimas.consert.engine.api.ContextAssertionNotifier;
-import org.aimas.consert.engine.api.EntityDescriptionListener;
-import org.aimas.consert.engine.api.EntityDescriptionNotifier;
 import org.aimas.consert.engine.core.ConstraintChecker.ConstraintResult;
 import org.aimas.consert.engine.core.ContinuityChecker.ContinuityResult;
 import org.aimas.consert.engine.core.TrackedAssertionStore.TrackedAssertionData;
-import org.aimas.consert.model.annotations.AnnotationDataFactory;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
-import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.EntityDescription;
 import org.drools.core.common.EventFactHandle;
@@ -27,37 +21,27 @@ public class EventTracker extends BaseEventTracker {
 
     public static final String CONSTRAINT_STORE = "ConstraintStore";
 
-
-	
-	private AnnotationDataFactory annotationFactory = new DefaultAnnotationDataFactory();
-	
-	private ContextAssertionNotifier eventNotifier = ContextAssertionNotifier.getNewInstance();
-	private EntityDescriptionNotifier factNotifier = EntityDescriptionNotifier.getNewInstance();
-	
-	public AnnotationDataFactory getAnnotationFactory() {
-		return annotationFactory;
-	}
-	
-	public void setAnnotationFactory(AnnotationDataFactory annotationFactory) {
-		this.annotationFactory = annotationFactory;
-	}
-
 	private ContinuityChecker continuityChecker;
     private ConstraintChecker constraintChecker;
     
-    private EventWindowManager eventWindowManager;
-    
     private ConstraintResolutionHandler constraintResolutionHandler;
     
+    private EventWindowManager eventWindowManager;
     
-
+    
 	public EventTracker(KieSession kSession) {
 		super(kSession);
-		kSession.setGlobal("eventTracker", this);
-
+		
+		// initialize EventWindowManager, continuity and constraint checkers, as well as constraint resolution handlers
+		eventWindowManager = new EventWindowManager();
+		
 		continuityChecker = new ContinuityChecker(this);
 		constraintChecker = new ConstraintChecker(this);
 		constraintResolutionHandler = new ConstraintResolutionHandler(this);
+		
+		// set global access for the Event Tracker and the Event Window Manager
+		kSession.setGlobal("eventTracker", this);
+		kSession.setGlobal("eventWindowManager", eventWindowManager);
 	}
 
 
@@ -413,25 +397,7 @@ public class EventTracker extends BaseEventTracker {
     
     @Override
 	public void objectUpdated(ObjectUpdatedEvent event) {
+    	
     }
 
-	@Override
-    public void addEventListener(ContextAssertionListener eventListener) {
-	    eventNotifier.addEventListener(eventListener);
-    }
-
-	@Override
-    public void removeEventListener(ContextAssertionListener eventListener) {
-	    eventNotifier.removeEventListener(eventListener);
-    }
-
-	@Override
-    public void addFactListener(EntityDescriptionListener factListener) {
-	    factNotifier.addfactListener(factListener);
-    }
-
-	@Override
-    public void removeFactListener(EntityDescriptionListener factListener) {
-	    factNotifier.removefactListener(factListener);
-    }
 }
