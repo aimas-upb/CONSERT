@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.aimas.consert.model.annotations.AnnotationData;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 
 
 public abstract class UnaryContextAssertion extends ContextAssertion {
