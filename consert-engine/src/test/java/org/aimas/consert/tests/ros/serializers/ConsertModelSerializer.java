@@ -162,6 +162,7 @@ public class ConsertModelSerializer {
 		msg.setId(assertion.getAssertionIdentifier());
 		msg.setType(assertion.getClass().getName());
 		msg.setAcquisitionType(assertion.getAcquisitionType().name());
+		msg.setArity((byte)assertion.getAssertionArity());
 		
 		msg.setAnnotations(writeAnnotations(assertion.getAnnotations()));
 		
@@ -245,10 +246,11 @@ public class ConsertModelSerializer {
 	
 	
 	public consert.ContextAssertionContent writeContextAssertionContent(ContextAssertionContent assertionContent) {
-		consert.ContextAssertionContent msg = messageFactory.newFromType(consert.ContextAssertion._TYPE);
+		consert.ContextAssertionContent msg = messageFactory.newFromType(consert.ContextAssertionContent._TYPE);
 		
 		msg.setType(assertionContent.getType());
 		msg.setAcquisitionType(assertionContent.getAcquisitionType());
+		msg.setArity((byte)assertionContent.getArity());
 		
 		
 		Set<Entry<String, ContextEntity>> roles = assertionContent.getEntities().entrySet();

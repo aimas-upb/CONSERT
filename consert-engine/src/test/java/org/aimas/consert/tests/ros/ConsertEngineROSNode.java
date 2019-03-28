@@ -223,6 +223,8 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode
 	public void onShutdown(Node node) {
 	    super.onShutdown(node);
 	    
+	    System.out.println("################## PUBLISHED " + counter + " eventWindows");
+	    
 	    System.out.println("========================== TERMINATE MORE ======================");
 //		try {
 			kSession.halt();
@@ -262,9 +264,12 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode
 	    
     }
 	
+	static int counter = 0;
+	
 	@Override
     public void notifyEventWindowSubmitted(EventWindow eventWindow) {
 	    consert.EventWindow msg = consertModelSerializer.writeEventWindow(eventWindow);
+	    counter ++;
 	    eventWindowPublisher.publish(msg);
     }
 	
@@ -316,6 +321,7 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode
 		assert (nodeMain != null);
 		NodeMainExecutor nodeMainExecutor = DefaultNodeMainExecutor.newDefault();
 		nodeMainExecutor.execute(nodeMain, nodeConfiguration);
+		
 		
 //		System.out.println("MAIN THREAD REACHED HERE!!!");
 //		nodeMainExecutor.shutdownNodeMain(nodeMain);
