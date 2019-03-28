@@ -59,6 +59,8 @@ add_message_files(
   UnaryAssertion.msg
   BinaryAssertion.msg
   NaryAssertion.msg
+  ContextAssertionContent.msg
+  EventWindow.msg
 )
 
 ## Generate services in the 'srv' folder
