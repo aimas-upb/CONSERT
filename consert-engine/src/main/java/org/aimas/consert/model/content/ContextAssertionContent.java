@@ -31,7 +31,7 @@ public class ContextAssertionContent {
     public int hashCode() {
 	    final int prime = 31;
 	    int result = 1;
-	    result = prime * result + ((assertion == null) ? 0 : assertion.hashCode());
+	    result = prime * result + ((assertion == null) ? 0 : assertion.getContentHash());
 	    return result;
     }
 
@@ -47,13 +47,11 @@ public class ContextAssertionContent {
 	    
 	    ContextAssertionContent other = (ContextAssertionContent) obj;
 	    
-	    if (assertion == null) {
-		    if (other.assertion != null)
-			    return false;
-	    }
-	    else 
-	    	if (!assertion.equals(other.assertion))
-	    		return false;
+	    if (assertion == null) 
+		    return false;
+	    
+	    if (!assertion.allowsContentContinuity(other.assertion))
+	    	return false;
 	    
 	    return true;
     }

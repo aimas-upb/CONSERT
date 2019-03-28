@@ -33,7 +33,7 @@ public class EventWindowManager {
 	
 	public void updateWindow(ContextAssertion possibleContextAssertion, ContextAssertion ... supportingAssertions) {
 		if (supportingAssertions != null) {
-			if (activeWindows.containsKey(possibleContextAssertion)) {
+			if (activeWindows.containsKey(possibleContextAssertion.getAssertionContent())) {
 				// if the key exists, extend the existing window
 				activeWindows.get(possibleContextAssertion.getAssertionContent()).addSupportingAssertions(Arrays.asList(supportingAssertions));
 			}

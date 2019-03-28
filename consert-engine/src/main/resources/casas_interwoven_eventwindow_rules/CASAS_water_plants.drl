@@ -346,7 +346,7 @@ end
 rule "Add kitchen motion events to possible Cleaning event windows"
     when
         $cleaningPossible : ActivityTriggered(name == "CleaningPossible", triggerTs : timestamp)
-        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status == "ON") from entry-point "MotionStream"
+        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18") from entry-point "MotionStream"
         exists PersonLocation(location == "Kitchen", this annIncludes $motion) from entry-point "ExtendedPersonLocationStream"
     
     then    
@@ -354,9 +354,8 @@ rule "Add kitchen motion events to possible Cleaning event windows"
         
         if (eventWindowManager.existsWindow(possibleCleaningAssertion)) {
             eventWindowManager.updateWindow(possibleCleaningAssertion, $motion);
+            eventWindowManager.submitWindow(possibleCleaningAssertion);
         }
-        
-        eventWindowManager.submitWindow(possibleCleaningAssertion);
 end
 
 
