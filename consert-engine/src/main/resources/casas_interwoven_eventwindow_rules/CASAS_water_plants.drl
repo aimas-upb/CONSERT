@@ -73,8 +73,8 @@ rule "Accessing supplies"
         WaterPlants possibleWaterPlantsAssertion = new WaterPlants();
         
         // start event windows for Cleaning and WaterPlants
-        eventWindowManager.newWindow(possibleCleaningAssertion.getAssertionContent(), $trigger);
-        eventWindowManager.newWindow(possibleWaterPlantsAssertion.getAssertionContent(), $trigger);
+        eventWindowManager.newWindow(possibleCleaningAssertion, $trigger);
+        eventWindowManager.newWindow(possibleWaterPlantsAssertion, $trigger);
 end
 
 
@@ -356,7 +356,7 @@ rule "Add kitchen motion events to possible Cleaning event windows"
             eventWindowManager.updateWindow(possibleCleaningAssertion, $motion);
         }
         
-        eventWindowManager.submitWindow(possibleCleaningAction);
+        eventWindowManager.submitWindow(possibleCleaningAssertion);
 end
 
 
