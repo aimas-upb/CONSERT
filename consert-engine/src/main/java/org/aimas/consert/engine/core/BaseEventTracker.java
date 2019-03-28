@@ -13,12 +13,13 @@ import org.aimas.consert.model.annotations.AnnotationDataFactory;
 import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.EntityDescription;
+import org.aimas.consert.model.eventwindow.EventWindow;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieSession;
 
 public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 		ContextAssertionListenerRegistrer, EntityDescriptionListenerRegistrer, 
-		EventWindowListenerRegistrer {
+		EventWindowListenerRegistrer, EventWindowListener {
 	
 	protected KieSession kSession;
     protected TrackedAssertionStore trackedAssertionStore;
@@ -99,7 +100,12 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
     public void removeEventWindowListener(EventWindowListener eventWindowListener) {
 		eventWindowNotifier.removeEventWindowListener(eventWindowListener);
     }
-
+	
+	@Override
+	public void notifyEventWindowSubmitted(EventWindow eventWindow) {
+		eventWindowNotifier.notifyEventWindowSubmitted(eventWindow);
+	}
+	
 	
 	public abstract void insertStaticEvent(EntityDescription entityDescription);
 	

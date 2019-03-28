@@ -1,0 +1,504 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Motion
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+import org.aimas.consert.tests.casas.assertions.PersonMoving
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+import org.aimas.consert.engine.core.EventTracker
+
+global EventTracker eventTracker;
+
+
+
+declare PersonLocation
+    @role(event)
+    //@timestamp(startTimestamp)
+    //@duration(eventDuration)
+end
+
+
+declare PersonMoving
+    @role(event)
+end
+
+// ===============================================================================
+// ================================ person moving ================================
+// ===============================================================================
+rule "Person Moving in between places"
+    when
+        $motion : Motion(id1 : sensorId, status == "ON") from entry-point "MotionStream"
+        exists Motion(id2 : sensorId, id2 != id1, status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream" 
+    then
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        
+        PersonMoving moving = new PersonMoving(ann);
+        eventTracker.insertEvent(moving);
+end
+
+
+rule "Person Moving in same place"
+    when
+        $m1 : Motion(id1 : sensorId, status == "ON") from entry-point "MotionStream"
+        $m2 : Motion(sensorId == id1, status == "ON", this before[1, 6s] $m1) from entry-point "MotionStream"
+        $m3 : Motion(sensorId == id1, status == "OFF", this before $m1, this after $m2) from entry-point "MotionStream"
+        not (exists Motion(sensorId != id1, status == "ON", this before $m1, this after $m2) from entry-point "MotionStream") 
+    then
+        long ts = eventTracker.getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        
+        PersonMoving moving = new PersonMoving(ann);
+        eventTracker.insertEvent(moving);
+end
+
+// ===============================================================================
+// =============================== at dining table ===============================
+// ===============================================================================
+
+rule "At Dining Table"
+    when 
+        $motion : Motion(sensorId == "M13" || sensorId == "M14") from entry-point "MotionStream"
+        not (
+            exists Motion(id1 : sensorId, id1 not in ("M13", "M14"), this before[0s, 2s] $motion) from entry-point "MotionStream" &&
+            exists Motion(id2 : sensorId, id2 not in ("M13", "M14"), this after[0s, 2s] $motion) from entry-point "MotionStream"
+        )
+    then
+        System.out.println("{}{}{}{} Triggering INIT AT DINING TABLE rule following event: " + $motion + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("DiningTable", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+rule "Stay At Dining Table"
+    salience 10
+    when
+        $motion : Motion(id : sensorId == "M13" || sensorId == "M14" , status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 in ("M13", "M14"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( exists Motion(id_other : sensorId, id_other != id, id_other not in ("M13", "M14"), this after[0s, 3s] $motion) from entry-point "MotionStream" )
+        not( exists PersonLocation(location != "DiningTable", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream" )
+    then
+        System.out.println("[][][][][][] Triggering STAY AT DINING TABLE RULE following event: " + $motion + "\n");
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("DiningTable", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Remain at dining table"
+    salience 20
+    //timer (int: 0s 2s)
+    //duration(10s)
+    when
+        loc : PersonLocation(location1 : location == "DiningTable") from entry-point "ExtendedPersonLocationStream"
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+        
+        //loc : Motion(id1 : sensorId, stat: status) from entry-point "MotionStream"
+        //loc2: Motion(this != loc, id2 : sensorId == id1, status == stat, this after[8s, 10s] loc) from entry-point "MotionStream"
+    then
+        System.out.println("[][][][][][] Triggering REMAIN AT DINING TABLE RULE following event: " + loc + "\n");
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation sameLoc = new PersonLocation("DiningTable", ann);
+     
+        eventTracker.insertEvent(sameLoc);
+        
+        //System.out.println("Triggering REMAIN AT DINING TABLE RULE following events: " + loc + "\n" + loc2);
+        //System.out.println("Triggering REMAIN AT DINING TABLE RULE following event: " + loc + "\n");
+end
+
+
+// ==============================================================================
+// =============================== in the kitchen ===============================
+// ==============================================================================
+rule "Entering the kitchen"
+    when
+        $m1 : Motion(sensorId == "M15", status == "ON") from entry-point "MotionStream"
+        $m2 : Motion(sensorId == "M16", status == "ON", this after[0s, 5s] $m1) from entry-point "MotionStream"
+        not (exists Motion(id : sensorId, id not in ("M15", "M16", "M17", "M18"), status == "ON", this after[0s, 2s] $m2) from entry-point "MotionStream" )
+    then
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        ActivityTriggered inKitchen = new ActivityTriggered("inKitchen", ts);
+        eventTracker.insertStaticEvent(inKitchen);
+        
+        System.out.println("////// ~~~~~ Triggering IN KITCHEN FACT at " + ts);
+end
+
+rule "Leaving the kitchen"
+    when 
+        $act : ActivityTriggered(name == "inKitchen", prevTs : timestamp)
+        $m1 : Motion(mId : sensorId, mId == "M15" || mId == "M16", status == "ON") from entry-point "MotionStream"
+        not (exists Motion(otherId : sensorId, otherId == mId, status == "ON", this after $m1) from entry-point "MotionStream")
+        exists Motion(id : sensorId, id not in ("M15", "M16", "M17", "M18"), status == "ON", this after[2s, 10s] $m1) from entry-point "MotionStream"
+    then
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        System.out.println("////// ~~~~~ Removing IN KITCHEN FACT at " + ts + ", after: " + (ts - prevTs) + " ms");
+        System.out.println("////// ~~~~~ Removing IN KITCHEN FACT based on: " + $m1);
+        eventTracker.deleteStaticEvent($act);
+end
+
+
+rule "In the kitchen"
+    when 
+        $motion : Motion(sensorId == "M15" || sensorId == "M16" || sensorId == "M17" || sensorId == "M18") from entry-point "MotionStream"
+        not ( exists Motion(id1 : sensorId, id1 not in ("M15", "M16", "M17", "M18"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
+        not ( exists Motion(id2 : sensorId, id2 not in ("M15", "M16", "M17", "M18"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
+    then
+        System.out.println("{}{}{}{} Triggering INIT AT KITCHEN rule following event: " + $motion + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("Kitchen", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Stay in kitchen"
+    salience 10
+    when
+        $motion : Motion(id : sensorId == "M15" || sensorId == "M16" || sensorId == "M17" || sensorId == "M18", status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 in ("M15", "M16", "M17", "M18"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( 
+            exists Motion(id_other : sensorId, id_other != id, id_other not in ("M15", "M16", "M17", "M18"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            exists PersonLocation(location != "Kitchen", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+        )
+    then
+        System.out.println("[][][][][][] Triggering STAY IN KITCHEN rule following event: " + $motion + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        //DefaultAnnotationData motionAnn = (DefaultAnnotationData)$motion.getAnnotations();
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("Kitchen", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Remain in kitchen"
+    salience 20
+    when
+        loc : PersonLocation(location1 : location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
+        //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annOverlappedBy[0s, 5s] loc) from entry-point "ExtendedPersonLocationStream" )
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        //not( PersonLocation(location2: location, location2 != location1, this annHappensAfter[0s, 5s] loc || this annIntersects[5s] loc) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+    then
+        System.out.println("[][][][][][] Triggering REMAIN AT KITCHEN rule following event: " + loc + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        //DefaultAnnotationData locAnn = (DefaultAnnotationData)loc.getAnnotations();
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation sameLoc = new PersonLocation("Kitchen", ann);
+        
+        eventTracker.insertEvent(sameLoc);
+end
+
+
+// ===============================================================================
+// =============================== near the TV set ===============================
+// ===============================================================================
+rule "near tv set"
+    when 
+        $motion : Motion(sensorId == "M02" || sensorId == "M03") from entry-point "MotionStream"
+        not ( exists Motion(id1 : sensorId, id1 not in ("M02", "M03"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
+        not ( exists Motion(id2 : sensorId, id2 not in ("M02", "M03"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
+    then
+        System.out.println("{}{}{}{} Triggering INIT NEAR TV SET rule following event: " + $motion + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("TV", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Stay near tv set"
+    salience 10
+    when
+        $motion : Motion(id : sensorId == "M02" || sensorId == "M03", status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 in ("M02", "M03"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( 
+            exists Motion(id_other : sensorId, id_other != id, id_other not in ("M02", "M03"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            exists PersonLocation(location != "TV", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+        )
+    then
+        System.out.println("[][][][][][] Triggering STAY NEAR TV SET rule following event: " + $motion + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("TV", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Remain near tv set"
+    salience 20
+    when
+        loc : PersonLocation(location1 : location == "TV") from entry-point "ExtendedPersonLocationStream"
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+    then
+        System.out.println("[][][][][][] Triggering REMAIN NEAR TV SET rule following event: " + loc + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation sameLoc = new PersonLocation("TV", ann);
+        
+        eventTracker.insertEvent(sameLoc);
+end
+
+// ==============================================================================
+// =============================== in living room ===============================
+// ==============================================================================
+rule "In living room"
+    when 
+        $motion : Motion(sensorId == "M06" || sensorId == "M07" || sensorId == "M08" || sensorId == "M09" || sensorId == "M10") from entry-point "MotionStream"
+        not ( exists Motion(id1 : sensorId, id1 not in ("M06", "M07", "M08", "M09", "M10"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
+        not ( exists Motion(id2 : sensorId, id2 not in ("M55", "M06", "M07", "M08", "M10"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
+    then
+        System.out.println("{}{}{}{} Triggering INIT IN LIVING ROOM rule following event: " + $motion + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("LivingRoom", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Stay in living room"
+    salience 10
+    when
+        $motion : Motion(id : sensorId == "M06" || sensorId == "M07" || sensorId == "M08" || sensorId == "M09" || sensorId == "M10", status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 in ("M06", "M07", "M08", "M09", "M10"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( 
+            exists Motion(id_other : sensorId, id_other != id, id_other not in ("M06", "M07", "M08", "M09", "M10"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            exists PersonLocation(location != "LivingRoom", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+        )
+    then
+        System.out.println("[][][][][][] Triggering STAY IN LIVING ROOM rule following event: " + $motion + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("LivingRoom", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Remain in living room"
+    salience 20
+    when
+        loc : PersonLocation(location1 : location == "LivingRoom") from entry-point "ExtendedPersonLocationStream"
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+    then
+        System.out.println("[][][][][][] Triggering REMAIN IN LIVING ROOM rule following event: " + loc + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation sameLoc = new PersonLocation("LivingRoom", ann);
+        
+        eventTracker.insertEvent(sameLoc);
+end
+
+
+// =============================================================================
+// =============================== in plant area ===============================
+// =============================================================================
+rule "In plant area"
+    when 
+        $motion : Motion(sensorId == "M04" || sensorId == "M05" || sensorId == "M11") from entry-point "MotionStream"
+        not ( exists Motion(id1 : sensorId, id1 not in ("M04", "M05", "M11"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
+        not ( exists Motion(id2 : sensorId, id2 not in ("M04", "M05", "M11"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
+    then
+        System.out.println("{}{}{}{} Triggering INIT IN PLANT AREA rule following event: " + $motion + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("PlantArea", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Stay in plant area"
+    salience 10
+    when
+        $motion : Motion(id : sensorId == "M04" || sensorId == "M05" || sensorId == "M11", status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 in ("M04", "M05", "M11"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( 
+            exists Motion(id_other : sensorId, id_other != id, id_other not in ("M04", "M05", "M11"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            exists PersonLocation(location != "PlantArea", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+        )
+    then
+        System.out.println("[][][][][][] Triggering STAY IN PLANT AREA rule following event: " + $motion + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("PlantArea", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Remain in plant area"
+    salience 20
+    when
+        loc : PersonLocation(location1 : location == "PlantArea") from entry-point "ExtendedPersonLocationStream"
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+    then
+        System.out.println("[][][][][][] Triggering REMAIN IN PLANT AREA rule following event: " + loc + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation sameLoc = new PersonLocation("PlantArea", ann);
+        
+        eventTracker.insertEvent(sameLoc);
+end
+
+
+// =============================================================================
+// =============================== wardrobe area ===============================
+// =============================================================================
+rule "In wardrobe area"
+    when 
+        $motion : Motion(sensorId == "M21" || sensorId == "M22" || sensorId == "M23" || sensorId == "M01") from entry-point "MotionStream"
+        not ( exists Motion(id1 : sensorId, id1 not in ("M21", "M22", "M23", "M01"), this before[0s, 2s] $motion) from entry-point "MotionStream" )
+        not ( exists Motion(id2 : sensorId, id2 not in ("M21", "M22", "M23", "M01"), this after[0s, 2s] $motion) from entry-point "MotionStream" )
+    then
+        System.out.println("{}{}{}{} Triggering INIT IN WARDROBE AREA rule following event: " + $motion + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("Wardrobe", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Stay in wardrobe area"
+    salience 10
+    when
+        $motion : Motion(id : sensorId == "M21" || sensorId == "M22" || sensorId == "M23" || sensorId == "M01", status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 in ("M21", "M22", "M23", "M01"), status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( 
+            exists Motion(id_other : sensorId, id_other != id, id_other not in ("M21", "M22", "M23", "M01"), status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            exists PersonLocation(location != "Wardrobe", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+        )
+    then
+        System.out.println("[][][][][][] Triggering STAY IN WARDROBE AREA rule following event: " + $motion + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("Wardrobe", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Remain in wardrobe area"
+    salience 20
+    when
+        loc : PersonLocation(location1 : location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+    then
+        System.out.println("[][][][][][] Triggering REMAIN IN WARDROBE AREA rule following event: " + loc + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation sameLoc = new PersonLocation("Wardrobe", ann);
+        
+        eventTracker.insertEvent(sameLoc);
+end
+
+
+// =============================================================================
+// =============================== supplies area ===============================
+// =============================================================================
+rule "In supplies area"
+    when 
+        $motion : Motion(sensorId == "M51") from entry-point "MotionStream"
+        not ( exists Motion(id1 : sensorId, id1 != "M51", this before[0s, 2s] $motion) from entry-point "MotionStream" )
+        not ( exists Motion(id2 : sensorId, id2 != "M51", this after[0s, 2s] $motion) from entry-point "MotionStream" )
+    then
+        System.out.println("{}{}{}{} Triggering INIT IN SUPPLIES AREA rule following event: " + $motion + "\n");
+        
+        // create atomic PersonLocation ContextAssertion
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("Supplies", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Stay in supplies area"
+    salience 10
+    when
+        $motion : Motion(id : sensorId == "M51", status == "OFF") from entry-point "MotionStream"
+        $motionPrev : Motion(id2: sensorId, id2 == "M51", status == "ON", this before[0s, 3s] $motion) from entry-point "MotionStream"
+        not( 
+            exists Motion(id_other : sensorId, id_other != id, id_other != "M51", status == "ON", this after[0s, 3s] $motion) from entry-point "MotionStream" &&
+            exists PersonLocation(location != "Supplies", this annHappensBefore[0s, 3s] $motion) from entry-point "ExtendedPersonLocationStream"
+        )
+    then
+        System.out.println("[][][][][][] Triggering STAY IN SUPPLIES AREA rule following event: " + $motion + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation loc = new PersonLocation("Supplies", ann);
+        
+        eventTracker.insertEvent(loc);
+end
+
+
+rule "Remain in supplies area"
+    salience 20
+    when
+        loc : PersonLocation(location1 : location == "Supplies") from entry-point "ExtendedPersonLocationStream"
+        not( exists PersonLocation(location2: location, location2 != location1, this annOverlappedBy[0s, 5s] loc || loc annIncludes this) from entry-point "ExtendedPersonLocationStream" )
+        not( exists Motion(status == "ON", this annHappensAfter[0s, 5s] loc) from entry-point "MotionStream")
+    then
+        System.out.println("[][][][][][] Triggering REMAIN IN SUPPLIES AREA rule following event: " + loc + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        
+        DefaultAnnotationData ann = new DefaultAnnotationData(ts);
+        PersonLocation sameLoc = new PersonLocation("Supplies", ann);
+        
+        eventTracker.insertEvent(sameLoc);
+end

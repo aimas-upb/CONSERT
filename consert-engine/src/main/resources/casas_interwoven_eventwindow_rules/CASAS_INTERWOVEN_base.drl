@@ -1,0 +1,14 @@
+/*
+
+    activity 1 - fill dispenser - base sensors - I06 AND I04, sometimes I07, there must be changed (present/ absent) to see it carried the medicine pot
+    activity 2 -  watch dvd - base sensors - I03 and I05, for the DVD and the DVD Player
+    activity 3 - water plants - base sensors -  AD1-C and AD1-B for the water and D11 to see it goes to the supplies
+    activity 4 - answer phone - base sensors - PO1 for the phone  (start /end)
+    activity 5 - birthday card - base sensors - I08 and I09 for the envelope and the adress book
+    activity 6 - make soup - base sensors - I01 and I02 for the soup and the glass of water
+    activity 7 - cleaning - base sensors - D11 for going to the supplies and movement sensors to see where it is
+    activity 8 - choose outfit - base sensors - D12 for the wardrobe
+
+    - we can see that every activity has its own sensors, with only one exception - D11 is important for both
+      activity 7 and 3. We must differ those activities by checking the presence/ absence of the AD1 sensors
+*/

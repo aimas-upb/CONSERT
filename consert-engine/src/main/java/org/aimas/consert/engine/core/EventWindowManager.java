@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.aimas.consert.engine.api.EventWindowListener;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.ContextAssertionContent;
 import org.aimas.consert.model.eventwindow.EventWindow;
@@ -11,9 +12,10 @@ import org.aimas.consert.model.eventwindow.EventWindow;
 public class EventWindowManager {
 	
 	private Map<ContextAssertionContent, EventWindow> activeWindows;
+	private EventWindowListener eventWindowListener;
 	
-	
-	public EventWindowManager() {
+	public EventWindowManager(EventWindowListener eventWindowListener) {
+		this.eventWindowListener= eventWindowListener;
 		activeWindows = new HashMap<>();
 	}
 	
@@ -61,5 +63,11 @@ public class EventWindowManager {
 		return activeWindows.get(possiblContextAssertion.getAssertionContent());
 	}
 	
+	
+	public void submitWindow(ContextAssertion possibleContextAssertion) {
+		if(existsWindow(possibleContextAssertion)) {
+			eventWindowListener.notifyEventWindowSubmitted(activeWindows.get(possibleContextAssertion.getAssertionContent()));
+		}
+	}
 	
 }

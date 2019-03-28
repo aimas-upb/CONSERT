@@ -1,0 +1,135 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
+import org.aimas.consert.tests.casas.assertions.PersonMoving
+
+import org.aimas.consert.engine.core.EventTracker
+import org.aimas.consert.utils.AssertionLogger
+
+import java.util.Date;
+import java.lang.Math;
+
+global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
+
+
+declare WriteBirthdayCard
+    @role(event)
+end
+
+
+
+/*
+There are two cases here:
+  - a: the person takes the address book and goes with it to the dining table to write and address the letter
+  - b: the person has the address book near the dining table, takes it and puts it back again several times depending on what he reads from the address
+
+In the majority of cases the person writes the letter at the dining table.
+Since there are no other activities which involve staying for a long time at the dining table, 
+a period of staying there for over 1 min is indicative of writing the birthday card (as long as it).
+
+For the case where the puts back the address book after a long while, we will detect the activity retro-actively, but not necessarily along the way if the user
+does not stay at the dining room table for a long while (see case of Person 20).
+
+Although the case may be that when staying for a long time at a given place (e.g. dining room table or living room) 
+it involves writing the birthday card OR watching the DVD.
+*/
+
+
+
+rule "Trigger for start writing birthday card" 
+    // When the address book or the envelope are being used, it means the user plans to write a birthday card
+    when 
+        activityNotTriggered("WriteBirthdayCard";)
+        $addressBook : Item(sensorId == "address_book" || sensorId == "envelope", status == "ABSENT") from entry-point "ItemStream"
+    then
+        System.out.println("////// Triggering START WRITE BITHDAY CARD rule following events: " + $addressBook + "\n");
+        
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData cardAnn = new DefaultAnnotationData(ts);
+        
+        WriteBirthdayCard writeCard = new WriteBirthdayCard(cardAnn);
+        eventTracker.insertEvent(writeCard);
+        
+        ActivityTriggered triggerStartWritingCard = new ActivityTriggered("WriteBirthdayCard", ts);
+        System.out.println("////// ADDING WRITE BITHDAY CARD TRIGGER: " + triggerStartWritingCard + "\n");
+        eventTracker.insertStaticEvent(triggerStartWritingCard);
+end
+
+
+rule "Trigger for end writing birthday card"
+    // When the address_book or envelope are being placed back AND more than 90s have passed since they were taken out
+    when
+        $trigger : ActivityTriggered(name == "WriteBirthdayCard", triggerTs : timestamp)
+        $addressBook : Item(sensorId == "address_book" || sensorId == "envelope", status == "PRESENT") from entry-point "ItemStream"
+        eval(eventTracker.getCurrentTime() - triggerTs >= 90000)
+    then
+        System.out.println("////// Triggering STOP WRITING BITHDAY CARD rule following events: " + $addressBook + 
+            " and time passage of " + (eventTracker.getCurrentTime() - triggerTs) + " ms \n");
+        eventTracker.deleteStaticEvent($trigger);
+end
+
+/*
+rule "Dummy check timer"
+    timer (int: 0s 2s)
+    when
+        $trigger : ActivityTriggered(name == "WriteBirthdayCard", triggerTs : timestamp, eval(eventTracker.getCurrentTime() - triggerTs < 10000 ))
+        
+    then
+        System.out.println("//////~~~~~~~~~~~~~~~~~~ TIME : " + (eventTracker.getCurrentTime()) + " ms \n");
+        System.out.println("//////~~~~~~~~~~~~~~~~~~ TIME : " + triggerTs + " ms \n");
+        System.out.println("//////~~~~~~~~~~~~~~~~~~ CHECK TIME DIFF : " + (eventTracker.getCurrentTime() - triggerTs) + " ms \n");
+end 
+*/
+
+rule "Trigger for end writing birthday card - items not placed back, but time long expired"
+    // When more than 3 mins have passed since the event has been triggered
+    timer (int: 0s 60s)
+    when
+        $trigger : ActivityTriggered(name == "WriteBirthdayCard", triggerTs : timestamp)
+    then
+        if (eventTracker.getCurrentTime() - triggerTs >= 180000) {
+	        System.out.println("////// Triggering STOP WRITING BITHDAY CARD rule following long overdue cancellation of : " + $trigger + 
+	            " and time passage of " + (eventTracker.getCurrentTime() - triggerTs) + " ms \n");
+	        eventTracker.deleteStaticEvent($trigger);
+        }
+end 
+
+
+
+rule "Actually writing birthday card" 
+    // Trigger actually writing the birthday card as long as staying in the LivingRoom or the DiningTable
+    when 
+        $activity : ActivityTriggered(name == "WriteBirthdayCard", ts : timestamp)
+        $loc : PersonLocation(location == "DiningTable", locAnn : annotations#DefaultAnnotationData,
+            locAnn.duration >= 30000) from entry-point "ExtendedPersonLocationStream"
+        
+        not (exists PersonMoving($loc annOverlaps this) from entry-point "ExtendedPersonMovingStream")
+    then
+        System.out.println("////// Triggering ACTUALLY WRITE BITHDAY CARD rule following events: " + $loc + ", " + $activity + "\n");
+        
+        long currentTs = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        DefaultAnnotationData cardAnn = new DefaultAnnotationData(currentTs, locAnn.getConfidence(),
+                                        new Date(Math.max(locAnn.getStartTime().getTime(), ts)), new Date(currentTs));
+        
+        WriteBirthdayCard writeCard = new WriteBirthdayCard(cardAnn);
+        eventTracker.insertDerivedEvent(writeCard);
+end
+
+// ===============================================================================================================
+
+
+

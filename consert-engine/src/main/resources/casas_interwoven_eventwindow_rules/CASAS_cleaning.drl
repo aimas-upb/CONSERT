@@ -1,0 +1,70 @@
+    package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+import org.aimas.consert.tests.casas.assertions.Cleaning
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+import org.aimas.consert.engine.core.EventTracker
+import org.aimas.consert.utils.AssertionLogger
+
+import java.util.Date;
+
+global EventTracker eventTracker;
+global AssertionLogger assertionLogger;
+
+declare Cleaning
+    @role(event)
+end
+
+rule "Supplies open"
+    when
+     //   $loc : PersonLocation(location == "supplies" || location == "kitchen") from entry-point "ExtendedPersonLocationStream"
+        $Supplies: Cabinet(sensorId == "supplies", status == "OPEN") from entry-point "CabinetStream"
+    then
+        System.out.println("////// Triggering SUPPLIES OPEN rule following events: " + $Supplies  + "\n");
+
+        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+        ActivityTriggered SuppliesOpen = new ActivityTriggered("SuppliesOpen", ts);
+        eventTracker.insertStaticEvent(SuppliesOpen);
+end
+
+
+rule "Cleaning"
+    timer (int: 0s 2s)
+    when
+        $SuppliesOpen: ActivityTriggered(name == "SuppliesOpen")
+        $loc : PersonLocation(location == "LivingRoom" || location == "DiningRoom") from entry-point "ExtendedPersonLocationStream"
+    then
+        System.out.println("////// Triggering CLEANING rule following events: "  + $SuppliesOpen + "," +  "\n");
+
+       long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+       AnnotationData ann = new DefaultAnnotationData(ts);
+       Cleaning cleaning = new Cleaning(ann);
+
+       eventTracker.insertEvent(cleaning);
+end
+
+
+rule "Supplies closed"
+    when
+     //   $loc : PersonLocation(location == "supplies" || location == "kitchen") from entry-point "ExtendedPersonLocationStream"
+        $SuppliesOpen: ActivityTriggered(name == "SuppliesOpen")
+
+         $Supplies: Cabinet(sensorId == "supplies", status == "CLOSE") from entry-point "CabinetStream"
+        not (exists Cabinet(sensorId == "supplies", status == "CLOSE", this after $Supplies) from entry-point "CabinetStream")
+    then
+        System.out.println("////// Triggering SUPPLIES CLOSED rule following events: " + $SuppliesOpen + ", " + $Supplies + "\n");
+
+        // remove the ActivityTriggered fact
+        eventTracker.deleteStaticEvent($SuppliesOpen);
+end

@@ -16,7 +16,9 @@ public class WaterPlants extends BinaryContextAssertion {
 	@AssertionRole("object")
 	String status;
 
-    public WaterPlants() {}
+    public WaterPlants() {
+    	super(new StringLiteral("WaterPlants"),new StringLiteral("WaterPlants"),  AcquisitionType.DERIVED, null);
+    }
 
     @Override
     public ContextAssertion cloneContent() {
@@ -25,8 +27,8 @@ public class WaterPlants extends BinaryContextAssertion {
 
     public WaterPlants(AnnotationData annotations) {
         super(new StringLiteral("WaterPlants"),new StringLiteral("WaterPlants"),  AcquisitionType.DERIVED, annotations);
-
     }
+    
     public WaterPlants(String sensorId, String status, AnnotationData annotations) {
         super(new StringLiteral(sensorId), new StringLiteral(status), AcquisitionType.DERIVED, annotations);
 

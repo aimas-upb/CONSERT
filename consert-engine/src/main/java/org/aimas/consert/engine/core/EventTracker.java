@@ -33,7 +33,7 @@ public class EventTracker extends BaseEventTracker {
 		super(kSession);
 		
 		// initialize EventWindowManager, continuity and constraint checkers, as well as constraint resolution handlers
-		eventWindowManager = new EventWindowManager();
+		eventWindowManager = new EventWindowManager(this);
 		
 		continuityChecker = new ContinuityChecker(this);
 		constraintChecker = new ConstraintChecker(this);

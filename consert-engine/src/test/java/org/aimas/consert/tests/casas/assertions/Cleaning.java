@@ -15,7 +15,9 @@ public class Cleaning extends BinaryContextAssertion {
 	@AssertionRole("object")
 	String status;
 
-    public Cleaning() {}
+    public Cleaning() {
+    	super(new StringLiteral("Cleaning"),new StringLiteral("Cleaning"),  AcquisitionType.DERIVED, null);
+    }
 
     @Override
     public ContextAssertion cloneContent() {
