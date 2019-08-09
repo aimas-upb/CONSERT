@@ -17,12 +17,12 @@ import org.aimas.consert.model.annotations.AnnotationUtils
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 
 import org.aimas.consert.engine.core.EventTracker
-import org.aimas.consert.utils.AssertionLogger
+import org.apache.log4j.Logger
 
 import java.util.Date;
 
 global EventTracker eventTracker;
-global AssertionLogger assertionLogger;
+global Logger generalRuleLogger;
 
 declare PhoneCall
     @role(event)
@@ -33,7 +33,7 @@ rule "Phone taken"
        //  $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
          $phone : Phone(status == "START") from entry-point "PhoneStream"
     then
-        System.out.println("////// Triggering PHONE TAKEN rule following events: " + $phone  + "\n");
+        generalRuleLogger.info("////// Triggering PHONE TAKEN rule following events: " + $phone  + "\n");
 
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         ActivityTriggered PhoneTaken = new ActivityTriggered("PhoneTaken", ts);
@@ -47,7 +47,7 @@ rule "Phone call"
         $PhoneTaken: ActivityTriggered(name == "PhoneTaken")
        // $loc : PersonLocation(location == "LivingRoom" || location == "TV") from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering PHONE CALL rule following events: "  + $PhoneTaken +  "\n");
+        generalRuleLogger.info("////// Triggering PHONE CALL rule following events: "  + $PhoneTaken +  "\n");
 
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         AnnotationData ann = new DefaultAnnotationData(ts);
@@ -65,7 +65,7 @@ rule "Stop phone"
         $phone : Phone(status == "END") from entry-point "PhoneStream"
         not (exists Phone(status == "END", this after $phone) from entry-point "PhoneStream")
     then
-        System.out.println("////// Triggering STOP PHONE rule following events: " + $PhoneTaken + ", " + $phone +  "\n");
+        generalRuleLogger.info("////// Triggering STOP PHONE rule following events: " + $PhoneTaken + ", " + $phone +  "\n");
 
         // remove the ActivityTriggered fact
         eventTracker.deleteStaticEvent($PhoneTaken);

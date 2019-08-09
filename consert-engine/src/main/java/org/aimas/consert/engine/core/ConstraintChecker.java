@@ -132,16 +132,14 @@ public class ConstraintChecker {
             return result;
         }
 
-        System.out.println("[CONSTRAINT CHECKER] Applicable constraint queries found for ContextAssertion: "
-                + contextAssertion);
+        //System.out.println("[CONSTRAINT CHECKER] Applicable constraint queries found for ContextAssertion: " + contextAssertion);
 
         for (Query q : constraintQueries) {
             String conditionType = q.getMetaData().get("conditionType").toString();
             QueryResults constraintResults = ((StatefulKnowledgeSessionImpl)kSession).getQueryResultsFromRHS(q.getName(), contextAssertion);
-
-
-            System.out.println("QUERY RESULTS RETRIEVED");
-
+            
+            //System.out.println("QUERY RESULTS RETRIEVED");
+            
             if (constraintResults.size() != 0) {
                 // We make the assumption that the newAssertion can only be in conflict with a single
                 // existing assertion. This assumption DEFINITELY holds true for Value and Uniqueness Constraints.

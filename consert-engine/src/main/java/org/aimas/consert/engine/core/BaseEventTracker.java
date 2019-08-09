@@ -1,5 +1,9 @@
 package org.aimas.consert.engine.core;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
 import org.aimas.consert.engine.api.ContextAssertionListener;
 import org.aimas.consert.engine.api.ContextAssertionListenerRegistrer;
 import org.aimas.consert.engine.api.ContextAssertionNotifier;
@@ -14,6 +18,11 @@ import org.aimas.consert.model.annotations.DefaultAnnotationDataFactory;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.EntityDescription;
 import org.aimas.consert.model.eventwindow.EventWindow;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieSession;
 
@@ -31,6 +40,14 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 	protected EntityDescriptionNotifier factNotifier = EntityDescriptionNotifier.getNewInstance();
 	protected EventWindowNotifier eventWindowNotifier = EventWindowNotifier.getNewInstance();
 	
+	
+	// general rule execution logger
+	protected Logger generalRuleLogger;
+	
+	// event window management logger
+	protected Logger eventWindowLogger;
+	
+	
 	public AnnotationDataFactory getAnnotationFactory() {
 		return annotationFactory;
 	}
@@ -44,7 +61,9 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 		kSession.addEventListener(this);
 
         trackedAssertionStore = TrackedAssertionStore.getNewInstance(kSession);
-	}
+        
+        configureLogging();
+ 	}
 	
 	/*
 	protected EntryPoint searchEntryPoint(FactHandle handle, KieSession kSession) {
@@ -58,6 +77,47 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 	}
 	*/
 
+	private void configureLogging() {
+		FileAppender generalRuleFileAppender = new FileAppender();
+	    generalRuleFileAppender.setName("generalRuleLogger");
+	    generalRuleFileAppender.setFile("general-rules.log");
+	    generalRuleFileAppender.setLayout(new PatternLayout("%-5p [%t, %c, %d{ABSOLUTE}]: %m%n"));
+	    generalRuleFileAppender.setThreshold(Level.DEBUG);
+	    generalRuleFileAppender.setAppend(false);
+	    generalRuleFileAppender.activateOptions();
+		
+	    FileAppender eventWindowFileAppender = new FileAppender();
+	    eventWindowFileAppender.setName("eventWindowLogger");
+	    eventWindowFileAppender.setFile("event-window-rules.log");
+	    eventWindowFileAppender.setLayout(new PatternLayout("%-5p [%t, %c, %d{ABSOLUTE}]: %m%n"));
+	    eventWindowFileAppender.setThreshold(Level.DEBUG);
+	    eventWindowFileAppender.setAppend(false);
+	    eventWindowFileAppender.activateOptions();
+	    
+	    generalRuleLogger = Logger.getLogger("generalRuleLogger");
+ 		eventWindowLogger = Logger.getLogger("eventWindowLogger");
+		
+		try {
+        	// set up logging
+     		Properties props = new Properties();
+     		File logConfigFile = new File(getClass().getClassLoader().getResource("log4j.properties").getFile());
+        	props.load(new FileInputStream(logConfigFile));
+        	
+        	PropertyConfigurator.configure(props);
+		} 
+        catch (Exception e) {
+			e.printStackTrace();
+			
+			generalRuleLogger.addAppender(generalRuleFileAppender);
+			eventWindowLogger.addAppender(eventWindowFileAppender);
+        }
+		
+		// set loggers as globals in KieSession
+		kSession.setGlobal("generalRuleLogger", generalRuleLogger);
+		kSession.setGlobal("eventWindowLogger", eventWindowLogger);
+	}
+	
+	
 	public KieSession getKnowledgeSession() {
 		return kSession;
 	}

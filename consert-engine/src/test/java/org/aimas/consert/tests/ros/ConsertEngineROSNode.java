@@ -25,6 +25,7 @@ import org.aimas.consert.tests.casas.utils.AnnOverlappedByOperator;
 import org.aimas.consert.tests.casas.utils.AnnOverlapsOperator;
 import org.aimas.consert.tests.casas.utils.AnnStartsAfterOperator;
 import org.aimas.consert.tests.ros.serializers.ConsertModelSerializer;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.drools.core.time.SessionPseudoClock;
 import org.kie.api.KieServices;
@@ -74,16 +75,7 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode
 	
 	private void setupSession(String filepath, String person, String task) throws Exception {
 		System.out.println("RUNNING EVENTS FOR file: " + filepath);
-
-		// set up logging
-		Properties props = new Properties();
-		File logConfigFile = getFileNameFromResources("log4j.properties");
-		props.load(new FileInputStream(logConfigFile));
-		PropertyConfigurator.configure(props);
-
-		//Logger logger = Logger.getLogger("assertionLogger");
-		//AssertionLogger assertionLogger = new AssertionLogger(logger);
-
+		
 		// create a new knowledge builder conf
 		KnowledgeBuilderConfiguration builderConf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
 		builderConf.setOption(EvaluatorOption.get("annOverlaps", new AnnOverlapsOperator.AnnOverlapsEvaluatorDefinition()));
@@ -99,17 +91,20 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode
 		kSessionConfig.setOption( ClockTypeOption.get( "pseudo" ) );
 
 		kSession = getKieSessionFromResources( builderConf, kSessionConfig,
-				"casas_interwoven_eventwindow_rules/CASAS_base.drl",
-				"casas_interwoven_eventwindow_rules/CASAS_location.drl",
+				"casas_interwoven_rules/CASAS_base.drl",
+				"casas_interwoven_rules/CASAS_location.drl",
 				"casas_interwoven_constraints/PersonLocation_constraints.drl",
 
-				"casas_interwoven_eventwindow_rules/CASAS_watch_DVD.drl",
-				"casas_interwoven_eventwindow_rules/CASAS_phone_call.drl",
-				"casas_interwoven_eventwindow_rules/CASAS_fill_pills.drl",
-				"casas_interwoven_eventwindow_rules/CASAS_soup.drl",
-				"casas_interwoven_eventwindow_rules/CASAS_outfit.drl",
-				"casas_interwoven_eventwindow_rules/CASAS_write_birthdaycard.drl",
-				"casas_interwoven_eventwindow_rules/CASAS_water_plants.drl"
+				"casas_interwoven_rules/CASAS_watch_DVD.drl",
+				"casas_interwoven_rules/CASAS_phone_call.drl",
+				"casas_interwoven_rules/CASAS_fill_pills.drl",
+				"casas_interwoven_rules/CASAS_soup.drl",
+				"casas_interwoven_rules/CASAS_outfit.drl",
+				"casas_interwoven_rules/CASAS_write_birthdaycard.drl",
+				"casas_interwoven_rules/CASAS_water_plants.drl",
+				
+				//"casas_interwoven_eventwindow_rules/CASAS_water_plants_event_windows.drl"
+				"casas_interwoven_eventwindow_rules/CASAS_cleaning_event_windows.drl"
         );
 		
 		
@@ -216,6 +211,8 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode
 		// by the engine runner
 		
     	connectedNode.executeCancellableLoop(new CASASTestLoop(connectedNode));
+    	
+    	System.out.println("========================== START PROCESSING ======================");
 	}
 	
 	
@@ -268,7 +265,9 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode
 	
 	@Override
     public void notifyEventWindowSubmitted(EventWindow eventWindow) {
-	    consert.EventWindow msg = consertModelSerializer.writeEventWindow(eventWindow);
+	    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Publishing eventWindow: \n" + eventWindow + "\n");
+		
+		consert.EventWindow msg = consertModelSerializer.writeEventWindow(eventWindow);
 	    counter ++;
 	    eventWindowPublisher.publish(msg);
     }
@@ -299,7 +298,6 @@ public class ConsertEngineROSNode extends BaseConsertEngineROSNode
 		NodeConfiguration nodeConfiguration = loader.build();
 		
 		nodeConfiguration.setMasterUri(new java.net.URI("http://localhost:11311/"));
-		
 		
 		NodeMain nodeMain = null;
 		try {

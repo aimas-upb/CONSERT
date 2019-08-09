@@ -1,0 +1,122 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
+import org.aimas.consert.tests.casas.assertions.WaterPlants
+import org.aimas.consert.tests.casas.assertions.SuppliesRetrieved
+import org.aimas.consert.tests.casas.assertions.AccessingSupplies
+import org.aimas.consert.tests.casas.assertions.Cleaning
+
+import org.aimas.consert.engine.core.EventTracker
+import org.aimas.consert.engine.core.EventWindowManager
+import org.aimas.consert.model.eventwindow.EventWindow
+import org.aimas.consert.utils.AssertionLogger
+
+import java.lang.Math;
+import java.util.Date;
+
+global EventTracker eventTracker;
+global EventWindowManager eventWindowManager;
+global AssertionLogger assertionLogger;
+
+
+declare WaterPlants
+    @role(event)
+end
+
+declare SuppliesRetrieved
+    @role(event)
+end
+
+declare AccessingSupplies
+    @role(event)
+end
+
+declare Cleaning
+    @role(event)
+end
+
+
+rule "Accessing supplies - start windows"
+    when
+        $trigger : Cabinet(sensorId == "supplies") from entry-point "CabinetStream"
+        //exists (
+        //    Motion(sensorId == "M51" || sensorId == "M18", status == "ON", 
+        //        this before[0s, 10s] $trigger || this after[0s, 10s] $trigger) from entry-point "MotionStream"
+        //)
+        not (
+            exists Cabinet(sensorId == "supplies", this before[1ms, 20s] $trigger) from entry-point "CabinetStream"
+        ) 
+    then
+        // access to supplies is the trigger for creating event windows for Cleaning and WaterPlants
+        //Cleaning possibleCleaningAssertion = new Cleaning();
+        WaterPlants possibleWaterPlantsAssertion = new WaterPlants();
+        
+        // start event windows for Cleaning and WaterPlants
+        //eventWindowManager.newWindow(possibleCleaningAssertion, 30, 0, $trigger);
+        eventWindowManager.newWindow(possibleWaterPlantsAssertion, 30, 0, $trigger);
+end
+
+// ==============================================================================================================
+// Motion events near supply closet, if windows exist
+rule "Motion events near supply closet, if windows exist"
+    when
+        $motion: Motion(id : sensorId == "M18" || sensorId == "M51", motionAnn : annotations) from entry-point "MotionStream"
+        EventWindow(assertion : possibleAssertion, assertion.getName() == "WaterPlants", 
+        	motionAnn.getTimestamp() > windowEnd)
+    then
+        eventWindowManager.updateWindow(assertion, $motion);
+end
+
+// Motion events in kitchen, if Cleaning or WaterPlants possible and windows exist
+/*
+rule "Motion events in kitchen, if Cleaning or WaterPlants and activities possible windows exist"
+    when
+        $motion: Motion(id : sensorId == "M15" || sensorId == "M16" || sensorId == "M17", motionAnn : annotations) from entry-point "MotionStream"
+        
+        EventWindow(assertion : possibleAssertion, winStart : windowStart, winEnd : windowEnd, 
+        	assertion.getName() == "Cleaning" || assertion.getName() == "WaterPlants",
+        	motionAnn.getTimestamp() > winEnd)
+        	//, winStart <= triggerTs)
+    then
+        eventWindowManager.updateWindow(assertion, $motion);
+end
+*/
+
+
+// =======================================================================================
+// Cleaning - window continuation events + end-trigger events
+rule "Add Kitchen motion events to possible Cleaning event windows"
+    when
+        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", motionAnn : annotations) from entry-point "MotionStream"
+        
+        exists PersonLocation(location == "Kitchen", this annIncludes $motion) from entry-point "ExtendedPersonLocationStream"
+        
+        // if there is an event window for Cleaning or WaterPlants
+        EventWindow(assertion : possibleAssertion, winStart : windowStart, winEnd : windowEnd,
+        	assertion.getName() == "WaterPlants",  motionAnn.getTimestamp() > windowEnd)
+        	//, windowStart <= triggerTs)
+        
+    then    
+        eventWindowManager.updateWindow(assertion, $motion);
+end
+
+
+// ==============================================================================================================
+// Watering Plants: window continuation events + end-trigger events
+
+
+
+

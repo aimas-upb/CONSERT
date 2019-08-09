@@ -242,7 +242,9 @@ public abstract class ContextAssertion {
 			str += entityRole + ": " + getEntities().get(entityRole) + ", ";
 		}
 		
-		str += "\n" + getAnnotations().toString();
+		if (annotationData != null)
+			str += "\n" + getAnnotations().toString();
+		
 		str += "]";
 		
 		return str;

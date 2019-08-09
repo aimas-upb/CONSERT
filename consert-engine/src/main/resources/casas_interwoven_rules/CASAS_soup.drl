@@ -17,12 +17,12 @@ import org.aimas.consert.model.annotations.AnnotationUtils
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 
 import org.aimas.consert.engine.core.EventTracker
-import org.aimas.consert.utils.AssertionLogger
+import org.apache.log4j.Logger
 
 import java.util.Date;
 
 global EventTracker eventTracker;
-global AssertionLogger assertionLogger;
+global Logger generalRuleLogger;
 
 declare PreparingSoup
     @role(event)
@@ -48,7 +48,7 @@ rule "Cooking soup when taking soup/glass item and using water"
             
         exists Water(this before[0s, 30s] $soup || this after[0s, 30s] $soup) from entry-point "WaterStream"
     then
-        System.out.println("////// Triggering Cooking Soup rule - get soup - following events: " + $loc + ", "
+        generalRuleLogger.info("////// Triggering Cooking Soup rule - get soup - following events: " + $loc + ", "
             + $soup  + "\n");
         
         long ts = eventTracker.getCurrentTime();
@@ -76,7 +76,7 @@ rule "Cooking soup when using fridge"
         not (exists Cleaning(this annIntersects $loc, this annHappensBefore[0s, 10s] $item) from entry-point "ExtendedCleaningStream")
         not (exists WaterPlants(this annIntersects $loc, this annHappensBefore[0s, 10s] $item) from entry-point "ExtendedWaterPlantsStream")
     then
-        System.out.println("////// Triggering Cooking Soup rule - use fridge and microwave - following events: " + $loc + ", "
+        generalRuleLogger.info("////// Triggering Cooking Soup rule - use fridge and microwave - following events: " + $loc + ", "
             + $item  + "\n");
         
         long ts = eventTracker.getCurrentTime();
@@ -94,7 +94,7 @@ rule "Soup taken"
          $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
          $soup: Item(sensorId == "soup" || sensorId == "glass" , status == "ABSENT",  this before [0s, 10s] $loc || this after [0s, 10s] $loc) from entry-point "ItemStream"
     then
-        System.out.println("////// Triggering SOUP TAKEN rule following events: " + $loc + ", "
+        generalRuleLogger.info("////// Triggering SOUP TAKEN rule following events: " + $loc + ", "
             + $soup  + "\n");
         
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
@@ -109,7 +109,7 @@ rule "Preparing Soup"
         $SoupTaken: ActivityTriggered(name == "SoupTaken")
         $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering Preparing SOUP rule following events: "  + $SoupTaken + "," +  "\n");
+        generalRuleLogger.info("////// Triggering Preparing SOUP rule following events: "  + $SoupTaken + "," +  "\n");
 
        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
        AnnotationData ann = new DefaultAnnotationData(ts);
@@ -125,7 +125,7 @@ rule "Stop preparing soup"
         $SoupTaken: ActivityTriggered(name == "SoupTaken")
         $loc : PersonLocation(location != "Kitchen") from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering STOP PREPARING SOUP rule following events: "  + $SoupTaken + "," +  "\n");
+        generalRuleLogger.info("////// Triggering STOP PREPARING SOUP rule following events: "  + $SoupTaken + "," +  "\n");
         eventTracker.deleteStaticEvent($SoupTaken);
 end
 */

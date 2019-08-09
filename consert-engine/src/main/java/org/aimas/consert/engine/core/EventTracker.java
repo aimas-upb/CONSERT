@@ -33,7 +33,7 @@ public class EventTracker extends BaseEventTracker {
 		super(kSession);
 		
 		// initialize EventWindowManager, continuity and constraint checkers, as well as constraint resolution handlers
-		eventWindowManager = new EventWindowManager(this);
+		eventWindowManager = new EventWindowManager(this, kSession);
 		
 		continuityChecker = new ContinuityChecker(this);
 		constraintChecker = new ConstraintChecker(this);
@@ -128,8 +128,8 @@ public class EventTracker extends BaseEventTracker {
 							constraintChecker.check(newAssertion);
                 	
                 	if (!constraintResult.isClear()) {
-                        System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
-                                + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
+                        //generalRuleLogger.debug("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+                        //        + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
 
                         constraintResolutionHandler.resolveConflict(constraintResult, continuityResult);
                     }
@@ -165,8 +165,8 @@ public class EventTracker extends BaseEventTracker {
 								constraintChecker.check(continuityResult.getExtendedAssertion());
 
                         if (!constraintResult.isClear()) {
-                            System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
-                                    + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
+                            //generalRuleLogger.debug("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+                            //        + continuityResult.getExtendedAssertion() + ". Violations:\n" + constraintResult);
 
                             constraintResolutionHandler.resolveConflict(constraintResult, continuityResult);
                         }
@@ -194,8 +194,8 @@ public class EventTracker extends BaseEventTracker {
 	                                        constraintChecker.check(newAssertion);
 	
 	                                if (!constraintResult.isClear()) {
-	                                    System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
-	                                            + newAssertion + ". Violations:\n" + constraintResult);
+	                                    //generalRuleLogger.debug("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+	                                    //        + newAssertion + ". Violations:\n" + constraintResult);
 	
 	                                    constraintResolutionHandler.resolveConflict(constraintResult, continuityResult);
 	                                } 
@@ -213,7 +213,7 @@ public class EventTracker extends BaseEventTracker {
                                 }
                             }
                             else {
-                                System.out.println("CONTENT MISMATCH - NO TRACKED DATA FOR non-extended new Assertion: " + newAssertion);
+                                //generalRuleLogger.debug("CONTENT MISMATCH - NO TRACKED DATA FOR non-extended new Assertion: " + newAssertion);
                                 // If allowed for insertion from an annotation perspective, but it DOES NOT match any
                                 // monitored event by content, add it to the list of monitored events for this type
 
@@ -223,8 +223,8 @@ public class EventTracker extends BaseEventTracker {
                                 if (!newAssertion.isAtomic()) {
                                 	ConstraintResult constraintResult = constraintChecker.check(newAssertion);
                                 	if (!constraintResult.isClear()) {
-	                                    System.out.println("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
-	                                            + newAssertion + ". Violations:\n" + constraintResult);
+	                                    //generalRuleLogger.debug("[CONSTRAINT CHECKER] DETECTED CONSTRAINT VIOLATIONS FOR: "
+	                                    //        + newAssertion + ". Violations:\n" + constraintResult);
 	
 	                                    constraintResolutionHandler.resolveConflict(constraintResult, continuityResult);
 	                                } 
@@ -291,7 +291,7 @@ public class EventTracker extends BaseEventTracker {
 				if (event.getAnnotations() != null) {
 					// and they it includes the validity interval of the derived object
 					if (event.getAnnotations().hasIncludedValidity(derivedEvent.getAnnotations())) {
-						//System.out.println("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
+						//generalRuleLogger.debug("[INFO] ::::::::::::::::::::: We have an insertion of an already existing event: " + derivedEvent);
 						return true;
 					}
 				}
@@ -330,13 +330,14 @@ public class EventTracker extends BaseEventTracker {
 
     @Override
 	public void objectDeleted(ObjectDeletedEvent event) {
-		//System.out.println("TRACKER DELETED EVENT object: " + event.getOldObject());
-		//System.out.println("	HANDLE: " + event.getFactHandle());
+		//generalRuleLogger.debug("TRACKER DELETED EVENT object: " + event.getOldObject());
+		//generalRuleLogger.debug("	HANDLE: " + event.getFactHandle());
 
         if (event.getOldObject() instanceof ContextAssertion) {
             ContextAssertion assertion = (ContextAssertion)event.getOldObject();
-            if (!assertion.isAtomic())
-                System.out.println("[CALLBACK DELETE] ************ DELETED assertion: " + assertion + "; FACT HANDLE: " + event.getFactHandle());
+            
+            //if (!assertion.isAtomic())
+            //    generalRuleLogger.debug("[CALLBACK DELETE] ************ DELETED assertion: " + assertion + "; FACT HANDLE: " + event.getFactHandle());
         }
 
 		FactHandle deletedHandle = event.getFactHandle();
@@ -373,7 +374,7 @@ public class EventTracker extends BaseEventTracker {
 //
 //		    ContextAssertion assertion = (ContextAssertion)insertEvent.getObject();
 //		    if (!assertion.isAtomic())
-//                System.out.println("[CALLBACK INSERTION] Inserted assertion: " + assertion + "; FACT HANDLE: " + insertEvent.getFactHandle());
+//                generalRuleLogger.debug("[CALLBACK INSERTION] Inserted assertion: " + assertion + "; FACT HANDLE: " + insertEvent.getFactHandle());
 //		}
 
         FactHandle insertHandle = insertEvent.getFactHandle();
@@ -383,7 +384,7 @@ public class EventTracker extends BaseEventTracker {
 
             if (insertEvent.getObject() instanceof ContextAssertion
                     && !insertEventHandle.getEntryPoint().getEntryPointId().equals(CONSTRAINT_STORE)) {
-                //System.out.println("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
+                generalRuleLogger.debug("TRACKER INSERTED EVENT object: " + insertEvent.getObject());
                 eventNotifier.notifyEventInserted((ContextAssertion)insertEvent.getObject());
             }
         }

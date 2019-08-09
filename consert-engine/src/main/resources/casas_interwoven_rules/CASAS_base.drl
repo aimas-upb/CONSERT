@@ -30,8 +30,11 @@ import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
 import org.aimas.consert.engine.core.EventTracker
+import org.apache.log4j.Logger
+
 
 global EventTracker eventTracker;
+global Logger generalRuleLogger;
 
 declare Motion
     @role(event)
@@ -82,7 +85,7 @@ rule "MotionInsertTest"
     when
         $motion : Motion(id : sensorId, status : status) from entry-point "MotionStream" 
     then
-        System.out.println("Inserted MOTION event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
+        generalRuleLogger.info("Inserted MOTION event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$motion.getStartTimestamp());
 end
 */
 
@@ -96,35 +99,35 @@ rule "ItemInsertTest"
     when
         $item : Item(id : sensorId, status : status) from entry-point "ItemStream" 
     then
-        System.out.println("Inserted ITEM event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$item.getStartTimestamp());
+        generalRuleLogger.info("Inserted ITEM event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$item.getStartTimestamp());
 end
 
 rule "CabinetInsertTest"
     when
         $cabinet : Cabinet(id : sensorId, status : status) from entry-point "CabinetStream" 
     then
-        System.out.println("Inserted CABINET event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$cabinet.getStartTimestamp());
+        generalRuleLogger.info("Inserted CABINET event with sensorId: " + id + ", status: " + status + ", timestamp: " + (long)$cabinet.getStartTimestamp());
 end
 
 rule "WaterInsertTest"
     when
         $water : Water(id : sensorId, val : value) from entry-point "WaterStream" 
     then
-        System.out.println("Inserted WATER event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$water.getStartTimestamp());
+        generalRuleLogger.info("Inserted WATER event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$water.getStartTimestamp());
 end
 
 rule "TemperatureInsertTest"
     when
         $temp : Temperature(id : sensorId, val : value) from entry-point "TemperatureStream" 
     then
-        System.out.println("Inserted TEMPERATURE event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$temp.getStartTimestamp());
+        generalRuleLogger.info("Inserted TEMPERATURE event with sensorId: " + id + ", value: " + val + ", timestamp: " + (long)$temp.getStartTimestamp());
 end
 
 rule "BurnerInsertTest"
     when
         $burner : Burner(val : value) from entry-point "BurnerStream" 
     then
-        System.out.println("Inserted BURNER event with value: " + val + ", timestamp: " + (long)$burner.getStartTimestamp());
+        generalRuleLogger.info("Inserted BURNER event with value: " + val + ", timestamp: " + (long)$burner.getStartTimestamp());
 end
 
 
@@ -132,7 +135,7 @@ rule "PhoneInsertTest"
     when
         $phone : Phone(val : status) from entry-point "PhoneStream" 
     then
-        System.out.println("Inserted PHONE event with value: " + val + ", timestamp: " + (long)$phone.getStartTimestamp());
+        generalRuleLogger.info("Inserted PHONE event with value: " + val + ", timestamp: " + (long)$phone.getStartTimestamp());
 end
 
 rule "PersonLocationTest"
@@ -140,7 +143,7 @@ rule "PersonLocationTest"
     when
         $loc : PersonLocation(location : location) from entry-point "PersonLocationStream" 
     then
-        System.out.println("Inserted PersonLocation event with location: " + location + ", timestamp: " + (long)$loc.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted PersonLocation event with location: " + location + ", timestamp: " + (long)$loc.getStartTimestamp() + 
         " duration: " + (long)$loc.getEventDuration());
 end
 
@@ -149,7 +152,7 @@ rule "PersonLocationExtended"
     when
         $loc : PersonLocation(location : location) from entry-point "ExtendedPersonLocationStream" 
     then
-        System.out.println("Inserted EXTENDED PersonLocation event with location: " + location + ", timestamp: " + (long)$loc.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted EXTENDED PersonLocation event with location: " + location + ", timestamp: " + (long)$loc.getStartTimestamp() + 
         " duration: " + (long)$loc.getEventDuration());
 end
 
@@ -159,7 +162,7 @@ rule "HandlingFoodTest"
     when
         $food : HandlingFood() from entry-point "HandlingFoodStream" 
     then
-        System.out.println("Inserted HandlingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted HandlingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
         " duration: " + (long)$food.getEventDuration());
 end
 
@@ -168,7 +171,7 @@ rule "ExtendedHandlingFood"
     when
         $food : HandlingFood() from entry-point "ExtendedHandlingFoodStream" 
     then
-        System.out.println("Inserted EXTENDED HandlingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted EXTENDED HandlingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
         " duration: " + (long)$food.getEventDuration());
 end
 
@@ -178,7 +181,7 @@ rule "HeatingFoodTest"
     when
         $food : HeatingFood() from entry-point "HeatingFoodStream" 
     then
-        System.out.println("Inserted HeatingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted HeatingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
         " duration: " + (long)$food.getEventDuration());
 end
 
@@ -188,7 +191,7 @@ rule "ExtendedHeatingFoodTest"
     when
         $food : HeatingFood() from entry-point "ExtendedHeatingFoodStream" 
     then
-        System.out.println("Inserted ExtendedHeatingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted ExtendedHeatingFood event with: " + $food + ", timestamp: " + (long)$food.getStartTimestamp() + 
         " duration: " + (long)$food.getEventDuration());
 end
 
@@ -197,7 +200,7 @@ rule "PhoneCallTest"
     when
         $phone : PhoneCall() from entry-point "PhoneCallStream" 
     then
-        System.out.println("Inserted PhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted PhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() + 
         " duration: " + (long)$phone.getEventDuration());
 end
 
@@ -207,7 +210,7 @@ rule "ExtendedPhoneCall"
     when
         $phone : PhoneCall() from entry-point "ExtendedPhoneCallStream"
     then
-        System.out.println("Inserted ExtendedPhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() +
+        generalRuleLogger.info("Inserted ExtendedPhoneCall event with: " + $phone + ", timestamp: " + (long)$phone.getStartTimestamp() +
         " duration: " + (long)$phone.getEventDuration());
 end
 
@@ -217,7 +220,7 @@ rule "ProbablyCleaningTest"
     when
         $probCleaning : ProbablyCleaning() from entry-point "ProbablyCleaningStream" 
     then
-        System.out.println("Inserted ProbablyCleaning event with: " + $probCleaning + ", timestamp: " + (long)$probCleaning.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted ProbablyCleaning event with: " + $probCleaning + ", timestamp: " + (long)$probCleaning.getStartTimestamp() + 
         " duration: " + (long)$probCleaning.getEventDuration());
 end
 
@@ -226,7 +229,7 @@ rule "WatchDVDTest"
     when
         $watchDVD : WatchDVD() from entry-point "WatchDVDStream"
     then
-        System.out.println("Inserted WATCH DVD event with: " + $watchDVD + ", timestamp: " + (long)$watchDVD.getStartTimestamp() +
+        generalRuleLogger.info("Inserted WATCH DVD event with: " + $watchDVD + ", timestamp: " + (long)$watchDVD.getStartTimestamp() +
         " duration: " + (long)$watchDVD.getEventDuration());
 end
 
@@ -235,7 +238,7 @@ rule "ExtendedWatchDVD"
     when
         $watchDVD : WatchDVD() from entry-point "ExtendedWatchDVDStream"
     then
-        System.out.println("Inserted EXTENDED  WATCH DVD event with: " + $watchDVD + ", timestamp: " + (long)$watchDVD.getStartTimestamp() +
+        generalRuleLogger.info("Inserted EXTENDED  WATCH DVD event with: " + $watchDVD + ", timestamp: " + (long)$watchDVD.getStartTimestamp() +
         " duration: " + (long)$watchDVD.getEventDuration());
 end
 
@@ -244,7 +247,7 @@ rule "FillDispenserTest"
     when
         $fillDispenser : FillDispenser() from entry-point "FillDispenserStream"
     then
-        System.out.println("Inserted FillDispenser event with: " + $fillDispenser + ", timestamp: " + (long)$fillDispenser.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted FillDispenser event with: " + $fillDispenser + ", timestamp: " + (long)$fillDispenser.getStartTimestamp() + 
         " duration: " + (long)$fillDispenser.getEventDuration());
 end
 
@@ -253,7 +256,7 @@ rule "ExtendedFillDispenser"
     when
         $fillDispenser : FillDispenser() from entry-point "ExtendedFillDispenserStream"
     then
-        System.out.println("Inserted EXTENDED FillDispenser event with: " + $fillDispenser + ", timestamp: " + (long)$fillDispenser.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted EXTENDED FillDispenser event with: " + $fillDispenser + ", timestamp: " + (long)$fillDispenser.getStartTimestamp() + 
         " duration: " + (long)$fillDispenser.getEventDuration());
 end
 
@@ -262,7 +265,7 @@ rule "PreparingSoupTest"
     when
         $PreparingSoup : PreparingSoup() from entry-point "PreparingSoupStream"
     then
-        System.out.println("Inserted PreparingSoup event with: " + $PreparingSoup + ", timestamp: " + (long)$PreparingSoup.getStartTimestamp() +
+        generalRuleLogger.info("Inserted PreparingSoup event with: " + $PreparingSoup + ", timestamp: " + (long)$PreparingSoup.getStartTimestamp() +
         " duration: " + (long)$PreparingSoup.getEventDuration());
 end
 
@@ -271,7 +274,7 @@ rule "ExtendedPreparingSoup"
     when
         $PreparingSoup : PreparingSoup() from entry-point "ExtendedPreparingSoupStream"
     then
-        System.out.println("Inserted EXTENDED PreparingSoup event with: " + $PreparingSoup + ", timestamp: " + (long)$PreparingSoup.getStartTimestamp() +
+        generalRuleLogger.info("Inserted EXTENDED PreparingSoup event with: " + $PreparingSoup + ", timestamp: " + (long)$PreparingSoup.getStartTimestamp() +
         " duration: " + (long)$PreparingSoup.getEventDuration());
 end
 
@@ -280,7 +283,7 @@ rule "WriteBirthdayCard"
     when
         $card : WriteBirthdayCard() from entry-point "WriteBirthdayCardStream"
     then
-        System.out.println("Inserted WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() + 
         " duration: " + (long)$card.getEventDuration());
 end
 
@@ -289,7 +292,7 @@ rule "ExtendedWriteBirthdayCard"
     when
         $card : WriteBirthdayCard() from entry-point "ExtendedWriteBirthdayCardStream"
     then
-        System.out.println("Inserted EXTENDED WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() +
+        generalRuleLogger.info("Inserted EXTENDED WriteBirthdayCard event with: " + $card + ", timestamp: " + (long)$card.getStartTimestamp() +
         " duration: " + (long)$card.getEventDuration());
 end
 
@@ -298,7 +301,7 @@ rule "ChoosingOutfitTest"
     when
         $ChoosingOutfit : ChoosingOutfit() from entry-point "ChoosingOutfitStream"
     then
-        System.out.println("Inserted ChoosingOutfit event with: " + $ChoosingOutfit + ", timestamp: " + (long)$ChoosingOutfit.getStartTimestamp() +
+        generalRuleLogger.info("Inserted ChoosingOutfit event with: " + $ChoosingOutfit + ", timestamp: " + (long)$ChoosingOutfit.getStartTimestamp() +
         " duration: " + (long)$ChoosingOutfit.getEventDuration());
 end
 
@@ -307,7 +310,7 @@ rule "ExtendedChoosingOutfit"
     when
         $ChoosingOutfit : ChoosingOutfit() from entry-point "ExtendedChoosingOutfitStream"
     then
-        System.out.println("Inserted EXTENDED ChoosingOutfit event with: " + $ChoosingOutfit + ", timestamp: " + (long)$ChoosingOutfit.getStartTimestamp() +
+        generalRuleLogger.info("Inserted EXTENDED ChoosingOutfit event with: " + $ChoosingOutfit + ", timestamp: " + (long)$ChoosingOutfit.getStartTimestamp() +
         " duration: " + (long)$ChoosingOutfit.getEventDuration());
 end
 
@@ -316,7 +319,7 @@ rule "CleaningTest"
     when
         $Cleaning : Cleaning() from entry-point "CleaningStream"
     then
-        System.out.println("Inserted Cleaning event with: " + $Cleaning + ", timestamp: " + (long)$Cleaning.getStartTimestamp() +
+        generalRuleLogger.info("Inserted Cleaning event with: " + $Cleaning + ", timestamp: " + (long)$Cleaning.getStartTimestamp() +
         " duration: " + (long)$Cleaning.getEventDuration());
 end
 
@@ -325,7 +328,7 @@ rule "ExtendedCleaningOutfit"
     when
         $Cleaning : Cleaning() from entry-point "ExtendedCleaningStream"
     then
-        System.out.println("Inserted EXTENDED Cleaning event with: " + $Cleaning + ", timestamp: " + (long)$Cleaning.getStartTimestamp() +
+        generalRuleLogger.info("Inserted EXTENDED Cleaning event with: " + $Cleaning + ", timestamp: " + (long)$Cleaning.getStartTimestamp() +
         " duration: " + (long)$Cleaning.getEventDuration());
 end
 
@@ -334,7 +337,7 @@ rule "WaterPlants"
     when
         $plants : WaterPlants() from entry-point "WaterPlantsStream"
     then
-        System.out.println("Inserted WaterPlants event with: " + $plants + ", timestamp: " + (long)$plants.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted WaterPlants event with: " + $plants + ", timestamp: " + (long)$plants.getStartTimestamp() + 
         " duration: " + (long)$plants.getEventDuration());
 end
 
@@ -345,7 +348,7 @@ rule "ExtendedWaterPlants"
     when
         $plants : WaterPlants() from entry-point "ExtendedWaterPlantsStream"
     then
-        System.out.println("Inserted EXTENDED WaterPlants event with: " + $plants + ", timestamp: " + (long)$plants.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted EXTENDED WaterPlants event with: " + $plants + ", timestamp: " + (long)$plants.getStartTimestamp() + 
         " duration: " + (long)$plants.getEventDuration());
 end
 
@@ -355,7 +358,7 @@ rule "SuppliesRetrieved"
     when 
         $supplies : SuppliesRetrieved() from entry-point "SuppliesRetrievedStream"
     then
-        System.out.println("Inserted SuppliesRetrieved event with: " + $supplies + ", timestamp: " + (long)$supplies.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted SuppliesRetrieved event with: " + $supplies + ", timestamp: " + (long)$supplies.getStartTimestamp() + 
         " duration: " + (long)$supplies.getEventDuration());
 end
 
@@ -365,7 +368,7 @@ rule "PersonMovingTest"
     when 
         $moving : PersonMoving() from entry-point "PersonMovingStream"
     then
-        System.out.println("Inserted PersonMoving event with: " + $moving + ", timestamp: " + (long)$moving.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted PersonMoving event with: " + $moving + ", timestamp: " + (long)$moving.getStartTimestamp() + 
         " duration: " + (long)$moving.getEventDuration());
 end
 
@@ -374,7 +377,7 @@ rule "ExtendedPersonMovingTest"
     when 
         $moving : PersonMoving() from entry-point "ExtendedPersonMovingStream"
     then
-        System.out.println("Inserted EXTENDED PersonMoving event with: " + $moving + ", timestamp: " + (long)$moving.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted EXTENDED PersonMoving event with: " + $moving + ", timestamp: " + (long)$moving.getStartTimestamp() + 
         " duration: " + (long)$moving.getEventDuration());
 end
 
@@ -384,7 +387,7 @@ end
     when
         $clean : Cleaning() from entry-point "CleaningStream"
     then
-        System.out.println("Inserted Cleaning event with: " + $clean + ", timestamp: " + (long)$clean.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted Cleaning event with: " + $clean + ", timestamp: " + (long)$clean.getStartTimestamp() + 
         " duration: " + (long)$clean.getEventDuration());
 end
 
@@ -395,6 +398,6 @@ rule "ExtendedCleaning"
     when
         $clean : Cleaning() from entry-point "ExtendedCleaningStream"
     then
-        System.out.println("Inserted EXTENDED Cleaning event with: " + $clean + ", timestamp: " + (long)$clean.getStartTimestamp() + 
+        generalRuleLogger.info("Inserted EXTENDED Cleaning event with: " + $clean + ", timestamp: " + (long)$clean.getStartTimestamp() + 
         " duration: " + (long)$clean.getEventDuration());
 end*/

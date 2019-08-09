@@ -15,12 +15,12 @@ import org.aimas.consert.model.annotations.AnnotationUtils
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 
 import org.aimas.consert.engine.core.EventTracker
-import org.aimas.consert.utils.AssertionLogger
+import org.apache.log4j.Logger
 
 import java.util.Date;
 
 global EventTracker eventTracker;
-global AssertionLogger assertionLogger;
+global Logger generalRuleLogger;
 
 declare ChoosingOutfit
     @role(event)
@@ -31,7 +31,7 @@ rule "Wardrobe open"
         //$loc : PersonLocation(location == "LivingRoom" || location == "Wardrobe") from entry-point "ExtendedPersonLocationStream"
         $Wardrobe: Cabinet(sensorId == "wardrobe", status == "OPEN") from entry-point "CabinetStream"
     then
-        System.out.println("////// Triggering WARDROBE OPEN rule following events: " + $Wardrobe  + "\n");
+        generalRuleLogger.info("////// Triggering WARDROBE OPEN rule following events: " + $Wardrobe  + "\n");
 
         long ts = eventTracker.getCurrentTime();
         ActivityTriggered WardrobeOpen = new ActivityTriggered("WardrobeOpen", ts);
@@ -46,7 +46,7 @@ rule "Choosing outfit"
             locAnn : annotations#DefaultAnnotationData) 
             from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering CHOOSING OUTFIT rule following events: "  + $WardrobeOpen + "," + $loc + "\n");
+        generalRuleLogger.info("////// Triggering CHOOSING OUTFIT rule following events: "  + $WardrobeOpen + "," + $loc + "\n");
         
         long ts = eventTracker.getCurrentTime();
         DefaultAnnotationData ann = 
@@ -67,7 +67,7 @@ rule "Wardrobe closed"
         $Wardrobe: Cabinet(sensorId == "wardrobe", status == "CLOSE") from entry-point "CabinetStream"
         not (exists Cabinet(sensorId == "wardrobe", status == "CLOSE", this after $Wardrobe) from entry-point "CabinetStream")
     then
-        System.out.println("////// Triggering WARDROBE CLOSED rule following events: " + $WardrobeOpen + ", " + $Wardrobe + "\n");
+        generalRuleLogger.info("////// Triggering WARDROBE CLOSED rule following events: " + $WardrobeOpen + ", " + $Wardrobe + "\n");
 
         // remove the ActivityTriggered fact
         eventTracker.deleteStaticEvent($WardrobeOpen);

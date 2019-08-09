@@ -10,6 +10,11 @@ public class ContextAssertionContent {
 		this.assertion = assertion.cloneContent();
 	}
 	
+	
+	public String getName() {
+		return assertion.getClass().getSimpleName();
+	}
+	
 	public String getType() {
 		return assertion.getClass().getName();
 	}
@@ -55,7 +60,11 @@ public class ContextAssertionContent {
 	    
 	    return true;
     }
-	
-	
+
+
+	@Override
+	public String toString() {
+		return "ContextAssertionContent [assertion=" + assertion + "]";
+	}
 	
 }

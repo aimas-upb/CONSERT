@@ -1,0 +1,293 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+import org.aimas.consert.model.content.ContextAssertionContent
+
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+import org.aimas.consert.tests.casas.assertions.WriteBirthdayCard
+import org.aimas.consert.tests.casas.assertions.WaterPlants
+import org.aimas.consert.tests.casas.assertions.SuppliesRetrieved
+import org.aimas.consert.tests.casas.assertions.AccessingSupplies
+import org.aimas.consert.tests.casas.assertions.Cleaning
+
+import org.aimas.consert.engine.core.EventTracker
+import org.aimas.consert.engine.core.EventWindowManager
+import org.aimas.consert.model.eventwindow.EventWindow
+import org.apache.log4j.Logger
+
+import java.lang.Math;
+import java.util.Date;
+
+global EventTracker eventTracker;
+global EventWindowManager eventWindowManager;
+global Logger eventWindowLogger;
+
+
+declare WaterPlants
+    @role(event)
+end
+
+declare SuppliesRetrieved
+    @role(event)
+end
+
+declare AccessingSupplies
+    @role(event)
+end
+
+declare Cleaning
+    @role(event)
+end
+
+/*
+query windowExists(String $assertionName, EventWindow $windowInstance)
+	$windowInstance := EventWindow(assertion : possibleAssertion, assertion.name == $assertionName)
+end
+*/
+
+rule "Possible New Cleaning Window"
+    salience 10
+    when
+        $trigger : AccessingSupplies() from entry-point "AccessingSuppliesStream"
+       	not (
+            exists AccessingSupplies(this before[1ms, 20s] $trigger) from entry-point "AccessingSuppliesStream"
+        )
+       	
+       	$cabinet: Cabinet(sensorId == "supplies", status == "OPEN" || status == "CLOSE", this before[1ms, 1s] $trigger) from entry-point "CabinetStream"
+       	
+       	not (
+       		exists EventWindow(assertion : possibleAssertion, assertion.name == "Cleaning")
+       	)
+    then
+        //eventWindowLogger.info("////// Triggering New Cleaning Window create rule following events: " + $trigger + " and " + $cabinet +"\n");
+        //eventWindowLogger.info("////// Triggering New Cleaning Window create rule: \n");
+        
+        // access to supplies is the trigger for creating event window for Cleaning
+        Cleaning possibleCleaningAssertion = new Cleaning();
+        
+        // start event windows for Cleaning and WaterPlants
+        eventWindowManager.newWindow(possibleCleaningAssertion, 30, 20000, $trigger);
+end
+
+
+rule "Trigger to end one window and start another"
+    salience 5
+    when
+        $trigger : AccessingSupplies() from entry-point "AccessingSuppliesStream"
+       	not (
+            exists AccessingSupplies(this before[1ms, 20s] $trigger) from entry-point "AccessingSuppliesStream"
+        )
+       	
+       	$cabinet: Cabinet(sensorId == "supplies", status == "OPEN" || status == "CLOSE", this before[1ms, 1s] $trigger, 
+       		cabinetAnn : annotations) from entry-point "CabinetStream"
+       	
+       	$window: EventWindow(assertion : possibleAssertion, assertion.name == "Cleaning", 
+       				supportEvents : supportingAssertions, supportEvents not contains $cabinet,
+       				cabinetAnn.getTimestamp() >= windowEnd)
+       	//?windowExists("Cleaning", $windowInstance;)
+    then
+    	//eventWindowLogger.info("////// Triggering Rule to end one cleaning window and start another following window: " + $windowInstance + "\n");
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Trigger following event: " + $cabinet + "\n");
+        
+        // submit current window
+        eventWindowManager.submitWindow(assertion);
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Submitting EventWindow \n" + $window + "\n");
+        
+        // start a new one since the access to supplies might not be a final one
+        eventWindowManager.newWindow(assertion, 30, 20000, $cabinet);
+end
+
+
+// ============================================================================
+// Cleaning - window continuation events 
+rule "Cabinet manipulation events, as long as an active cleaning window exists"
+	when
+        $cabinet: Cabinet(id : sensorId == "supplies") from entry-point "CabinetStream"
+        EventWindow(assertion : possibleAssertion, assertion.getName() == "Cleaning",
+        	supportEvents : supportingAssertions, supportEvents not contains $cabinet)
+    then
+        eventWindowManager.updateWindow(assertion, $cabinet);
+end
+
+
+
+rule "Motion events near supply closet, if windows exist"
+    when
+        $motion : Motion(id : sensorId == "M18" || sensorId == "M51", motionAnn : annotations) from entry-point "MotionStream"
+        $window : EventWindow(assertion : possibleAssertion, assertion.getName() == "Cleaning", 
+        	winEnd : windowEnd, motionAnn.getTimestamp() > winEnd)
+    then
+        eventWindowManager.updateWindow(assertion, $motion);
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Adding closet motion event " + $motion + "to EventWindow: " + $window + "\n");
+end
+
+
+
+rule "Add Kitchen motion events to possible Cleaning event windows"
+    when
+        $motion : Motion(id : sensorId == "M16" || sensorId == "M17" || sensorId == "M18", motionAnn: annotations) from entry-point "MotionStream"
+        
+        exists PersonLocation(location == "Kitchen", this annIncludes $motion) from entry-point "ExtendedPersonLocationStream"
+        
+        // if there is an event window for Cleaning or WaterPlants
+        $window : EventWindow(assertion : possibleAssertion, assertion.getName() == "Cleaning", 
+        	winEnd : windowEnd, motionAnn.getTimestamp() > winEnd)
+    
+    then    
+        eventWindowManager.updateWindow(assertion, $motion);
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Adding kitchen motion event " + $motion + "to EventWindow: " + $window + "\n");
+end
+
+
+rule "Add Living Room motion events to possible Cleaning event windows"
+    when
+        $motion : Motion(id : sensorId == "M06" || sensorId == "M07" || sensorId == "M08" || sensorId == "M09" || sensorId == "M10", motionAnn: annotations) 
+        	from entry-point "MotionStream"
+        
+        exists PersonLocation(location == "LivingRoom", 
+        	this annIncludes $motion || this annHappensBefore[1ms, 5s] $motion || this annHappensAfter[1ms, 5s] $motion) from entry-point "ExtendedPersonLocationStream"
+        
+        // if there is an event window for Cleaning or WaterPlants
+        $window : EventWindow(assertion : possibleAssertion, assertion.getName() == "Cleaning", 
+        	winEnd : windowEnd, motionAnn.getTimestamp() > winEnd)
+    then    
+        eventWindowManager.updateWindow(assertion, $motion);
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Adding living room motion event " + $motion + "to EventWindow: " + $window + "\n");
+end
+
+
+rule "Add Dining Room motion events to possible Cleaning event windows"
+    when
+        $motion : Motion(id : sensorId == "M13" || sensorId == "M14", motionAnn: annotations) 
+        	from entry-point "MotionStream"
+        
+        exists PersonLocation(location == "DiningTable", 
+        	this annIncludes $motion || this annHappensBefore[1ms, 5s] $motion || this annHappensAfter[1ms, 5s] $motion) from entry-point "ExtendedPersonLocationStream"
+        
+        // if there is an event window for Cleaning or WaterPlants
+        $window : EventWindow(assertion : possibleAssertion, assertion.getName() == "Cleaning", 
+        	winEnd : windowEnd, motionAnn.getTimestamp() > winEnd)
+    then    
+        eventWindowManager.updateWindow(assertion, $motion);
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Adding dinner table motion event " + $motion + "to EventWindow: " + $window + "\n");
+end
+
+
+rule "Add TV motion events to possible Cleaning event windows"
+    when
+        $motion : Motion(id : sensorId == "M02" || sensorId == "M03", motionAnn: annotations) 
+        	from entry-point "MotionStream"
+        
+        exists PersonLocation(location == "TV", 
+        	this annIncludes $motion || this annHappensBefore[1ms, 5s] $motion || this annHappensAfter[1ms, 5s] $motion) from entry-point "ExtendedPersonLocationStream"
+        
+        // if there is an event window for Cleaning or WaterPlants
+        $window : EventWindow(assertion : possibleAssertion, assertion.getName() == "Cleaning", 
+        	winEnd : windowEnd, motionAnn.getTimestamp() > winEnd)
+    then    
+        eventWindowManager.updateWindow(assertion, $motion);
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Adding dinner table motion event " + $motion + "to EventWindow: " + $window + "\n");
+end
+
+// ==============================================================================================================
+// Cleaning: window submit events
+rule "Submit on location change"
+    when
+    	$prevLoc : PersonLocation(prevloc : location, prevloc in ("Kitchen", "LivingRoom", "DiningTable", "TV"), 
+    		prevLocAnn : annotations) from entry-point "ExtendedPersonLocationStream"
+    	$currentLoc: PersonLocation(loc : location, loc in ("Kitchen", "LivingRoom", "DiningTable", "TV"), loc != prevloc,
+    		this annHappensAfter $prevLoc) from entry-point "ExtendedPersonLocationStream"
+    	
+    	not (
+    		exists PersonLocation(otherLoc : location, otherLoc in ("Kitchen", "LivingRoom", "DiningTable", "TV"),
+    			this annHappensAfter $prevLoc, this annHappensBefore $currentLoc) from entry-point "ExtendedPersonLocationStream" 
+    	)
+    	
+        $window : EventWindow(assertion : possibleAssertion, assertion.getName() == "Cleaning", winStart : windowStart, 
+        	winStart > prevLocAnn.getTimestamp())
+    then    
+        eventWindowManager.submitWindow(assertion);
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Submitting EventWindow \n" + $window + "\n");
+end
+
+
+
+rule "Submit after number of events"
+	activation-group "windowlen"	
+	salience 10	
+	// put num-events and time time-length in same activation group, to avoid double submit of same window
+	// allow greater salience for num-events based window
+	when
+		$window : EventWindow(assertion: possibleAssertion, assertion.getName() == "Cleaning", 
+			numEvents : numSupportingAssertions, numEvents >= 20)
+	then
+		eventWindowManager.submitWindow(assertion);
+		eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Submitting EventWindow \n" + $window + "\n");
+end
+
+
+rule "Submit after number of seconds between first and last supporting event"
+	activation-group "windowlen"
+	when
+		$window : EventWindow(assertion: possibleAssertion, assertion.getName() == "Cleaning", 
+			dur : windowDuration, dur >= 20000)
+	then
+		eventWindowManager.submitWindow(assertion);
+		eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Submitting EventWindow \n" + $window + "\n");
+end
+
+// ==============================================================================================================
+// Cleaning: window cancel events
+rule "Cancel cleaning window for lack of recent updates"
+// the assumption is that for the cleaning part, the person needs to be in constant movement
+// if at some point, there is a break larger than 15 seconds, then the cleaning activity can be paused
+	timer (int: 0s 5s)
+	when 
+		$window : EventWindow(assertion: possibleAssertion, assertion.getName() == "Cleaning", 
+			winEnd : windowEnd, eventTracker.getCurrentTime() - winEnd >= 20000)
+	then
+		eventWindowManager.cancelWindow(assertion);
+		eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Removing EventWindow \n" + $window + "\n");
+end
+
+
+rule "Cancel cleaning window if no sign for closing cabinet, more than two minutes after last access to supplies"
+// the assumption is that for the cleaning part, if the sensor didn't register the close of the supply closet
+// the person has probably moved on from the cleaning activity
+	when 
+		$window : EventWindow(assertion: possibleAssertion, assertion.getName() == "Cleaning")
+		$lastAccess : AccessingSupplies() from entry-point "AccessingSuppliesStream"
+       	not (
+            exists AccessingSupplies(this before[1ms, 20s] $lastAccess) from entry-point "AccessingSuppliesStream"
+        )
+        not (
+        	exists Cabinet(sensorId == "supplies", status == "CLOSE", this after[1ms, 120s] $lastAccess)
+        )
+    then
+    	eventWindowManager.cancelWindow(assertion);
+    	eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Removing EventWindow \n" + $window + "\n");
+end
+
+// ==============================================================================================================
+// Debugging
+/*
+rule "Print cleaning event windows with more than X events supporting them"
+	salience 10
+	when
+		$window : EventWindow(assertion: possibleAssertion, assertion.getName() == "Cleaning", 
+			nrEvents : numSupportingAssertions, nrEvents >= 20)
+	then
+		eventWindowLogger.info("~~~~~~~~~~~~~~~~~ EventWindow to be SUBMITTED: " + $window + "\n");		
+end
+*/

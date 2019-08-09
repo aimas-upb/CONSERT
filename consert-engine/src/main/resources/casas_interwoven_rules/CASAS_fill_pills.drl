@@ -15,12 +15,12 @@ import org.aimas.consert.model.annotations.AnnotationUtils
 import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 
 import org.aimas.consert.engine.core.EventTracker
-import org.aimas.consert.utils.AssertionLogger
+import org.apache.log4j.Logger
 
 import java.util.Date;
 
 global EventTracker eventTracker;
-global AssertionLogger assertionLogger;
+global Logger generalRuleLogger;
 
 
 // TODO: set the event role for the intermediary and final ContextAssertions
@@ -38,7 +38,7 @@ rule "Pill dispenser removed"
         $medicine: Item(sensorId == "medicine", status == "ABSENT", this after[0s, 10s] $cupboard) from entry-point "ItemStream"
         $dispenser: Item(sensorId == "pill_dispenser", status == "ABSENT", this after[0s, 10s] $cupboard) from entry-point "ItemStream"
     then
-        System.out.println("////// Triggering START FILLING MEDICINE rule following events: " + $loc + ", " 
+        generalRuleLogger.info("////// Triggering START FILLING MEDICINE rule following events: " + $loc + ", " 
             + $cupboard + ", " + $medicine + ", " + $dispenser + "\n");
         
         //DefaultAnnotationData ann = new DefaultAnnotationData(ts);
@@ -72,7 +72,7 @@ rule "Pill dispenser removed"
             locAnn : annotations#DefaultAnnotationData)
             from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering START FILLING MEDICINE rule following events: " + $medicine 
+        generalRuleLogger.info("////// Triggering START FILLING MEDICINE rule following events: " + $medicine 
             //+ " AND " + $dispenser 
             + "\n");
         
@@ -89,7 +89,7 @@ rule "Filling pill dispenser"
         $act : ActivityTriggered(name == "inKitchen") 
         //$loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering FILLING PILL DISPENSER rule following events: " + $act + ", " + $medicineFill + "\n");
+        generalRuleLogger.info("////// Triggering FILLING PILL DISPENSER rule following events: " + $act + ", " + $medicineFill + "\n");
         
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         AnnotationData ann = new DefaultAnnotationData(ts);
@@ -104,7 +104,7 @@ rule "Filling pill dispenser"
         $medicineFill: ActivityTriggered(name == "MedicineFill")
         $loc : PersonLocation(location == "Kitchen") from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering FILLING PILL DISPENSER rule following events: " + $loc + " AND " + $medicineFill + "\n");
+        generalRuleLogger.info("////// Triggering FILLING PILL DISPENSER rule following events: " + $loc + " AND " + $medicineFill + "\n");
         
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         AnnotationData ann = new DefaultAnnotationData(ts);
@@ -126,7 +126,7 @@ rule "Pill dispenser present"
         
         exists PersonLocation(location == "Kitchen", this annIncludes $item) from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering STOP FILLING MEDICINE rule following events: " 
+        generalRuleLogger.info("////// Triggering STOP FILLING MEDICINE rule following events: " 
             + $item + " AND " + $medicineFill + "\n");
         
         // remove the ActivityTriggered fact       

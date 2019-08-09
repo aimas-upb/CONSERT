@@ -27,21 +27,88 @@ public class EventWindow implements Comparator<EventWindow> {
 		
 	}
 	
-	private ContextAssertionContent possibleAssertion;
+	private long initTimestamp;
 	
+	private ContextAssertionContent possibleAssertion;
 	private SortedSet<ContextAssertion> supportingAssertions;
 	
+	private int maxSupportingAssertions;
+	private double maxDuration;
 	
 	
-	public EventWindow() {
-		this(null, null);
+	/**
+	 * Create a default EventWindow, with no limit on number of assertions or time and no possible or supporting assertions
+	 * @param timestamp: the timestamp at which this EventWindow is created
+	 */
+	public EventWindow(long timestamp) {
+		this(null, timestamp, null, 0, 0);
 	}
 
-	public EventWindow(ContextAssertionContent possibleAssertion) {
-	    this(possibleAssertion, null);
+	/**
+	 * Create a default EventWindow for a possible assertion. The window has no supporting assertions and no time or event number limits 
+	 * @param possibleAssertion
+	 * @param timestamp: the timestamp at which this EventWindow is created
+	 */
+	public EventWindow(ContextAssertionContent possibleAssertion, long timestamp) {
+	    this(possibleAssertion, timestamp, null, 0, 0);
     }
 	
-	public EventWindow(ContextAssertionContent possibleAssertion, List<ContextAssertion> supportingAssertions) {
+	/**
+	 * Create a default EventWindow for a possible assertion and its supporting assertions. 
+	 * The window has no time or event number limits.
+	 * @param possibleAssertion
+	 * @param supportingAssertions
+	 * @param timestamp: the timestamp at which this EventWindow is created
+	 */
+	public EventWindow(ContextAssertionContent possibleAssertion, long timestamp, List<ContextAssertion> supportingAssertions) {
+	    this(possibleAssertion, timestamp, supportingAssertions, 0, 0);
+    }
+	
+	/**
+	 * Create an empty EventWindow with a maximum number of supporting assertions
+	 * @param possibleAssertion
+	 * @param maxSupportingAssertions
+	 * @param timestamp: the timestamp at which this EventWindow is created
+	 */
+	public EventWindow(ContextAssertionContent possibleAssertion, long timestamp, int maxSupportingAssertions) {
+	    this(possibleAssertion, timestamp, null, maxSupportingAssertions, 0);
+    }
+	
+	/**
+	 * Create an empty EventWindow with a maximum duration 
+	 * @param possibleAssertion
+	 * @param maxDuration 
+	 * @param timestamp: the timestamp at which this EventWindow is created
+	 */
+	public EventWindow(ContextAssertionContent possibleAssertion, long timestamp, double maxDuration) {
+	    this(possibleAssertion, timestamp, null, 0, maxDuration);
+    }
+	
+	
+	/**
+	 * Create an empty EventWindow with a maximum duration (given in milliseconds) and a maximum number of supporting assertions
+	 * @param possibleAssertion
+	 * @param maxSupportingAssertions The maximum number of assertions. If less than or equal to 0, 
+	 * the maximum number of supporting assertions is considered to be infinite.
+	 * @param maxDuration The maximum duration (given in milliseconds). If less than or equal to 0, the duration is considered to be infinite
+	 * @param timestamp: the timestamp at which this EventWindow is created
+	 */
+	public EventWindow(ContextAssertionContent possibleAssertion, long timestamp, int maxSupportingAssertions, double maxDuration) {
+	    this(possibleAssertion, timestamp, null, maxSupportingAssertions, maxDuration);
+    }
+	
+	/**
+	 * Create an EventWindow with a maximum duration (given in milliseconds) and a maximum number of supporting assertions
+	 * @param possibleAssertion
+	 * @param supportingAssertions
+	 * @param maxSupportingAssertions The maximum number of assertions. If less than or equal to 0, 
+	 * the maximum number of supporting assertions is considered to be infinite.
+	 * @param maxDuration The maximum duration (given in milliseconds). If less than or equal to 0, the duration is considered to be infinite.
+	 * @param timestamp: the timestamp at which this EventWindow is created
+	 */
+	public EventWindow(ContextAssertionContent possibleAssertion, long timestamp, List<ContextAssertion> supportingAssertions, int maxSupportingAssertions, double maxDuration) {
+		this.initTimestamp = timestamp;
+		
 		this.supportingAssertions = new TreeSet<ContextAssertion>(new AssertionTimestampComparator());
 		
 		if (possibleAssertion != null) {
@@ -51,6 +118,9 @@ public class EventWindow implements Comparator<EventWindow> {
 		if (supportingAssertions != null) {
 			this.supportingAssertions.addAll(supportingAssertions);
 		}
+		
+		this.maxSupportingAssertions = maxSupportingAssertions;
+		this.maxDuration = maxDuration;
 	}
 	
 	
@@ -60,7 +130,7 @@ public class EventWindow implements Comparator<EventWindow> {
 	public ContextAssertionContent getPossibleAssertion() {
 		return possibleAssertion;
 	}
-
+	
 	/**
 	 * @param possibleAssertion the possibleAssertion to set
 	 */
@@ -68,7 +138,21 @@ public class EventWindow implements Comparator<EventWindow> {
 		this.possibleAssertion = possibleAssertion;
 	}
 	
+	/**
+	 * @return The initialization timestamp of this EventWindow
+	 */
+	public long getInitTimestamp() {
+		return initTimestamp;
+	}
 	
+	/**
+	 * Set the initialization timestamp of this EventWindow
+	 * @param initTimestamp
+	 */
+	public void setInitTimestamp(long initTimestamp) {
+		this.initTimestamp = initTimestamp;
+	}
+
 	public void addSupportingAssertion(ContextAssertion assertion) {
 		supportingAssertions.add(assertion);
 	}
@@ -85,6 +169,14 @@ public class EventWindow implements Comparator<EventWindow> {
 	}
 	
 	
+	public boolean hasSupport() {
+		return !supportingAssertions.isEmpty();
+	}
+	
+	public int getNumSupportingAssertions() {
+		return supportingAssertions.size();
+	}
+	
 	/**
 	 * Gets the start of the event window as the timestamp of the first assertion supporting the {@link possibleAssertion}
 	 * @return The timestamp of the first supporting assertion in the window, or -1 if the window is empty
@@ -97,7 +189,6 @@ public class EventWindow implements Comparator<EventWindow> {
 			
 	}
 	
-	
 	/**
 	 * Gets the start of the event window as the timestamp of the last assertion supporting the {@link possibleAssertion}
 	 * @return The timestamp of the last supporting assertion in the window, or -1 if the window is empty
@@ -108,7 +199,35 @@ public class EventWindow implements Comparator<EventWindow> {
 		
 		return -1;
 	}
+	
+	
+	public double getWindowDuration() {
+		if (supportingAssertions.isEmpty())
+			return 0;
+		else 
+			return supportingAssertions.last().getAnnotations().getTimestamp() - supportingAssertions.first().getAnnotations().getTimestamp();
+	}
+	
+	public int getMaxSupportingAssertions() {
+		return maxSupportingAssertions;
+	}
 
+	
+	public void setMaxSupportingAssertions(int maxSupportingAssertions) {
+		this.maxSupportingAssertions = maxSupportingAssertions;
+	}
+
+	
+	public double getMaxDuration() {
+		return maxDuration;
+	}
+
+	
+	public void setMaxDuration(double maxDuration) {
+		this.maxDuration = maxDuration;
+	}
+
+	
 	/**
 	 * Compares two EventWindows based on their start timestamps
 	 */
@@ -122,5 +241,39 @@ public class EventWindow implements Comparator<EventWindow> {
 	    
 	    return 0;
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((possibleAssertion == null) ? 0 : possibleAssertion.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EventWindow other = (EventWindow) obj;
+		if (possibleAssertion == null) {
+			if (other.possibleAssertion != null)
+				return false;
+		} else if (!possibleAssertion.equals(other.possibleAssertion))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "EventWindow [possibleAssertion=" + possibleAssertion + ", maxSupportingAssertions=" + maxSupportingAssertions + ", maxDuration=" + maxDuration + 
+				", supportingAssertions=" + supportingAssertions + "]";
+	}
+	
+	
+	
 	
 }

@@ -180,7 +180,7 @@ public class ContinuityChecker {
                 return new ContinuityResult(true, existingAssertion, existingAssertionHandle, newAssertion, null, extendedAssertion, null);
             } else {
                 // if NO annotation continuity (either because of timestamp or confidence)
-                System.out.println("NO ANNOTATION EXTENSION FOUND for existing event: " + existingAssertion + ", new event: " + newAssertion);
+                eventTracker.generalRuleLogger.debug("NO ANNOTATION EXTENSION FOUND for existing event: " + existingAssertion + ", new event: " + newAssertion);
                 return new ContinuityResult(false, existingAssertion, existingAssertionHandle, newAssertion, null, null, null);
             }
         }

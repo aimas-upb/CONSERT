@@ -16,11 +16,12 @@ import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
 
 import org.aimas.consert.engine.core.EventTracker
 import org.aimas.consert.utils.AssertionLogger
+import org.apache.log4j.Logger
 
 import java.util.Date;
 
 global EventTracker eventTracker;
-global AssertionLogger assertionLogger;
+global Logger generalRuleLogger;
 
 declare Cleaning
     @role(event)
@@ -31,7 +32,7 @@ rule "Supplies open"
      //   $loc : PersonLocation(location == "supplies" || location == "kitchen") from entry-point "ExtendedPersonLocationStream"
         $Supplies: Cabinet(sensorId == "supplies", status == "OPEN") from entry-point "CabinetStream"
     then
-        System.out.println("////// Triggering SUPPLIES OPEN rule following events: " + $Supplies  + "\n");
+        generalRuleLogger.info("////// Triggering SUPPLIES OPEN rule following events: " + $Supplies  + "\n");
 
         long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
         ActivityTriggered SuppliesOpen = new ActivityTriggered("SuppliesOpen", ts);
@@ -45,7 +46,7 @@ rule "Cleaning"
         $SuppliesOpen: ActivityTriggered(name == "SuppliesOpen")
         $loc : PersonLocation(location == "LivingRoom" || location == "DiningRoom") from entry-point "ExtendedPersonLocationStream"
     then
-        System.out.println("////// Triggering CLEANING rule following events: "  + $SuppliesOpen + "," +  "\n");
+        generalRuleLogger.info("////// Triggering CLEANING rule following events: "  + $SuppliesOpen + "," +  "\n");
 
        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
        AnnotationData ann = new DefaultAnnotationData(ts);
@@ -63,7 +64,7 @@ rule "Supplies closed"
          $Supplies: Cabinet(sensorId == "supplies", status == "CLOSE") from entry-point "CabinetStream"
         not (exists Cabinet(sensorId == "supplies", status == "CLOSE", this after $Supplies) from entry-point "CabinetStream")
     then
-        System.out.println("////// Triggering SUPPLIES CLOSED rule following events: " + $SuppliesOpen + ", " + $Supplies + "\n");
+        generalRuleLogger.info("////// Triggering SUPPLIES CLOSED rule following events: " + $SuppliesOpen + ", " + $Supplies + "\n");
 
         // remove the ActivityTriggered fact
         eventTracker.deleteStaticEvent($SuppliesOpen);

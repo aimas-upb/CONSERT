@@ -1,0 +1,61 @@
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,158]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,159]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,160]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,161]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,161]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,162]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,196]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,251]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,309]: [Submit on location change] Submitting EventWindow 
+EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,345]: [Motion events near supply closet, if windows exist] Adding closet motion event Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1560265113629, confidence=1.0, startTime=1560265113629, endTime=1560265113629]]to EventWindow: EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1560265113629, confidence=1.0, startTime=1560265113629, endTime=1560265113629]]]]
+
