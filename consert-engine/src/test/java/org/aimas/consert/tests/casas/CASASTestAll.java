@@ -7,6 +7,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.engine.core.EngineRunner;
 import org.aimas.consert.engine.core.EventTracker;
+import org.aimas.consert.model.operators.AnnAfterOperator;
+import org.aimas.consert.model.operators.AnnBeforeOperator;
+import org.aimas.consert.model.operators.AnnIncludesOperator;
+import org.aimas.consert.model.operators.AnnIntersectsOperator;
+import org.aimas.consert.model.operators.AnnOverlappedByOperator;
+import org.aimas.consert.model.operators.AnnOverlapsOperator;
+import org.aimas.consert.model.operators.AnnStartsAfterOperator;
 import org.aimas.consert.tests.casas.utils.*;
 import org.aimas.consert.utils.TestSetup;
 import org.drools.core.time.SessionPseudoClock;

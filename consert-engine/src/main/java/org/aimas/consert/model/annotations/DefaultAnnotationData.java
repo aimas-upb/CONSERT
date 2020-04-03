@@ -23,7 +23,7 @@ public class DefaultAnnotationData implements AnnotationData {
 	
 	public static final long MAX_DURATION = Long.MAX_VALUE;
 	
-	double lastUpdated; 	/* last Updated time*/
+	long lastUpdated; 	/* last Updated time*/
     double confidence;  	/* confidence for the event */
     Date startTime; 	/* start time of the event */
     Date endTime; 		/* end time of the event */
@@ -31,7 +31,7 @@ public class DefaultAnnotationData implements AnnotationData {
     
     public DefaultAnnotationData() {}
     
-    public DefaultAnnotationData(double lastUpdated) {
+    public DefaultAnnotationData(long lastUpdated) {
     	this.lastUpdated = lastUpdated;
     	this.confidence = 1;
     	
@@ -41,7 +41,7 @@ public class DefaultAnnotationData implements AnnotationData {
     	setDuration(startTime, endTime);
     }
     
-    public DefaultAnnotationData(double lastUpdated, double confidence) {
+    public DefaultAnnotationData(long lastUpdated, double confidence) {
     	this.lastUpdated = lastUpdated;
     	this.confidence = confidence;
     	
@@ -51,7 +51,7 @@ public class DefaultAnnotationData implements AnnotationData {
     	setDuration(startTime, endTime);
     }
     
-    public DefaultAnnotationData(double lastUpdated, double confidence, Date startTime, Date endTime) {
+    public DefaultAnnotationData(long lastUpdated, double confidence, Date startTime, Date endTime) {
 	    this.lastUpdated = lastUpdated;
 	    this.confidence = confidence;
 	    this.startTime = startTime;
@@ -61,11 +61,11 @@ public class DefaultAnnotationData implements AnnotationData {
     }
 
     @RDF("annotation:lastUpdated")
-	public double getLastUpdated() {
+	public long getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(double lastUpdated) {
+    public void setLastUpdated(long lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
@@ -121,11 +121,11 @@ public class DefaultAnnotationData implements AnnotationData {
 	}
 
     @Override
-    public double getTimestamp() {
+    public long getTimestamp() {
     	return lastUpdated;
     }
     
-    public void setTimestamp(double timestamp) {
+    public void setTimestamp(long timestamp) {
     	this.setLastUpdated(timestamp);
     }
 	
@@ -255,7 +255,7 @@ public class DefaultAnnotationData implements AnnotationData {
     public AnnotationData applyCombinationOperator(AnnotationData otherAnn) {
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
 		
-		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
+		long maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
 		double maxConfidence = AnnotationUtils.maxConfidence(getConfidence(), ann.getConfidence());
 		
 		DatetimeInterval intersectionInterval = AnnotationUtils.computeIntersection(
@@ -276,7 +276,7 @@ public class DefaultAnnotationData implements AnnotationData {
     public AnnotationData applyExtensionOperator(AnnotationData otherAnn) {
 		DefaultAnnotationData ann = (DefaultAnnotationData)otherAnn;
 		
-		double maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
+		long maxTimestamp = AnnotationUtils.maxTimestamp(getLastUpdated(),  ann.getLastUpdated());
 		
 		double meanConfidence = AnnotationUtils.meanConfidence(getConfidence(), ann.getConfidence());
 		

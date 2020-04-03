@@ -1,23 +1,14 @@
-package org.aimas.consert.tests.casas.utils;
+package org.aimas.consert.model.operators;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.aimas.consert.model.content.ContextAssertion;
-import org.aimas.consert.tests.hla.assertions.Position;
-import org.aimas.consert.tests.hla.assertions.SittingLLA;
-import org.aimas.consert.tests.hla.entities.Area;
-import org.aimas.consert.tests.hla.entities.Person;
-import org.aimas.consert.unittest.AnnAfterOperatorTest.AnnAfterEvaluatorDefinition;
 import org.aimas.consert.utils.TestSetup;
 import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.EvaluatorDefinition;
@@ -29,40 +20,32 @@ import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.rule.VariableRestriction;
 import org.drools.core.spi.Evaluator;
 import org.drools.core.time.Interval;
-import org.junit.Assert;
-import org.junit.Test;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.rule.FactHandle;
-import org.kie.api.runtime.rule.Match;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.builder.conf.EvaluatorOption;
 
 
-public class AnnBeforeOperator extends TestSetup {
+public class AnnAfterOperator extends TestSetup {
 
-    public static class AnnBeforeEvaluatorDefinition implements EvaluatorDefinition {
+    public static class AnnAfterEvaluatorDefinition implements EvaluatorDefinition {
 
-        protected static final String beforeOp = "annHappensBefore";
+        protected static final String afterOp = "annHappensAfter";
 
-        public static Operator HAPPENS_BEFORE;
-        public static Operator NOT_HAPPENS_BEFORE;
+        public static Operator HAPPENS_AFTER;
+        public static Operator NOT_HAPPENS_AFTER;
 
         private static String[] SUPPORTED_IDS;
 
-        private Map<String, AnnBeforeEvaluator> cache = Collections.emptyMap();
+        private Map<String, AnnAfterEvaluator> cache = Collections.emptyMap();
 
         static {
-            if ( Operator.determineOperator( beforeOp, false ) == null ) {
-                HAPPENS_BEFORE = Operator.addOperatorToRegistry( beforeOp, false );
-                NOT_HAPPENS_BEFORE = Operator.addOperatorToRegistry( beforeOp, true );
-                SUPPORTED_IDS = new String[]{beforeOp};
+            if ( Operator.determineOperator( afterOp, false ) == null ) {
+                HAPPENS_AFTER = Operator.addOperatorToRegistry( afterOp, false );
+                NOT_HAPPENS_AFTER = Operator.addOperatorToRegistry( afterOp, true );
+                SUPPORTED_IDS = new String[]{afterOp};
             }
         }
 
         @SuppressWarnings("unchecked")
         public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException {
-            cache = (Map<String, AnnBeforeEvaluator>) in.readObject();
+            cache = (Map<String, AnnAfterEvaluator>) in.readObject();
         }
 
         public void writeExternal( ObjectOutput out ) throws IOException {
@@ -122,13 +105,13 @@ public class AnnBeforeOperator extends TestSetup {
                                        final Target left,
                                        final Target right ) {
             if ( this.cache == Collections.EMPTY_MAP ) {
-                this.cache = new HashMap<String, AnnBeforeEvaluator>();
+                this.cache = new HashMap<String, AnnAfterEvaluator>();
             }
             String key = left + ":" + right + ":" + isNegated + ":" + parameterText;
-            AnnBeforeEvaluator eval = this.cache.get( key );
+            AnnAfterEvaluator eval = this.cache.get( key );
             if ( eval == null ) {
                 long[] params = TimeIntervalParser.parse( parameterText );
-                eval = new AnnBeforeEvaluator( type,
+                eval = new AnnAfterEvaluator( type,
                         isNegated,
                         params,
                         parameterText,
@@ -172,20 +155,20 @@ public class AnnBeforeOperator extends TestSetup {
     }
 
 
-    public static class AnnBeforeEvaluator extends PointInTimeEvaluator {
+    public static class AnnAfterEvaluator extends PointInTimeEvaluator {
         private static final long serialVersionUID = 2l;
 
-        public AnnBeforeEvaluator() {
+        public AnnAfterEvaluator() {
         }
 
-        public AnnBeforeEvaluator( final ValueType type,
-                                   final boolean isNegated,
-                                   final long[] parameters,
-                                   final String paramText,
-                                   final boolean unwrapLeft,
-                                   final boolean unwrapRight ) {
+        public AnnAfterEvaluator( final ValueType type,
+                                  final boolean isNegated,
+                                  final long[] parameters,
+                                  final String paramText,
+                                  final boolean unwrapLeft,
+                                  final boolean unwrapRight ) {
             super( type,
-                    isNegated ? AnnBeforeEvaluatorDefinition.NOT_HAPPENS_BEFORE : AnnBeforeEvaluatorDefinition.HAPPENS_BEFORE,
+                    isNegated ? AnnAfterEvaluatorDefinition.NOT_HAPPENS_AFTER : AnnAfterEvaluatorDefinition.HAPPENS_AFTER,
                     parameters,
                     paramText,
                     unwrapLeft,
@@ -194,8 +177,8 @@ public class AnnBeforeOperator extends TestSetup {
 
         @Override
         public Interval getInterval() {
-            long init = (this.finalRange == Interval.MAX) ? Interval.MIN : -this.finalRange;
-            long end = (this.initRange == Interval.MIN) ? Interval.MAX : -this.initRange;
+            long init = this.initRange;
+            long end = this.finalRange;
             if ( this.getOperator().isNegated() ) {
                 if ( init == Interval.MIN && end != Interval.MAX ) {
                     init = finalRange + 1;
@@ -225,8 +208,6 @@ public class AnnBeforeOperator extends TestSetup {
                 return false;
             }
 
-            //context.declaration.getExtractor().getValue(workingMemory, context.)
-
             // get the ContextAssertion object and cast its annotations to DefaultAnnotationData for this test
             ContextAssertion cachedAssertion = (ContextAssertion)context.getObject();
             if (cachedAssertion == null) {
@@ -239,7 +220,7 @@ public class AnnBeforeOperator extends TestSetup {
             }
 
             DefaultAnnotationData ann = (DefaultAnnotationData)cachedAssertion.getAnnotations();
-            long leftTS = ann.getStartTime() != null ? ann.getStartTime().getTime() : 0;
+            long leftTS = ann.getEndTime() != null ? ann.getEndTime().getTime() : Long.MAX_VALUE;
 
             //long leftTS = ((VariableRestriction.TimestampedContextEntry)context).timestamp;
             long rightTS = context.getFieldExtractor().isSelfReference() ?
@@ -258,7 +239,6 @@ public class AnnBeforeOperator extends TestSetup {
                 return false;
             }
 
-
             // get the ContextAssertion object and cast its annotations to DefaultAnnotationData for this test
             ContextAssertion cachedAssertion = (ContextAssertion)context.getObject();
             if (cachedAssertion == null) {
@@ -271,7 +251,7 @@ public class AnnBeforeOperator extends TestSetup {
             }
 
             DefaultAnnotationData ann = (DefaultAnnotationData)cachedAssertion.getAnnotations();
-            long rightTS = ann.getEndTime() != null ? ann.getEndTime().getTime() : Long.MAX_VALUE;
+            long rightTS = ann.getStartTime() != null ? ann.getStartTime().getTime() : 0;
 
             //long rightTS = ((VariableRestriction.TimestampedContextEntry)context).timestamp;
             long leftTS = context.declaration.getExtractor().isSelfReference() ?
@@ -284,7 +264,7 @@ public class AnnBeforeOperator extends TestSetup {
 
         @Override
         protected boolean evaluate( long rightTS, long leftTS ) {
-            long dist = leftTS - rightTS;
+            long dist = rightTS - leftTS;
             return this.getOperator().isNegated() ^ ( dist >= this.initRange && dist <= this.finalRange );
         }
 
@@ -297,7 +277,7 @@ public class AnnBeforeOperator extends TestSetup {
             // when merging with updated annotation processing, check will have to be made whether temporal annotation exists
             // if not, timestamp annotation will be checked, if not fact handle endTimestamp (i.e. Drools processing) will be returned
             DefaultAnnotationData ann = (DefaultAnnotationData)leftAssertion.getAnnotations();
-            return ann.getStartTime() != null ? ann.getStartTime().getTime() : 0;
+            return ann.getEndTime() != null ? ann.getEndTime().getTime() : Long.MAX_VALUE;
 
             //return ( (EventFactHandle) handle ).getEndTimestamp();
         }
@@ -310,7 +290,7 @@ public class AnnBeforeOperator extends TestSetup {
             // when merging with updated annotation processing, check will have to be made whether temporal annotation exists
             // if not, timestamp annotation will be checked, if not fact handle startTimestamp (i.e. Drools processing) will be returned
             DefaultAnnotationData ann = (DefaultAnnotationData)rightAssertion.getAnnotations();
-            return ann.getEndTime() != null ? ann.getEndTime().getTime() : Long.MAX_VALUE;
+            return ann.getStartTime() != null ? ann.getStartTime().getTime() : 0;
             //return ( (EventFactHandle) handle ).getStartTimestamp();
         }
     }

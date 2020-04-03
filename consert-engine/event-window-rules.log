@@ -1,61 +1,709 @@
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,158]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,142]: [Add Kitchen motion events to possible Cleaning event windows] Adding kitchen motion event Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]]to EventWindow: EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605000547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]]]] 
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,159]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,160]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,158]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605000547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]]]] 
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,161]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604259747, confidence=1.0, startTime=1565604259147, endTime=1565604259747]],
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,161]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]]
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,162]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,163]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,196]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604276247, confidence=1.0, startTime=1565604270547, endTime=1565604275397]],
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,251]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]]
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,309]: [Submit on location change] Submitting EventWindow 
-EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]]]]
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,164]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
 
-INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 17:47:57,345]: [Motion events near supply closet, if windows exist] Adding closet motion event Motion[sensorId: M18, status: OFF, 
-Annotations [lastUpdated=1560265113629, confidence=1.0, startTime=1560265113629, endTime=1560265113629]]to EventWindow: EventWindow [possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]], maxSupportingAssertions=30, maxDuration=20000.0, supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
-Annotations [lastUpdated=1560265092629, confidence=1.0, startTime=1560265092629, endTime=1560265092629]], AccessingSupplies[entity: AccessingSupplies, 
-Annotations [lastUpdated=1560265093529, confidence=1.0, startTime=1560265093529, endTime=1560265093529]], Cabinet[sensorId: supplies, status: CLOSE, 
-Annotations [lastUpdated=1560265095729, confidence=1.0, startTime=1560265095729, endTime=1560265095729]], Motion[sensorId: M18, status: OFF, 
-Annotations [lastUpdated=1560265113629, confidence=1.0, startTime=1560265113629, endTime=1560265113629]]]]
+	PrevLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,164]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604454747, confidence=1.0, startTime=1565604429547, endTime=1565604454747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,165]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604454747, confidence=1.0, startTime=1565604429547, endTime=1565604454747]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,166]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604657647, confidence=1.0, startTime=1565604645647, endTime=1565604657147]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,166]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]],
+
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604672647, confidence=1.0, startTime=1565604657147, endTime=1565604672647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,167]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
+
+	PrevLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604672647, confidence=1.0, startTime=1565604657147, endTime=1565604672647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604681747, confidence=1.0, startTime=1565604679647, endTime=1565604681747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,167]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604681747, confidence=1.0, startTime=1565604679647, endTime=1565604681747]],
+
+	CurrentLoc: PersonLocation[location: Kitchen, 
+Annotations [lastUpdated=1565604934747, confidence=1.0, startTime=1565604689647, endTime=1565604934747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,168]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605003647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604259747, confidence=1.0, startTime=1565604259147, endTime=1565604259747]],
+
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,178]: [Motion events near supply closet, if windows exist] Adding closet motion event Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]to EventWindow: EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,181]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604259747, confidence=1.0, startTime=1565604259147, endTime=1565604259747]],
+
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,182]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604276247, confidence=1.0, startTime=1565604270547, endTime=1565604275397]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,182]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,183]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604454747, confidence=1.0, startTime=1565604429547, endTime=1565604454747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,183]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604454747, confidence=1.0, startTime=1565604429547, endTime=1565604454747]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,184]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604657647, confidence=1.0, startTime=1565604645647, endTime=1565604657147]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,185]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]],
+
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604672647, confidence=1.0, startTime=1565604657147, endTime=1565604672647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,185]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604672647, confidence=1.0, startTime=1565604657147, endTime=1565604672647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604681747, confidence=1.0, startTime=1565604679647, endTime=1565604681747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,186]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605005547,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604681747, confidence=1.0, startTime=1565604679647, endTime=1565604681747]],
+
+	CurrentLoc: PersonLocation[location: Kitchen, 
+Annotations [lastUpdated=1565604934747, confidence=1.0, startTime=1565604689647, endTime=1565604934747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,188]: [Motion events near supply closet, if windows exist] Adding closet motion event Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]to EventWindow: EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,189]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604259747, confidence=1.0, startTime=1565604259147, endTime=1565604259747]],
+
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,189]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604276247, confidence=1.0, startTime=1565604270547, endTime=1565604275397]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,190]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,190]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604454747, confidence=1.0, startTime=1565604429547, endTime=1565604454747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,191]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604454747, confidence=1.0, startTime=1565604429547, endTime=1565604454747]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,191]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604657647, confidence=1.0, startTime=1565604645647, endTime=1565604657147]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,192]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]],
+
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604672647, confidence=1.0, startTime=1565604657147, endTime=1565604672647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,192]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604672647, confidence=1.0, startTime=1565604657147, endTime=1565604672647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604681747, confidence=1.0, startTime=1565604679647, endTime=1565604681747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,193]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605006647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604681747, confidence=1.0, startTime=1565604679647, endTime=1565604681747]],
+
+	CurrentLoc: PersonLocation[location: Kitchen, 
+Annotations [lastUpdated=1565604934747, confidence=1.0, startTime=1565604689647, endTime=1565604934747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,199]: [Motion events near supply closet, if windows exist] Adding closet motion event Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]to EventWindow: EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,200]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604259747, confidence=1.0, startTime=1565604259147, endTime=1565604259747]],
+
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,201]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604276247, confidence=1.0, startTime=1565604270547, endTime=1565604275397]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,201]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604344647, confidence=1.0, startTime=1565604275397, endTime=1565604344647]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,202]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604422647, confidence=1.0, startTime=1565604364747, endTime=1565604422647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604454747, confidence=1.0, startTime=1565604429547, endTime=1565604454747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,203]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604454747, confidence=1.0, startTime=1565604429547, endTime=1565604454747]],
+
+	CurrentLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,204]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604657647, confidence=1.0, startTime=1565604645647, endTime=1565604657147]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,204]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: DiningTable, 
+Annotations [lastUpdated=1565604634647, confidence=1.0, startTime=1565604460547, endTime=1565604634647]],
+
+	CurrentLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604672647, confidence=1.0, startTime=1565604657147, endTime=1565604672647]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,205]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: TV, 
+Annotations [lastUpdated=1565604672647, confidence=1.0, startTime=1565604657147, endTime=1565604672647]],
+
+	CurrentLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604681747, confidence=1.0, startTime=1565604679647, endTime=1565604681747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,206]: [Submit on location change] Submitting EventWindow 
+EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605007647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]]]] 
+
+	PrevLoc: PersonLocation[location: LivingRoom, 
+Annotations [lastUpdated=1565604681747, confidence=1.0, startTime=1565604679647, endTime=1565604681747]],
+
+	CurrentLoc: PersonLocation[location: Kitchen, 
+Annotations [lastUpdated=1565604934747, confidence=1.0, startTime=1565604689647, endTime=1565604934747]]
+
+INFO  [CONSERT ENGINE runner thread, eventWindowLogger, 2019-08-12 13:04:19,233]: [Add Kitchen motion events to possible Cleaning event windows] Adding kitchen motion event Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605008647, confidence=1.0, startTime=1565605008647, endTime=1565605008647]]to EventWindow: EventWindow [	possibleAssertion=ContextAssertionContent [assertion=Cleaning[sensorId: Cleaning, status: Cleaning, ]],
+	start=1565604999547, end= 1565605008647,
+	maxSupportingAssertions=30, maxDuration=20000.0,
+	supportingAssertions=[Cabinet[sensorId: supplies, status: OPEN, 
+Annotations [lastUpdated=1565604999547, confidence=1.0, startTime=1565604999547, endTime=1565604999547]], AccessingSupplies[entity: AccessingSupplies, 
+Annotations [lastUpdated=1565605000047, confidence=1.0, startTime=1565605000047, endTime=1565605000047]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605000547, confidence=1.0, startTime=1565605000547, endTime=1565605000547]], Cabinet[sensorId: supplies, status: CLOSE, 
+Annotations [lastUpdated=1565605003647, confidence=1.0, startTime=1565605003647, endTime=1565605003647]], Motion[sensorId: M18, status: ON, 
+Annotations [lastUpdated=1565605005547, confidence=1.0, startTime=1565605005547, endTime=1565605005547]], Motion[sensorId: M51, status: OFF, 
+Annotations [lastUpdated=1565605006647, confidence=1.0, startTime=1565605006647, endTime=1565605006647]], Motion[sensorId: M18, status: OFF, 
+Annotations [lastUpdated=1565605007647, confidence=1.0, startTime=1565605007647, endTime=1565605007647]], Motion[sensorId: M17, status: OFF, 
+Annotations [lastUpdated=1565605008647, confidence=1.0, startTime=1565605008647, endTime=1565605008647]]]] 
+
 

@@ -1,4 +1,4 @@
-package org.aimas.consert.tests.casas.utils;
+package org.aimas.consert.model.operators;
 
 import java.io.IOException;
 import java.io.ObjectInput;

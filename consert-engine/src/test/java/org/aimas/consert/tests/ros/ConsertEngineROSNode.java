@@ -1,11 +1,9 @@
 package org.aimas.consert.tests.ros;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.aimas.consert.engine.api.ContextAssertionListener;
@@ -14,19 +12,17 @@ import org.aimas.consert.engine.core.EngineRunner;
 import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.eventwindow.EventWindow;
+import org.aimas.consert.model.operators.AnnAfterOperator;
+import org.aimas.consert.model.operators.AnnBeforeOperator;
+import org.aimas.consert.model.operators.AnnIncludesOperator;
+import org.aimas.consert.model.operators.AnnIntersectsOperator;
+import org.aimas.consert.model.operators.AnnOverlappedByOperator;
+import org.aimas.consert.model.operators.AnnOverlapsOperator;
+import org.aimas.consert.model.operators.AnnStartsAfterOperator;
 import org.aimas.consert.tests.casas.CASASEventReader;
 import org.aimas.consert.tests.casas.CASASSimClockEventInserter;
 import org.aimas.consert.tests.casas.EventReader;
-import org.aimas.consert.tests.casas.utils.AnnAfterOperator;
-import org.aimas.consert.tests.casas.utils.AnnBeforeOperator;
-import org.aimas.consert.tests.casas.utils.AnnIncludesOperator;
-import org.aimas.consert.tests.casas.utils.AnnIntersectsOperator;
-import org.aimas.consert.tests.casas.utils.AnnOverlappedByOperator;
-import org.aimas.consert.tests.casas.utils.AnnOverlapsOperator;
-import org.aimas.consert.tests.casas.utils.AnnStartsAfterOperator;
 import org.aimas.consert.tests.ros.serializers.ConsertModelSerializer;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.drools.core.time.SessionPseudoClock;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieSession;
@@ -52,7 +48,7 @@ import org.ros.node.topic.Subscriber;
 public class ConsertEngineROSNode extends BaseConsertEngineROSNode 
 	implements ContextAssertionListener, EventWindowListener, MessageListener<consert.ContextAssertion> {
 	
-	public static final String PERSON = "p20";
+	public static final String PERSON = "p15";
 	public static final String TASK = "interweaved";
 	public static final String TEST_FILE = "files/casas_adlinterweaved/" + PERSON + "_interweaved" + ".json";
 	public static final String VALID_FILE = "files/casas_adlinterweaved/" + PERSON + "_activity_intervals" + ".json";

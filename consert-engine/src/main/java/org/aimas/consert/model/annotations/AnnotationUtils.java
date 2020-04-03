@@ -47,10 +47,10 @@ public class AnnotationUtils {
 	}
 	
 	
-	public static double maxTimestamp(double... timestampValues) {
-		double max = 0;
+	public static long maxTimestamp(long... timestampValues) {
+		long max = 0;
 		
-		for (double val : timestampValues) {
+		for (long val : timestampValues) {
 			if (val > max) 
 				max = val;
 		}
@@ -59,13 +59,13 @@ public class AnnotationUtils {
 	}
 	
 	
-	public static double minTimestamp(double... timestampValues) {
+	public static double minTimestamp(long... timestampValues) {
 		
 		if (timestampValues.length == 0) 
 			return 0;
 		
-		double min = timestampValues[0];
-		for (double val : timestampValues) {
+		long min = timestampValues[0];
+		for (long val : timestampValues) {
 			if (val < min) 
 				min = val;
 		}

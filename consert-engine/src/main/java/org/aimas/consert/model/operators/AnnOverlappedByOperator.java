@@ -1,4 +1,4 @@
-package org.aimas.consert.tests.casas.utils;
+package org.aimas.consert.model.operators;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -15,7 +15,6 @@ import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.EvaluatorDefinition;
 import org.drools.core.base.evaluators.Operator;
 import org.drools.core.base.evaluators.TimeIntervalParser;
-import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.EventFactHandle;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
@@ -25,34 +24,34 @@ import org.drools.core.spi.FieldValue;
 import org.drools.core.spi.InternalReadAccessor;
 import org.drools.core.time.Interval;
 
-public class AnnOverlapsOperator extends TestSetup {
+public class AnnOverlappedByOperator extends TestSetup {
 
-    public static class AnnOverlapsEvaluatorDefinition implements EvaluatorDefinition {
+    public static class AnnOverlappedByEvaluatorDefinition implements EvaluatorDefinition {
 
-        public static final String          overlapsOp = "annOverlaps";
+        public static final String          overlappedByOp = "annOverlappedBy";
 
-        public static Operator              OVERLAPS;
+        public static Operator              OVERLAPPED_BY;
 
-        public static Operator              OVERLAPS_NOT;
+        public static Operator              OVERLAPPED_BY_NOT;
 
         private static String[]             SUPPORTED_IDS;
 
-        private Map<String, AnnOveralapsEvaluator> cache       = Collections.emptyMap();
+        private Map<String, AnnOveralappedByEvaluator> cache       = Collections.emptyMap();
 
         { init(); }
 
         static void init() {
-            if ( Operator.determineOperator( overlapsOp, false ) == null ) {
-                OVERLAPS = Operator.addOperatorToRegistry( overlapsOp, false );
-                OVERLAPS_NOT = Operator.addOperatorToRegistry( overlapsOp, true );
-                SUPPORTED_IDS = new String[] { overlapsOp };
+            if ( Operator.determineOperator( overlappedByOp, false ) == null ) {
+                OVERLAPPED_BY = Operator.addOperatorToRegistry( overlappedByOp, false );
+                OVERLAPPED_BY_NOT = Operator.addOperatorToRegistry( overlappedByOp, true );
+                SUPPORTED_IDS = new String[] { overlappedByOp };
             }
         }
 
         @SuppressWarnings("unchecked")
         public void readExternal(ObjectInput in) throws IOException,
                 ClassNotFoundException {
-            cache = (Map<String, AnnOveralapsEvaluator>) in.readObject();
+            cache = (Map<String, AnnOveralappedByEvaluator>) in.readObject();
         }
 
         public void writeExternal(ObjectOutput out) throws IOException {
@@ -77,13 +76,13 @@ public class AnnOverlapsOperator extends TestSetup {
         public Evaluator getEvaluator(final ValueType type, final String operatorId, final boolean isNegated, final String parameterText,
                                       final Target left, final Target right ) {
             if ( this.cache == Collections.EMPTY_MAP ) {
-                this.cache = new HashMap<String, AnnOveralapsEvaluator>();
+                this.cache = new HashMap<String, AnnOveralappedByEvaluator>();
             }
             String key = isNegated + ":" + parameterText;
-            AnnOveralapsEvaluator eval = this.cache.get( key );
+            AnnOveralappedByEvaluator eval = this.cache.get( key );
             if ( eval == null ) {
                 long[] params = TimeIntervalParser.parse( parameterText );
-                eval = new AnnOveralapsEvaluator( type,
+                eval = new AnnOveralappedByEvaluator( type,
                         isNegated,
                         params,
                         parameterText );
@@ -114,15 +113,15 @@ public class AnnOverlapsOperator extends TestSetup {
 
 
     /**
-     * Implements the 'overlaps' evaluator itself
+     * Implements the 'overlapped by' evaluator itself
      */
-    public static class AnnOveralapsEvaluator extends BaseEvaluator {
+    public static class AnnOveralappedByEvaluator extends BaseEvaluator {
 
         private long              minDev, maxDev;
         private String            paramText;
 
         {
-            AnnOverlapsEvaluatorDefinition.init();
+            AnnOverlappedByEvaluatorDefinition.init();
         }
 
 
@@ -144,11 +143,11 @@ public class AnnOverlapsOperator extends TestSetup {
             }
         }
 
-        public AnnOveralapsEvaluator() {
+        public AnnOveralappedByEvaluator() {
         }
 
-        public AnnOveralapsEvaluator(final ValueType type, final boolean isNegated, final long[] parameters, final String paramText) {
-            super( type, isNegated ? AnnOverlapsEvaluatorDefinition.OVERLAPS_NOT : AnnOverlapsEvaluatorDefinition.OVERLAPS );
+        public AnnOveralappedByEvaluator(final ValueType type, final boolean isNegated, final long[] parameters, final String paramText) {
+            super( type, isNegated ? AnnOverlappedByEvaluatorDefinition.OVERLAPPED_BY_NOT : AnnOverlappedByEvaluatorDefinition.OVERLAPPED_BY );
             this.paramText = paramText;
             this.setParameters( parameters );
         }
@@ -183,7 +182,7 @@ public class AnnOverlapsOperator extends TestSetup {
         @Override
         public boolean evaluate(InternalWorkingMemory workingMemory, final InternalReadAccessor extractor,
                                 final InternalFactHandle object1, final FieldValue object2) {
-            throw new RuntimeException( "The 'overlaps' operator can only be used to compare one event to another, and never to compare to literal constraints." );
+            throw new RuntimeException( "The 'overlapped_by' operator can only be used to compare one event to another, and never to compare to literal constraints." );
         }
 
         @Override
@@ -206,11 +205,11 @@ public class AnnOverlapsOperator extends TestSetup {
             TimestampPair interval1 = getTemporalInterval(cachedAssertion);
             TimestampPair interval2 = getTemporalInterval((EventFactHandle) left);
 
-            long dist = interval1.end - interval2.start;
+            long dist = interval2.end - interval1.start;
 
             return this.getOperator().isNegated() ^
-                    ( interval1.start <= interval2.start && interval1.end < interval2.end
-                            && dist >= this.minDev && dist <= this.maxDev );
+                    ( interval1.start >= interval2.start && interval1.end > interval2.end
+                            && dist > this.minDev && dist <= this.maxDev );
         }
 
 
@@ -231,14 +230,14 @@ public class AnnOverlapsOperator extends TestSetup {
                 }
             }
 
-            TimestampPair interval1 = getTemporalInterval(right);
+            TimestampPair interval1 = getTemporalInterval((EventFactHandle) right);
             TimestampPair interval2 = getTemporalInterval(cachedAssertion);
 
-            long dist = interval1.end - interval2.start;
+            long dist = interval2.end - interval1.start;
 
             return this.getOperator().isNegated() ^
-                    ( interval1.start <= interval2.start && interval1.end < interval2.end
-                            && dist > this.minDev && dist <= this.maxDev );
+                    ( interval1.start >= interval2.start && interval1.end > interval2.end
+                            && dist >= this.minDev && dist <= this.maxDev );
         }
 
 
@@ -254,55 +253,37 @@ public class AnnOverlapsOperator extends TestSetup {
             }
 
             // if both events are non-null, retrieve the TimestampPairs
-            TimestampPair interval1 = getTemporalInterval(handle1);
-            TimestampPair interval2 = getTemporalInterval(handle2);
+            TimestampPair interval1 = getTemporalInterval((EventFactHandle)handle1);
+            TimestampPair interval2 = getTemporalInterval((EventFactHandle)handle2);
 
-            long dist = interval1.end - interval2.start;
+            long dist = interval2.end - interval1.start;
 
             return this.getOperator().isNegated() ^
-                    ( interval1.start <= interval2.start && interval1.end < interval2.end
+                    ( interval1.start >= interval2.start && interval1.end > interval2.end
                             && dist >= this.minDev && dist <= this.maxDev );
         }
 
 
         private TimestampPair getTemporalInterval(ContextAssertion assertion) {
             DefaultAnnotationData ann = (DefaultAnnotationData)assertion.getAnnotations();
-            long start = 0;
-            long end = Long.MAX_VALUE;
-            
-            if (ann.getStartTime() != null)
-            	start = ann.getStartTime().getTime();
-            
-            if (ann.getEndTime() != null)
-            	end = ann.getEndTime().getTime();
-            
-            return new TimestampPair(start, end);
+            return new TimestampPair(ann.getStartTime().getTime(), ann.getEndTime().getTime());
         }
 
-        private TimestampPair getTemporalInterval(InternalFactHandle handle) {
-        	if (handle instanceof EventFactHandle) {
-        		EventFactHandle factHandle = (EventFactHandle)handle;
-        		
-        		if (factHandle.getObject() instanceof ContextAssertion) {
-                    ContextAssertion assertion = (ContextAssertion)factHandle.getObject();
-                    return getTemporalInterval(assertion);
-                }
-                else {
-                    return new TimestampPair(factHandle.getStartTimestamp(), factHandle.getEndTimestamp());
-                }
-        	}
-        	else {
-        		// it should be a DefaultFactHandle and the object should be a ContextAssertion
-        		DefaultFactHandle factHandle = (DefaultFactHandle)handle;
-        		ContextAssertion assertion = (ContextAssertion)factHandle.getObject();
-                return getTemporalInterval(assertion);
-        	}
-            
+        private TimestampPair getTemporalInterval(EventFactHandle handle) {
+            if (handle.getObject() instanceof ContextAssertion) {
+                ContextAssertion assertion = (ContextAssertion)handle.getObject();
+                DefaultAnnotationData ann = (DefaultAnnotationData)assertion.getAnnotations();
+
+                return new TimestampPair(ann.getStartTime().getTime(), ann.getEndTime().getTime());
+            }
+            else {
+                return new TimestampPair(handle.getStartTimestamp(), handle.getEndTimestamp());
+            }
         }
 
 
         public String toString() {
-            return "annOverlaps[" + ( ( paramText != null ) ? paramText : "" ) + "]";
+            return "annOverlapedBy[" + ( ( paramText != null ) ? paramText : "" ) + "]";
         }
 
         /* (non-Javadoc)
@@ -325,7 +306,7 @@ public class AnnOverlapsOperator extends TestSetup {
             if ( this == obj ) return true;
             if ( !super.equals( obj ) ) return false;
             if ( getClass() != obj.getClass() ) return false;
-            final AnnOveralapsEvaluator other = (AnnOveralapsEvaluator) obj;
+            final AnnOveralappedByEvaluator other = (AnnOveralappedByEvaluator) obj;
             return maxDev == other.maxDev && minDev == other.minDev ;
         }
 
@@ -348,7 +329,7 @@ public class AnnOverlapsOperator extends TestSetup {
                 this.minDev = parameters[0];
                 this.maxDev = parameters[1];
             } else {
-                throw new RuntimeException( "[Overlaps Evaluator]: Not possible to use " + parameters.length + " parameters: '" + paramText + "'" );
+                throw new RuntimeException( "[OverlappedBy Evaluator]: Not possible to use " + parameters.length + " parameters: '" + paramText + "'" );
             }
         }
 

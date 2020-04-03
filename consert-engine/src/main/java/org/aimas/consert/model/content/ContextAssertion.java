@@ -5,6 +5,7 @@ import java.util.Map;
 import org.aimas.consert.model.Constants;
 import org.aimas.consert.model.annotations.AnnotationData;
 import org.aimas.consert.model.annotations.AnnotationUtils;
+import org.aimas.consert.model.annotations.DefaultAnnotationData;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
@@ -16,7 +17,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 	"rdfbeans = " + Constants.RDFBEANS_URI
 })
 @RDFBean("core:ContextAssertion")
-public abstract class ContextAssertion {
+public abstract class ContextAssertion implements TemporalEntity {
 	private static int assertionCounter = 1;
 	
 	protected String assertionIdentifier = Constants.CORE_NS + "assertion-" + (assertionCounter++);
@@ -289,4 +290,81 @@ public abstract class ContextAssertion {
 	public ContextAssertionContent getAssertionContent() {
 		return new ContextAssertionContent(this);
 	}
+
+	/*
+	 * ======================== TemporalEntity methods ========================
+	 */
+	
+	@Override
+	public long getStart() {
+		if (annotationData == null) {
+			return -Long.MAX_VALUE;
+		}
+		else {
+			DefaultAnnotationData ann = (DefaultAnnotationData)annotationData;
+			if (ann.getStartTime() != null)
+				return ann.getStartTime().getTime();
+			else
+				return (long)ann.getTimestamp();
+		}
+	}
+
+	@Override
+	public long getEnd() {
+		if (annotationData == null) {
+			return Long.MAX_VALUE;
+		}
+		else {
+			DefaultAnnotationData ann = (DefaultAnnotationData)annotationData;
+			if (ann.getEndTime() != null)
+				return ann.getEndTime().getTime();
+			else
+				return (long)ann.getTimestamp();
+		}
+	}
+
+	@Override
+	public long getDuration() {
+		if (annotationData == null) {
+			// If there is no annotation, the ContextAssertion is considered to be always true (similar to a static fact).
+			// To indicate this, we assign a value of -1 for the duration
+			return -1;
+		}
+		else {
+			DefaultAnnotationData ann = (DefaultAnnotationData)annotationData;
+			return ann.getDuration();
+		}
+	}
+
+	@Override
+	public boolean hasUpperBound() {
+		if (annotationData == null)
+			return false;
+		else {
+			DefaultAnnotationData ann = (DefaultAnnotationData)annotationData;
+			return ann.getEndTime() != null;
+		}
+	}
+
+	@Override
+	public boolean hasLowerBound() {
+		if (annotationData == null)
+			return false;
+		else {
+			DefaultAnnotationData ann = (DefaultAnnotationData)annotationData;
+			return ann.getStartTime() != null;
+		}
+	}
+	
+	@Override
+	public boolean isSinglePoint() {
+		return annotationData != null && annotationData.getDuration() == 0;
+	}
+	
+	@Override
+	public boolean isInfinite() {
+		// an infinite interval is one without a lower or an upper bound
+		return (!hasUpperBound() || !hasLowerBound());
+	}
+
 }

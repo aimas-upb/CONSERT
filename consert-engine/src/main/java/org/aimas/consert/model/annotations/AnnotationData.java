@@ -21,7 +21,7 @@ public interface AnnotationData {
 	AnnotationData applyExtensionOperator(AnnotationData otherAnn);
 	
 	@RDF("annotation:timestamp")
-	double getTimestamp();
+	long getTimestamp();
 	
 	@RDF("annotation:duration")
 	long getDuration();

@@ -214,11 +214,19 @@ rule "Submit on location change"
     			this annHappensAfter $prevLoc, this annHappensBefore $currentLoc) from entry-point "ExtendedPersonLocationStream" 
     	)
     	
+    	not (
+    		exists PersonLocation(newerLoc : location, newerLoc in ("Kitchen", "LivingRoom", "DiningTable", "TV"),
+    			this annHappensAfter $currentLoc) from entry-point "ExtendedPersonLocationStream"
+    	)
+    	
         $window : EventWindow(assertion : possibleAssertion, assertion.getName() == "Cleaning", winStart : windowStart, 
         	winStart > prevLocAnn.getTimestamp())
     then    
         eventWindowManager.submitWindow(assertion);
-        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Submitting EventWindow \n" + $window + "\n");
+        eventWindowLogger.info("[" + drools.getRule().getName() + "] " + "Submitting EventWindow \n" 
+        	+ $window + "\n" 
+        	+ "\t" + "PrevLoc: " + $prevLoc + ",\n\n" 
+        	+ "\t" + "CurrentLoc: " + $currentLoc + "\n");
 end
 
 

@@ -1,4 +1,4 @@
-package org.aimas.consert.tests.casas.utils;
+package org.aimas.consert.model.operators;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -15,6 +15,7 @@ import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.EvaluatorDefinition;
 import org.drools.core.base.evaluators.Operator;
 import org.drools.core.base.evaluators.TimeIntervalParser;
+import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.EventFactHandle;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
@@ -24,34 +25,34 @@ import org.drools.core.spi.FieldValue;
 import org.drools.core.spi.InternalReadAccessor;
 import org.drools.core.time.Interval;
 
-public class AnnIncludesOperator extends TestSetup {
+public class AnnStartsAfterOperator extends TestSetup {
 
-    public static class AnnIncludesEvaluatorDefinition implements EvaluatorDefinition {
+    public static class AnnStartsAfterEvaluatorDefinition implements EvaluatorDefinition {
 
-        public static final String          includesOp = "annIncludes";
+        public static final String          startsAfterOp = "annStartsAfter";
 
-        public static Operator              INCLUDES;
+        public static Operator              STARTS_AFTER;
 
-        public static Operator              INCLUDES_NOT;
+        public static Operator              STARTS_AFTER_NOT;
 
         private static String[]             SUPPORTED_IDS;
 
-        private Map<String, AnnIncludesEvaluator> cache       = Collections.emptyMap();
+        private Map<String, AnnOveralapsEvaluator> cache       = Collections.emptyMap();
 
         { init(); }
 
         static void init() {
-            if ( Operator.determineOperator( includesOp, false ) == null ) {
-                INCLUDES = Operator.addOperatorToRegistry( includesOp, false );
-                INCLUDES_NOT = Operator.addOperatorToRegistry( includesOp, true );
-                SUPPORTED_IDS = new String[] { includesOp };
+            if ( Operator.determineOperator( startsAfterOp, false ) == null ) {
+                STARTS_AFTER = Operator.addOperatorToRegistry( startsAfterOp, false );
+                STARTS_AFTER_NOT = Operator.addOperatorToRegistry( startsAfterOp, true );
+                SUPPORTED_IDS = new String[] { startsAfterOp };
             }
         }
 
         @SuppressWarnings("unchecked")
         public void readExternal(ObjectInput in) throws IOException,
                 ClassNotFoundException {
-            cache = (Map<String, AnnIncludesEvaluator>) in.readObject();
+            cache = (Map<String, AnnOveralapsEvaluator>) in.readObject();
         }
 
         public void writeExternal(ObjectOutput out) throws IOException {
@@ -76,13 +77,13 @@ public class AnnIncludesOperator extends TestSetup {
         public Evaluator getEvaluator(final ValueType type, final String operatorId, final boolean isNegated, final String parameterText,
                                       final Target left, final Target right ) {
             if ( this.cache == Collections.EMPTY_MAP ) {
-                this.cache = new HashMap<String, AnnIncludesEvaluator>();
+                this.cache = new HashMap<String, AnnOveralapsEvaluator>();
             }
             String key = isNegated + ":" + parameterText;
-            AnnIncludesEvaluator eval = this.cache.get( key );
+            AnnOveralapsEvaluator eval = this.cache.get( key );
             if ( eval == null ) {
                 long[] params = TimeIntervalParser.parse( parameterText );
-                eval = new AnnIncludesEvaluator( type,
+                eval = new AnnOveralapsEvaluator( type,
                         isNegated,
                         params,
                         parameterText );
@@ -113,16 +114,15 @@ public class AnnIncludesOperator extends TestSetup {
 
 
     /**
-     * Implements the 'includes' evaluator itself
+     * Implements the 'overlaps' evaluator itself
      */
-    public static class AnnIncludesEvaluator extends BaseEvaluator {
+    public static class AnnOveralapsEvaluator extends BaseEvaluator {
 
-        private long              startMinDev, startMaxDev;
-        private long              endMinDev, endMaxDev;
+    	private long              minDev, maxDev;
         private String            paramText;
 
         {
-            AnnIncludesEvaluatorDefinition.init();
+            AnnStartsAfterEvaluatorDefinition.init();
         }
 
 
@@ -144,29 +144,27 @@ public class AnnIncludesOperator extends TestSetup {
             }
         }
 
-        public AnnIncludesEvaluator() {
+        public AnnOveralapsEvaluator() {
         }
 
-        public AnnIncludesEvaluator(final ValueType type, final boolean isNegated, final long[] parameters, final String paramText) {
-            super( type, isNegated ? AnnIncludesEvaluatorDefinition.INCLUDES_NOT : AnnIncludesEvaluatorDefinition.INCLUDES );
+        public AnnOveralapsEvaluator(final ValueType type, final boolean isNegated, final long[] parameters, final String paramText) {
+            super( type, isNegated ? AnnStartsAfterEvaluatorDefinition.STARTS_AFTER_NOT : AnnStartsAfterEvaluatorDefinition.STARTS_AFTER );
             this.paramText = paramText;
             this.setParameters( parameters );
         }
 
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             super.readExternal( in );
-            startMinDev = in.readLong();
-            startMaxDev = in.readLong();
-            endMinDev = in.readLong();
-            endMaxDev = in.readLong();
+            minDev = in.readLong();
+            maxDev = in.readLong();
+            paramText = (String) in.readObject();
         }
 
         public void writeExternal(ObjectOutput out) throws IOException {
             super.writeExternal( out );
-            out.writeLong( startMinDev );
-            out.writeLong( startMaxDev );
-            out.writeLong( endMinDev );
-            out.writeLong( endMaxDev );
+            out.writeLong( minDev );
+            out.writeLong( maxDev );
+            out.writeObject( paramText );
         }
 
         @Override
@@ -185,7 +183,7 @@ public class AnnIncludesOperator extends TestSetup {
         @Override
         public boolean evaluate(InternalWorkingMemory workingMemory, final InternalReadAccessor extractor,
                                 final InternalFactHandle object1, final FieldValue object2) {
-            throw new RuntimeException( "The 'includes' operator can only be used to compare one event to another, and never to compare to literal constraints." );
+            throw new RuntimeException( "The 'overlaps' operator can only be used to compare one event to another, and never to compare to literal constraints." );
         }
 
         @Override
@@ -208,11 +206,10 @@ public class AnnIncludesOperator extends TestSetup {
             TimestampPair interval1 = getTemporalInterval(cachedAssertion);
             TimestampPair interval2 = getTemporalInterval((EventFactHandle) left);
 
-            long distStart = interval2.start - interval1.start;
-            long distEnd = interval1.end - interval2.end;
+            long dist = interval1.start - interval2.start;
 
-            return this.getOperator().isNegated() ^ (distStart >= this.startMinDev && distStart <= this.startMaxDev
-                    && distEnd >= this.endMinDev && distEnd <= this.endMaxDev);
+            return this.getOperator().isNegated() ^
+                    ( dist >= this.minDev && dist <= this.maxDev );
         }
 
 
@@ -236,11 +233,10 @@ public class AnnIncludesOperator extends TestSetup {
             TimestampPair interval1 = getTemporalInterval((EventFactHandle) right);
             TimestampPair interval2 = getTemporalInterval(cachedAssertion);
 
-            long distStart = interval2.start - interval1.start;
-            long distEnd = interval1.end - interval2.end;
+            long dist = interval1.start - interval2.start;
 
-            return this.getOperator().isNegated() ^ (distStart >= this.startMinDev && distStart <= this.startMaxDev
-                    && distEnd >= this.endMinDev && distEnd <= this.endMaxDev);
+            return this.getOperator().isNegated() ^
+                    ( dist >= this.minDev && dist <= this.maxDev );
         }
 
 
@@ -256,14 +252,13 @@ public class AnnIncludesOperator extends TestSetup {
             }
 
             // if both events are non-null, retrieve the TimestampPairs
-            TimestampPair interval1 = getTemporalInterval((EventFactHandle)handle1);
-            TimestampPair interval2 = getTemporalInterval((EventFactHandle)handle2);
+            TimestampPair interval1 = getTemporalInterval(handle1);
+            TimestampPair interval2 = getTemporalInterval(handle2);
 
-            long distStart = interval2.start - interval1.start;
-            long distEnd = interval1.end - interval2.end;
+            long dist = interval1.start - interval2.start;
 
-            return this.getOperator().isNegated() ^ (distStart >= this.startMinDev
-                    && distStart <= this.startMaxDev && distEnd >= this.endMinDev && distEnd <= this.endMaxDev);
+            return this.getOperator().isNegated() ^
+                    ( dist >= this.minDev && dist <= this.maxDev );
         }
 
 
@@ -281,19 +276,30 @@ public class AnnIncludesOperator extends TestSetup {
             return new TimestampPair(start, end);
         }
 
-        private TimestampPair getTemporalInterval(EventFactHandle handle) {
-            if (handle.getObject() instanceof ContextAssertion) {
-                ContextAssertion assertion = (ContextAssertion)handle.getObject();
+        private TimestampPair getTemporalInterval(InternalFactHandle handle) {
+        	if (handle instanceof EventFactHandle) {
+        		EventFactHandle factHandle = (EventFactHandle)handle;
+        		
+        		if (factHandle.getObject() instanceof ContextAssertion) {
+                    ContextAssertion assertion = (ContextAssertion)factHandle.getObject();
+                    return getTemporalInterval(assertion);
+                }
+                else {
+                    return new TimestampPair(factHandle.getStartTimestamp(), factHandle.getEndTimestamp());
+                }
+        	}
+        	else {
+        		// it should be a DefaultFactHandle and the object should be a ContextAssertion
+        		DefaultFactHandle factHandle = (DefaultFactHandle)handle;
+        		ContextAssertion assertion = (ContextAssertion)factHandle.getObject();
                 return getTemporalInterval(assertion);
-            }
-            else {
-                return new TimestampPair(handle.getStartTimestamp(), handle.getEndTimestamp());
-            }
+        	}
+            
         }
 
 
         public String toString() {
-            return "annIncludes[" + startMinDev + ", " + startMaxDev + ", " + endMinDev + ", " + endMaxDev + "]";
+            return "annStartsAfter[" + ( ( paramText != null ) ? paramText : "" ) + "]";
         }
 
         /* (non-Javadoc)
@@ -303,10 +309,8 @@ public class AnnIncludesOperator extends TestSetup {
         public int hashCode() {
             final int PRIME = 31;
             int result = super.hashCode();
-            result = PRIME * result + (int) (endMaxDev ^ (endMaxDev >>> 32));
-            result = PRIME * result + (int) (endMinDev ^ (endMinDev >>> 32));
-            result = PRIME * result + (int) (startMaxDev ^ (startMaxDev >>> 32));
-            result = PRIME * result + (int) (startMinDev ^ (startMinDev >>> 32));
+            result = PRIME * result + (int) (maxDev ^ (maxDev >>> 32));
+            result = PRIME * result + (int) (minDev ^ (minDev >>> 32));
             return result;
         }
 
@@ -318,8 +322,8 @@ public class AnnIncludesOperator extends TestSetup {
             if ( this == obj ) return true;
             if ( !super.equals( obj ) ) return false;
             if ( getClass() != obj.getClass() ) return false;
-            final AnnIncludesEvaluator other = (AnnIncludesEvaluator) obj;
-            return endMaxDev == other.endMaxDev && endMinDev == other.endMinDev && startMaxDev == other.startMaxDev && startMinDev == other.startMinDev;
+            final AnnOveralapsEvaluator other = (AnnOveralapsEvaluator) obj;
+            return maxDev == other.maxDev && minDev == other.minDev ;
         }
 
         /**
@@ -330,30 +334,18 @@ public class AnnIncludesOperator extends TestSetup {
         private void setParameters(long[] parameters) {
             if ( parameters == null || parameters.length == 0 ) {
                 // open bounded range
-                this.startMinDev = 0;
-                this.startMaxDev = Long.MAX_VALUE;
-                this.endMinDev = 0;
-                this.endMaxDev = Long.MAX_VALUE;
+                this.minDev = 0;
+                this.maxDev = Long.MAX_VALUE;
             } else if ( parameters.length == 1 ) {
                 // open bounded ranges
-                this.startMinDev = 0;
-                this.startMaxDev = parameters[0];
-                this.endMinDev = 0;
-                this.endMaxDev = parameters[0];
+                this.minDev = 0;
+                this.maxDev = parameters[0];
             } else if ( parameters.length == 2 ) {
                 // open bounded ranges
-                this.startMinDev = parameters[0];
-                this.startMaxDev = parameters[1];
-                this.endMinDev = parameters[0];
-                this.endMaxDev = parameters[1];
-            } else if ( parameters.length == 4 ) {
-                // open bounded ranges
-                this.startMinDev = parameters[0];
-                this.startMaxDev = parameters[1];
-                this.endMinDev = parameters[2];
-                this.endMaxDev = parameters[3];
+                this.minDev = parameters[0];
+                this.maxDev = parameters[1];
             } else {
-                throw new RuntimeException( "[During Evaluator]: Not possible to use " + parameters.length + " parameters: '" + paramText + "'" );
+                throw new RuntimeException( "[Overlaps Evaluator]: Not possible to use " + parameters.length + " parameters: '" + paramText + "'" );
             }
         }
 

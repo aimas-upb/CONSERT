@@ -8,8 +8,9 @@ import java.util.TreeSet;
 
 import org.aimas.consert.model.content.ContextAssertion;
 import org.aimas.consert.model.content.ContextAssertionContent;
+import org.aimas.consert.model.content.TemporalEntity;
 
-public class EventWindow implements Comparator<EventWindow> {
+public class EventWindow implements Comparator<EventWindow>, TemporalEntity {
 	
 	private static class AssertionTimestampComparator implements Comparator<ContextAssertion> {
 		@Override
@@ -181,19 +182,18 @@ public class EventWindow implements Comparator<EventWindow> {
 	 * Gets the start of the event window as the timestamp of the first assertion supporting the {@link possibleAssertion}
 	 * @return The timestamp of the first supporting assertion in the window, or -1 if the window is empty
 	 */
-	public double getWindowStart() {
+	public long getWindowStart() {
 		if (!supportingAssertions.isEmpty())
 			return supportingAssertions.first().getAnnotations().getTimestamp();
 		
 		return -1;
-			
 	}
 	
 	/**
 	 * Gets the start of the event window as the timestamp of the last assertion supporting the {@link possibleAssertion}
 	 * @return The timestamp of the last supporting assertion in the window, or -1 if the window is empty
 	 */
-	public double getWindowEnd() {
+	public long getWindowEnd() {
 		if (!supportingAssertions.isEmpty())
 			return supportingAssertions.last().getAnnotations().getTimestamp();
 		
@@ -269,8 +269,51 @@ public class EventWindow implements Comparator<EventWindow> {
 
 	@Override
 	public String toString() {
-		return "EventWindow [possibleAssertion=" + possibleAssertion + ", maxSupportingAssertions=" + maxSupportingAssertions + ", maxDuration=" + maxDuration + 
-				", supportingAssertions=" + supportingAssertions + "]";
+		return "EventWindow ["
+				+ "\t" + "possibleAssertion=" + possibleAssertion + ",\n" 
+				+ "\t" + "start=" + (long)getWindowStart() + ", end= " + (long)getWindowEnd() + ",\n"
+				+ "\t" + "maxSupportingAssertions=" + maxSupportingAssertions + ", maxDuration=" + maxDuration + ",\n"
+				+ "\t" + "supportingAssertions=" + supportingAssertions + "] \n";
+	}
+
+	@Override
+	public long getStart() {
+		return getWindowStart();
+	}
+
+	@Override
+	public long getEnd() {
+		return getWindowEnd();
+	}
+
+	@Override
+	public long getDuration() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean isSinglePoint() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasUpperBound() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasLowerBound() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isInfinite() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	
