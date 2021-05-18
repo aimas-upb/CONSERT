@@ -108,7 +108,7 @@ public class ConsertModelSerializer {
 		else {
 			for (consert.ContextAnnotation ann : rosMessages) {
 				if (ann.getType().equals(DefaultAnnotationData.TIMESTAMP_TYPE)) {
-					annData.setTimestamp(Double.parseDouble(ann.getValue()));
+					annData.setTimestamp(Long.parseLong(ann.getValue()));
 				}
 				else if (ann.getType().equals(DefaultAnnotationData.CERTAINTY_TYPE)) {
 					annData.setConfidence(Double.parseDouble(ann.getValue()));
