@@ -18,7 +18,7 @@ import org.aimas.consert.model.operators.AnnStartsAfterOperator;
 import org.aimas.consert.tests.casas.CASASEventReader;
 import org.aimas.consert.tests.casas.CASASInterweavedExporter;
 import org.aimas.consert.tests.casas.CASASSimClockEventInserter;
-import org.aimas.consert.tests.casas.EventReader;
+import org.aimas.consert.tests.utils.EventReader;
 import org.aimas.consert.utils.AssertionLogger;
 import org.aimas.consert.utils.TestSetup;
 import org.apache.log4j.Logger;
