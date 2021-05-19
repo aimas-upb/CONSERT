@@ -28,22 +28,32 @@ public class EventTracker extends BaseEventTracker {
     
     private EventWindowManager eventWindowManager;
     
+    private ChangePointManager changePointManager;
     
-	public EventTracker(KieSession kSession) {
+    
+	public EventTracker(KieSession kSession, int changePointQueueSize) {
 		super(kSession);
 		
 		// initialize EventWindowManager, continuity and constraint checkers, as well as constraint resolution handlers
 		eventWindowManager = new EventWindowManager(this, kSession);
 		
+		// initialize the changePointManager
+		changePointManager = new ChangePointManager(this, changePointQueueSize);
+		
 		continuityChecker = new ContinuityChecker(this);
 		constraintChecker = new ConstraintChecker(this);
 		constraintResolutionHandler = new ConstraintResolutionHandler(this);
 		
-		// set global access for the Event Tracker and the Event Window Manager
+		// set global access for the Event Tracker, the Event Window Manager and the ChangePoint Manager
 		kSession.setGlobal("eventTracker", this);
 		kSession.setGlobal("eventWindowManager", eventWindowManager);
+		kSession.setGlobal("changePointManager", changePointManager);
 	}
-
+	
+	public EventTracker(KieSession kSession) {
+		this(kSession, ChangePointManager.DEFAULT_MAX_CP);
+	}
+	
 
 	/**
 	 * Insert an EntityDescription (a fact)

@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import org.aimas.consert.engine.api.ChangePointListener;
+import org.aimas.consert.engine.api.ChangePointListenerRegistrer;
+import org.aimas.consert.engine.api.ChangePointNotifier;
 import org.aimas.consert.engine.api.ContextAssertionListener;
 import org.aimas.consert.engine.api.ContextAssertionListenerRegistrer;
 import org.aimas.consert.engine.api.ContextAssertionNotifier;
@@ -28,7 +31,8 @@ import org.kie.api.runtime.KieSession;
 
 public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 		ContextAssertionListenerRegistrer, EntityDescriptionListenerRegistrer, 
-		EventWindowListenerRegistrer, EventWindowListener {
+		EventWindowListenerRegistrer, EventWindowListener,
+		ChangePointListenerRegistrer, ChangePointListener {
 	
 	protected KieSession kSession;
     protected TrackedAssertionStore trackedAssertionStore;
@@ -39,7 +43,7 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 	protected ContextAssertionNotifier eventNotifier = ContextAssertionNotifier.getNewInstance();
 	protected EntityDescriptionNotifier factNotifier = EntityDescriptionNotifier.getNewInstance();
 	protected EventWindowNotifier eventWindowNotifier = EventWindowNotifier.getNewInstance();
-	
+	protected ChangePointNotifier changePointNotifier = ChangePointNotifier.getNewInstance();
 	
 	// general rule execution logger
 	protected Logger generalRuleLogger;
@@ -166,6 +170,21 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 		eventWindowNotifier.notifyEventWindowSubmitted(eventWindow);
 	}
 	
+	@Override
+	public void addChangePointListener(ChangePointListener changePointListener) {
+		changePointNotifier.addChangePointListener(changePointListener);
+	}
+
+	@Override
+	public void removeChangePointListener(ChangePointListener changePointListener) {
+		changePointNotifier.removeChangePointListener(changePointListener);
+	}
+	
+	@Override
+	public void notifyChangePointAdded(ContextAssertion assertion) {
+		changePointNotifier.notifyChangePointAdded(assertion);
+	}
+	
 	
 	public abstract void insertStaticEvent(EntityDescription entityDescription);
 	
@@ -178,4 +197,5 @@ public abstract class BaseEventTracker implements RuleRuntimeEventListener,
 	public abstract void insertDerivedEvent(ContextAssertion event);
 	
 	public abstract void insertEvent(ContextAssertion event);
+
 }
