@@ -1,0 +1,45 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS HH events
+import org.aimas.consert.tests.hhcpd.assertions.Motion
+import org.aimas.consert.tests.hhcpd.assertions.Cabinet
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+
+import org.aimas.consert.engine.core.EventTracker
+import org.apache.log4j.Logger
+
+global EventTracker eventTracker;
+global Logger generalRuleLogger;
+
+declare Motion
+    @role(event)
+    //@expires(1m)
+    //@timestamp(startTimestamp)
+    //@duration(eventDuration)
+end
+
+declare Cabinet
+    @role(event)
+end
+
+
+// =========== BaseEvent insert rules - needed to create the event streams
+rule "MotionInsertTest"
+    when
+        $motion : Motion(id : sensorId, status : status, location: location, eventId: eventId) from entry-point "MotionStream" 
+    then
+        generalRuleLogger.info("Inserted MOTION event with sensorId: " + id + ", status: " + status + "location: " 
+        + location + "eventId: " + eventId + " , timestamp: " + (long)$motion.getStartTimestamp());
+end
+
+
+rule "CabinetInsertTest"
+    when
+        $cabinet : Cabinet(id : sensorId, status : status, location: location, eventId: eventId) from entry-point "CabinetStream" 
+    then
+        generalRuleLogger.info("Inserted CABINET event with sensorId: " + id + ", status: " + status + "location: " 
+        + location + "eventId: " + eventId + " , timestamp: " + (long)$motion.getStartTimestamp());
+end

@@ -1,0 +1,40 @@
+package org.aimas.consert
+
+// Declare Metadata for CASAS events
+import org.aimas.consert.tests.casas.assertions.Item
+import org.aimas.consert.tests.casas.assertions.Cabinet
+import org.aimas.consert.tests.casas.assertions.Water
+import org.aimas.consert.tests.casas.assertions.Burner
+import org.aimas.consert.tests.casas.assertions.PersonLocation
+
+
+import org.aimas.consert.model.annotations.AnnotationData
+import org.aimas.consert.model.annotations.DefaultAnnotationData
+import org.aimas.consert.model.annotations.AnnotationUtils
+import org.aimas.consert.model.content.ContextAssertionContent
+
+
+import org.aimas.consert.tests.casas.entitydescriptions.ActivityTriggered
+
+import org.aimas.consert.engine.core.EventTracker
+import org.apache.log4j.Logger
+
+import java.lang.Math;
+import java.util.Date;
+
+global EventTracker eventTracker;
+global EventWindowManager eventWindowManager;
+global Logger eventWindowLogger;
+
+
+
+rule "Possible CPD for Leaving Home"
+    salience 10
+    when
+        // conditions
+    then
+        // insert in CPD Manager
+        
+        // start event windows for Cleaning and WaterPlants
+        eventWindowManager.newWindow(possibleCleaningAssertion, 30, 20000, $trigger);
+end
