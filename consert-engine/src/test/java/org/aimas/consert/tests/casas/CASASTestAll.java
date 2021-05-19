@@ -15,6 +15,7 @@ import org.aimas.consert.model.operators.AnnOverlappedByOperator;
 import org.aimas.consert.model.operators.AnnOverlapsOperator;
 import org.aimas.consert.model.operators.AnnStartsAfterOperator;
 import org.aimas.consert.tests.casas.utils.*;
+import org.aimas.consert.tests.utils.EventReader;
 import org.aimas.consert.utils.TestSetup;
 import org.drools.core.time.SessionPseudoClock;
 import org.kie.api.KieServices;

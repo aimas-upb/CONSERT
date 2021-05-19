@@ -18,6 +18,7 @@ import org.aimas.consert.tests.casas.assertions.Motion;
 import org.aimas.consert.tests.casas.assertions.Phone;
 import org.aimas.consert.tests.casas.assertions.Temperature;
 import org.aimas.consert.tests.casas.assertions.Water;
+import org.aimas.consert.tests.utils.EventReader;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;

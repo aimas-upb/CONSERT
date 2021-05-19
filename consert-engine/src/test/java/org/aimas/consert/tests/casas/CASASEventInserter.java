@@ -17,6 +17,7 @@ import org.aimas.consert.model.content.ContextAssertion.AcquisitionType;
 import org.aimas.consert.tests.casas.assertions.Cabinet;
 import org.aimas.consert.tests.casas.assertions.Item;
 import org.aimas.consert.tests.casas.assertions.Phone;
+import org.aimas.consert.tests.utils.EventReader;
 
 public class CASASEventInserter {
 	

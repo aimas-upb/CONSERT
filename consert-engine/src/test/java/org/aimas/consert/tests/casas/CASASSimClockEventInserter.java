@@ -19,6 +19,7 @@ import org.aimas.consert.model.content.ContextAssertion.AcquisitionType;
 import org.aimas.consert.tests.casas.assertions.Cabinet;
 import org.aimas.consert.tests.casas.assertions.Item;
 import org.aimas.consert.tests.casas.assertions.Phone;
+import org.aimas.consert.tests.utils.EventReader;
 import org.drools.core.time.SessionPseudoClock;
 import org.kie.api.runtime.KieSession;
 

@@ -24,6 +24,7 @@ import org.aimas.consert.tests.casas.assertions.Cooking;
 import org.aimas.consert.tests.casas.assertions.Eating;
 import org.aimas.consert.tests.casas.assertions.Item;
 import org.aimas.consert.tests.casas.assertions.PersonLocation;
+import org.aimas.consert.tests.utils.EventReader;
 import org.aimas.consert.utils.AssertionLogger;
 import org.aimas.consert.utils.TestSetup;
 import org.apache.log4j.Logger;
