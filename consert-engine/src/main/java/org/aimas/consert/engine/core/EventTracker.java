@@ -44,7 +44,7 @@ public class EventTracker extends BaseEventTracker {
 		constraintChecker = new ConstraintChecker(this);
 		constraintResolutionHandler = new ConstraintResolutionHandler(this);
 		
-		// set global access for the Event Tracker, the Event Window Manager and the ChangePoint Manager
+		// set global access for the Event Tracker, the Event Window Manager and the ChangePoint Managerqq
 		kSession.setGlobal("eventTracker", this);
 		kSession.setGlobal("eventWindowManager", eventWindowManager);
 		kSession.setGlobal("changePointManager", changePointManager);

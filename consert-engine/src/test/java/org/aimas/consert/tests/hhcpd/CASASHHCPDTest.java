@@ -37,16 +37,16 @@ import org.kie.internal.builder.conf.EvaluatorOption;
 public class CASASHHCPDTest extends TestSetup implements ChangePointListener {
 
 
-	public static final String APPARTMENT = "p20";
-	public static final String TEST_FILE = "files/casas_hh/" + APPARTMENT + ".json";
-	public static final String VALID_FILE = "files/casas_hh/" + APPARTMENT + "_activity_intervals" + ".json";
+	public static final String EVENT_SRC = "hh103-two-days.txt";
+	public static final String TEST_FILE = "files/casas_hh/" + EVENT_SRC+ ".json";
+	public static final String VALID_FILE = "files/casas_hh/" + EVENT_SRC + "_activity_intervals" + ".json";
 
 	public static void main(String[] args) {
 		
 		CASASHHCPDTest cpdTest = new CASASHHCPDTest();
 		
     	try {
-	    	cpdTest.runEvents(TEST_FILE, APPARTMENT);
+	    	cpdTest.runEvents(TEST_FILE, EVENT_SRC);
     	}
     	catch(Exception ex) {
     		ex.printStackTrace();
@@ -66,7 +66,7 @@ public class CASASHHCPDTest extends TestSetup implements ChangePointListener {
 		logger.info("[CPD] ChangePoint added: " + assertion);
 	}
 	
-	void runEvents(String filepath, String person) throws Exception {
+	void runEvents(String filepath, String eventSrc) throws Exception {
 		System.out.println("RUNNING EVENTS FOR file: " + filepath);
 
 		// set up logging
@@ -75,8 +75,8 @@ public class CASASHHCPDTest extends TestSetup implements ChangePointListener {
 		props.load(new FileInputStream(logConfigFile));
 		PropertyConfigurator.configure(props);
 		
-		logger = Logger.getLogger("assertionLogger");
-		AssertionLogger assertionLogger = new AssertionLogger(logger);
+		logger = Logger.getLogger("generalRuleLogger");
+		// AssertionLogger assertionLogger = new AssertionLogger(logger);
 
 		// create a new knowledge builder conf
 		KnowledgeBuilderConfiguration builderConf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
@@ -97,7 +97,7 @@ public class CASASHHCPDTest extends TestSetup implements ChangePointListener {
 				//,"casas_hh_cpd_rules/HH_leave_home_event.drl"
         );
 
-		kSession.setGlobal("assertionLogger", assertionLogger);
+		//kSession.setGlobal("generalRuleLogger", logger);
 
 		// set up engine runner thread and event inserter
     	Thread engineRunner = new Thread(new EngineRunner(kSession));

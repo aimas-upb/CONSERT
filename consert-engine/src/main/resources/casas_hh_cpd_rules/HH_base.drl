@@ -9,10 +9,15 @@ import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
 import org.aimas.consert.engine.core.EventTracker
+import org.aimas.consert.engine.core.EventWindowManager
+import org.aimas.consert.engine.core.ChangePointManager
 import org.apache.log4j.Logger
 
 global EventTracker eventTracker;
 global Logger generalRuleLogger;
+global Logger eventWindowLogger;
+global EventWindowManager eventWindowManager;
+global ChangePointManager changePointManager;
 
 declare Motion
     @role(event)
@@ -41,5 +46,5 @@ rule "CabinetInsertTest"
         $cabinet : Cabinet(id : sensorId, status : status, location: location, eventId: eventId) from entry-point "CabinetStream" 
     then
         generalRuleLogger.info("Inserted CABINET event with sensorId: " + id + ", status: " + status + "location: " 
-        + location + "eventId: " + eventId + " , timestamp: " + (long)$motion.getStartTimestamp());
+        + location + "eventId: " + eventId + " , timestamp: " + (long)$cabinet.getStartTimestamp());
 end

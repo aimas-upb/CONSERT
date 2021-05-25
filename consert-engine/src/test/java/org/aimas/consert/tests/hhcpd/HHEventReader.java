@@ -36,21 +36,19 @@ public class HHEventReader implements EventReader {
         Queue<Object> eventList = new LinkedList<Object>();
 
         try {
-            final InputStream in = new FileInputStream(inputFile);
-            ObjectMapper mapper =  new ObjectMapper();
-
-            final JsonNode eventListNode = mapper.readTree(in);
-
-            for (JsonNode eventNode : eventListNode) {
-                JsonNode eventDataNode = eventNode.get("event");
-                String nodeType = eventDataNode.get("event_type").textValue();
-                JsonNode eventInfoNode = eventDataNode.get("event_info");
-                
-                Class<? extends ContextAssertion> assertionClass = eventClassMapping.get(nodeType);
-                ContextAssertion assertion = mapper.treeToValue(eventInfoNode, assertionClass);
-                
-                eventList.offer(assertion);
-            }
+        	final InputStream in = new FileInputStream(inputFile);
+        	ObjectMapper mapper = new ObjectMapper();
+        	
+        	final JsonNode eventListNode = mapper.readTree(in);
+        	
+        	for (JsonNode eventNode : eventListNode) {
+        	    JsonNode eventDataNode = eventNode.get("event");
+        	    String nodeType = eventDataNode.get("eventType").textValue();
+        	    JsonNode eventInfoNode = eventDataNode.get("eventInfo");
+        	    Class<? extends ContextAssertion> assertionClass = eventClassMapping.get(nodeType);
+        	    ContextAssertion assertion = mapper.treeToValue(eventInfoNode, assertionClass);
+        	    eventList.offer(assertion);
+        	}
 
         } catch(FileNotFoundException e) {
             e.printStackTrace();

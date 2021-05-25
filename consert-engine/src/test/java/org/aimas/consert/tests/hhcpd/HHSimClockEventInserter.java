@@ -131,8 +131,10 @@ public class HHSimClockEventInserter {
 				long delay = (long)(nextEvent.getStartTimestamp() - prevEventTimestamp);
 				
 				if (delay >= EVENT_DIFF_DEFAULT) {
-					clock.advanceTime(EVENT_DIFF_DEFAULT, TimeUnit.MILLISECONDS);
-					prevEventTimestamp += EVENT_DIFF_DEFAULT;
+					//clock.advanceTime(EVENT_DIFF_DEFAULT, TimeUnit.MILLISECONDS);
+					clock.advanceTime(delay, TimeUnit.MILLISECONDS);
+					//prevEventTimestamp += EVENT_DIFF_DEFAULT;
+					prevEventTimestamp += delay;
 					
 					readerService.schedule(new EventReadTask(), 1, TimeUnit.MILLISECONDS);
 				}
@@ -148,8 +150,10 @@ public class HHSimClockEventInserter {
 				long eventTimestampDiff = ts - prevEventTimestamp; 
 				
 				if (eventTimestampDiff >= EVENT_DIFF_DEFAULT) {
-					clock.advanceTime(EVENT_DIFF_DEFAULT, TimeUnit.MILLISECONDS);
-					prevEventTimestamp += EVENT_DIFF_DEFAULT;
+					//clock.advanceTime(EVENT_DIFF_DEFAULT, TimeUnit.MILLISECONDS);
+					clock.advanceTime(eventTimestampDiff, TimeUnit.MILLISECONDS);
+					//prevEventTimestamp += EVENT_DIFF_DEFAULT;
+					prevEventTimestamp += eventTimestampDiff;
 					
 					readerService.schedule(new EventReadTask(), 1, TimeUnit.MILLISECONDS);
 				}
@@ -171,8 +175,10 @@ public class HHSimClockEventInserter {
 							//System.out.println("Next Event due in " + delay + " ms");
 							
 							if (delay >= EVENT_DIFF_DEFAULT) {
-								clock.advanceTime(EVENT_DIFF_DEFAULT, TimeUnit.MILLISECONDS);
-								prevEventTimestamp += EVENT_DIFF_DEFAULT;
+								//clock.advanceTime(EVENT_DIFF_DEFAULT, TimeUnit.MILLISECONDS);
+								clock.advanceTime(delay, TimeUnit.MILLISECONDS);
+								//prevEventTimestamp += EVENT_DIFF_DEFAULT;
+								prevEventTimestamp += delay;
 								
 								readerService.schedule(new EventReadTask(), 1, TimeUnit.MILLISECONDS);
 							}
