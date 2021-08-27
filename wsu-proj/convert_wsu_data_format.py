@@ -70,10 +70,10 @@ def convert_file(input_file_path: str, output_file_path: str,
             if not sensor_semantics:
                 sensor_semantics = extract_sensor_type(sensor_id)
 
-            activity_id = "Other"
+            activity_id = "Other_Activity"
             if len(tokens) == 4 and current_activity_id:
                 activity_id = current_activity_id
-            elif len(tokens) == 5:
+            elif len(tokens) >= 5:
                 if "=" in tokens[4]:
                     activity_data = tokens[4].split("=")
                     activity_id = activity_data[0]
@@ -85,7 +85,7 @@ def convert_file(input_file_path: str, output_file_path: str,
                     current_activity_id = tokens[4]
                     activity_id = tokens[4]
 
-            out_str = " ".join([timestamp, sensor_semantics, sensor_id, sensor_val, activity_id, "\n"])
+            out_str = " ".join([timestamp, sensor_semantics, sensor_id, sensor_val, activity_id, os.linesep])
             output_file.write(out_str)
 
 
