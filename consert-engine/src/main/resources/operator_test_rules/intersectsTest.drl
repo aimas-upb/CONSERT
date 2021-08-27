@@ -13,8 +13,15 @@ import org.aimas.consert.model.annotations.DefaultAnnotationData
 import org.aimas.consert.model.annotations.AnnotationUtils
 
 import org.aimas.consert.engine.core.EventTracker
+import org.apache.log4j.Logger
+import org.aimas.consert.engine.core.EventWindowManager
+import org.aimas.consert.engine.core.ChangePointManager
 
 global EventTracker eventTracker;
+global Logger generalRuleLogger;
+global Logger eventWindowLogger;
+global EventWindowManager eventWindowManager;
+global ChangePointManager changePointManager
 
 // ============ Declare Position metadata
 declare Position

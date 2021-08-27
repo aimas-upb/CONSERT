@@ -6,6 +6,13 @@ import java.util.List;
 
 import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.annotations.DefaultAnnotationData;
+import org.aimas.consert.model.operators.AnnAfterOperator;
+import org.aimas.consert.model.operators.AnnBeforeOperator;
+import org.aimas.consert.model.operators.AnnIncludesOperator;
+import org.aimas.consert.model.operators.AnnIntersectsOperator;
+import org.aimas.consert.model.operators.AnnOverlappedByOperator;
+import org.aimas.consert.model.operators.AnnOverlapsOperator;
+import org.aimas.consert.model.operators.AnnStartsAfterOperator;
 import org.aimas.consert.model.operators.AnnIncludesOperator.AnnIncludesEvaluatorDefinition;
 import org.aimas.consert.tests.hla.assertions.Position;
 import org.aimas.consert.tests.hla.assertions.SittingLLA;
@@ -28,10 +35,16 @@ public class AnnIncludesOperatorTest extends TestSetup {
     public void testAnnIncludesOperator() {
     	// setup KnowledgeBuilderConfiguration to add operator
 		KnowledgeBuilderConfiguration builderConf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
-        builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annOverlaps", new AnnOverlapsOperator.AnnOverlapsEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annOverlappedBy", new AnnOverlappedByOperator.AnnOverlappedByEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annHappensBefore", new AnnBeforeOperator.AnnBeforeEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annHappensAfter", new AnnAfterOperator.AnnAfterEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesOperator.AnnIncludesEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annIntersects", new AnnIntersectsOperator.AnnIntersectsEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annStartsAfter", new AnnStartsAfterOperator.AnnStartsAfterEvaluatorDefinition()));
         
 		// setup KieSession
-		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/includesTest.drl" );
+		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/includesTest.drl", "casas_interwoven_constraints/PersonLocation_constraints.drl" );
 		EventTracker eventTracker = new EventTracker(kSession);
 		TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
 		kSession.addEventListener(agendaEvListener);
@@ -75,10 +88,16 @@ public class AnnIncludesOperatorTest extends TestSetup {
     public void testNotAnnIncludesOperator() {
     	// setup KnowledgeBuilderConfiguration to add operator
 		KnowledgeBuilderConfiguration builderConf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
-        builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annOverlaps", new AnnOverlapsOperator.AnnOverlapsEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annOverlappedBy", new AnnOverlappedByOperator.AnnOverlappedByEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annHappensBefore", new AnnBeforeOperator.AnnBeforeEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annHappensAfter", new AnnAfterOperator.AnnAfterEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annIncludes", new AnnIncludesOperator.AnnIncludesEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annIntersects", new AnnIntersectsOperator.AnnIntersectsEvaluatorDefinition()));
+		builderConf.setOption(EvaluatorOption.get("annStartsAfter", new AnnStartsAfterOperator.AnnStartsAfterEvaluatorDefinition()));
         
 		// setup KieSession
-		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/includesTest.drl" );
+		KieSession kSession = getKieSessionFromResources(builderConf, null, "operator_test_rules/includesTest.drl", "casas_interwoven_constraints/PersonLocation_constraints.drl" );
 		EventTracker eventTracker = new EventTracker(kSession);
 		TrackingAgendaEventListener agendaEvListener = new TrackingAgendaEventListener();
 		kSession.addEventListener(agendaEvListener);

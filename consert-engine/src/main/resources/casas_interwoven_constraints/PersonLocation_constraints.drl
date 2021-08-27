@@ -3,10 +3,18 @@ package org.aimas.consert.casas_interwoven_constraints;
 
 import org.aimas.consert.model.constraint.UniquenessConstraintViolation
 import org.aimas.consert.tests.casas.assertions.PersonLocation
-import org.aimas.consert.engine.core.EventTracker;
 import org.aimas.consert.model.content.ContextAssertion;
 
-global EventTracker eventTracker;
+import org.aimas.consert.engine.core.EventTracker
+import org.apache.log4j.Logger
+import org.aimas.consert.engine.core.EventWindowManager
+import org.aimas.consert.engine.core.ChangePointManager
+
+global EventTracker eventTracker
+global Logger generalRuleLogger
+global Logger eventWindowLogger
+global EventWindowManager eventWindowManager
+global ChangePointManager changePointManager
 
 query "PersonLocation_overlaps_constraint" (PersonLocation locationAssertion)
     @constraintType("uniqueness")

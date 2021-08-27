@@ -25,7 +25,7 @@ public class AccumulateTestRunner extends TestSetup {
 //		    KieContainer kContainer = ks.getKieClasspathContainer();
 //	    	KieSession kSession = kContainer.newKieSession("ksession-rules", config);
 
-    		KieSession kSession = getKieSessionFromResources( "accumulate_test_rules/accumulateTest.drl" );
+    		KieSession kSession = getKieSessionFromResources( "accumulate_test_rules/accumulateTest.drl", "casas_interwoven_constraints/PersonLocation_constraints.drl" );
             final List<Long> results = new ArrayList<Long>();
 
             kSession.setGlobal( "results", results );
